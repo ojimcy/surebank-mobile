@@ -1,0 +1,126 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { StackScreenProps } from '@react-navigation/stack';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+
+// Auth Stack
+export type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: { token: string };
+  Welcome: undefined;
+};
+
+// Main Tab Navigator
+export type MainTabParamList = {
+  DashboardTab: NavigatorScreenParams<DashboardStackParamList>;
+  TradingTab: NavigatorScreenParams<TradingStackParamList>;
+  PortfolioTab: NavigatorScreenParams<PortfolioStackParamList>;
+  HistoryTab: NavigatorScreenParams<HistoryStackParamList>;
+  SettingsTab: NavigatorScreenParams<SettingsStackParamList>;
+};
+
+// Dashboard Stack
+export type DashboardStackParamList = {
+  Dashboard: undefined;
+  Overview: undefined;
+  Analytics: undefined;
+  Notifications: undefined;
+  MarketOverview: undefined;
+};
+
+// Trading Stack
+export type TradingStackParamList = {
+  TradingHome: undefined;
+  BotManagement: undefined;
+  CreateBot: undefined;
+  EditBot: { botId: string };
+  BotDetails: { botId: string };
+};
+
+// Portfolio Stack
+export type PortfolioStackParamList = {
+  PortfolioHome: undefined;
+  Assets: undefined;
+  Performance: undefined;
+  Positions: undefined;
+  AssetDetails: { symbol: string };
+};
+
+// History Stack
+export type HistoryStackParamList = {
+  HistoryHome: undefined;
+  Transactions: undefined;
+  Trades: undefined;
+  Orders: undefined;
+  Reports: undefined;
+};
+
+// Settings Stack
+export type SettingsStackParamList = {
+  SettingsHome: undefined;
+  Profile: undefined;
+  Account: undefined;
+  Security: undefined;
+  Preferences: undefined;
+  ExchangeConnections: undefined;
+  Support: undefined;
+  About: undefined;
+};
+
+// Root Navigator
+export type RootStackParamList = {
+  Auth: NavigatorScreenParams<AuthStackParamList>;
+  Main: NavigatorScreenParams<MainTabParamList>;
+  Onboarding: undefined;
+  // Modal screens
+  QRScanner: undefined;
+  ImageViewer: { imageUri: string };
+};
+
+// Screen props types
+export type AuthScreenProps<Screen extends keyof AuthStackParamList> = StackScreenProps<
+  AuthStackParamList,
+  Screen
+>;
+
+export type MainTabScreenProps<Screen extends keyof MainTabParamList> = BottomTabScreenProps<
+  MainTabParamList,
+  Screen
+>;
+
+export type DashboardScreenProps<Screen extends keyof DashboardStackParamList> = StackScreenProps<
+  DashboardStackParamList,
+  Screen
+>;
+
+export type TradingScreenProps<Screen extends keyof TradingStackParamList> = StackScreenProps<
+  TradingStackParamList,
+  Screen
+>;
+
+export type PortfolioScreenProps<Screen extends keyof PortfolioStackParamList> = StackScreenProps<
+  PortfolioStackParamList,
+  Screen
+>;
+
+export type HistoryScreenProps<Screen extends keyof HistoryStackParamList> = StackScreenProps<
+  HistoryStackParamList,
+  Screen
+>;
+
+export type SettingsScreenProps<Screen extends keyof SettingsStackParamList> = StackScreenProps<
+  SettingsStackParamList,
+  Screen
+>;
+
+export type RootScreenProps<Screen extends keyof RootStackParamList> = StackScreenProps<
+  RootStackParamList,
+  Screen
+>;
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}

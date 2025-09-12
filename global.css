@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* XpatTrada Cyberpunk Finance Theme - Simplified */
+@layer base {
+  * {
+    border-color: theme('colors.border.DEFAULT');
+  }
+  
+  body {
+    background-color: theme('colors.background.DEFAULT');
+    color: theme('colors.foreground.DEFAULT');
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+@layer components {
+  /* Trading Cards */
+  .trading-card {
+    background-color: theme('colors.card.DEFAULT');
+    border: 1px solid theme('colors.border.DEFAULT');
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+
+  /* AI Bot Status */
+  .bot-active {
+    background-color: theme('colors.primary.DEFAULT');
+    color: theme('colors.primary.foreground');
+  }
+  
+  .bot-learning {
+    background-color: theme('colors.secondary.DEFAULT');
+    color: theme('colors.secondary.foreground');
+  }
+
+  /* Profit/Loss Display */
+  .profit-display {
+    color: theme('colors.success.DEFAULT');
+    font-weight: 700;
+  }
+  
+  .loss-display {
+    color: theme('colors.danger.DEFAULT');
+    font-weight: 700;
+  }
+
+  /* Premium Badge */
+  .premium-badge {
+    background-color: theme('colors.accent.DEFAULT');
+    color: theme('colors.accent.foreground');
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Background Gradients */
+  .ai-gradient {
+    background: linear-gradient(135deg, theme('colors.primary.DEFAULT') 0%, theme('colors.secondary.DEFAULT') 100%);
+  }
+  
+  .profit-gradient {
+    background: linear-gradient(135deg, theme('colors.success.DEFAULT') 0%, theme('colors.primary.DEFAULT') 100%);
+  }
+  
+  .loss-gradient {
+    background: linear-gradient(135deg, theme('colors.danger.DEFAULT') 0%, theme('colors.secondary.DEFAULT') 100%);
+  }
+}
