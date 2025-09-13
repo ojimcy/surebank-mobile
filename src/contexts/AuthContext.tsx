@@ -146,6 +146,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Load stored authentication data on app start
   const loadStoredAuthData = useCallback(async () => {
+    console.log('[AuthContext] Loading stored auth data...');
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
 
@@ -184,9 +185,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       }
     } catch (error) {
-      console.error('Failed to load stored auth data:', error);
+      console.error('[AuthContext] Failed to load stored auth data:', error);
       dispatch({ type: 'RESET_AUTH' });
     } finally {
+      console.log('[AuthContext] Auth initialization complete');
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, []);

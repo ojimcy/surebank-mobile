@@ -31,6 +31,9 @@ export const STORAGE_KEYS = {
   PUSH_NOTIFICATIONS_ENABLED: 'push_notifications_enabled',
   PIN_LENGTH: 'pin_length',
   FAILED_PIN_ATTEMPTS: 'failed_pin_attempts',
+  SESSION_START_TIME: 'session_start_time',
+  SESSION_ID: 'session_id',
+  LAST_ACTIVITY: 'last_activity',
 } as const;
 
 // Sensitive keys that should be stored in SecureStore
