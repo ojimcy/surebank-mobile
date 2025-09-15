@@ -5,7 +5,7 @@ import type { AuthStackParamList } from './types';
 
 // Import auth screens
 import OnboardingScreen from '@/screens/Auth/OnboardingScreen';
-import AuthenticationScreen from '@/screens/Auth/AuthenticationScreen';
+// import AuthenticationScreen from '@/screens/Auth/AuthenticationScreen'; // Using standalone Login/Register instead
 import VerificationScreen from '@/screens/Auth/VerificationScreen';
 import PasswordRecoveryScreen from '@/screens/Auth/PasswordRecoveryScreen';
 import PINSetupScreen from '@/screens/Auth/PINSetupScreen';
@@ -30,7 +30,7 @@ export default function AuthStack() {
       }}
     >
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Authentication" component={AuthenticationScreen} />
+      {/* <Stack.Screen name="Authentication" component={AuthenticationScreen} /> */}
       <Stack.Screen name="Verification" component={VerificationScreen} />
       <Stack.Screen name="PasswordRecovery" component={PasswordRecoveryScreen} />
       <Stack.Screen name="PINSetup" component={PINSetupScreen} />

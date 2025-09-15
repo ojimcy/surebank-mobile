@@ -12,7 +12,6 @@ import {
   Text, 
   View,
   ActivityIndicator,
-  AccessibilityRole,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -33,10 +32,10 @@ const buttonVariants = cva(
         success: 'bg-green-600 border-green-600 active:bg-green-700',
       },
       size: {
-        sm: 'px-3 py-2 h-9',
-        md: 'px-4 py-3 h-11',
-        lg: 'px-6 py-4 h-12',
-        xl: 'px-8 py-5 h-14',
+        sm: 'px-3 py-2',
+        md: 'px-4 py-3',
+        lg: 'px-6 py-4',
+        xl: 'px-8 py-5',
       },
       fullWidth: {
         true: 'w-full',
@@ -172,7 +171,7 @@ export function Button({
         }),
         className
       )}
-      accessibilityRole="button" as AccessibilityRole
+      accessibilityRole="button"
       accessibilityLabel={buttonAccessibilityLabel}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled }}

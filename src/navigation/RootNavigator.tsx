@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useAuth } from '@/contexts/AuthContext';
-import { storage, STORAGE_KEYS } from '@/services/storage';
+import { storage, STORAGE_KEYS } from '@/services/storage/index';
 
 import type { RootStackParamList } from './types';
 
@@ -40,7 +40,7 @@ export default function RootNavigator() {
         setCheckingOnboarding(false);
       }
     };
-
+ 
     checkOnboardingStatus();
   }, []);
 

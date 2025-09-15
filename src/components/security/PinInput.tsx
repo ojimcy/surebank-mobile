@@ -271,7 +271,7 @@ export function PinInput({
         (disabled || loading) && 'opacity-50'
       )}
       android_ripple={{ color: '#e5e7eb' }}
-      accessibilityRole="button" as AccessibilityRole
+      accessibilityRole="button"
       accessibilityLabel={`Digit ${number}`}
     >
       <Text className="text-2xl font-semibold text-gray-800">
@@ -286,7 +286,7 @@ export function PinInput({
       <View 
         className="flex-row justify-center items-center mb-8"
         style={{ gap: spacing }}
-        accessibilityRole="group" as AccessibilityRole
+        accessibilityRole="none"
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityValue={{ 
@@ -324,7 +324,7 @@ export function PinInput({
               'active:bg-gray-100',
               (disabled || loading || pin.length === 0) && 'opacity-30'
             )}
-            accessibilityRole="button" as AccessibilityRole
+            accessibilityRole="button"
             accessibilityLabel="Clear PIN"
           >
             <Text className="text-primary-600 font-semibold">
@@ -344,7 +344,7 @@ export function PinInput({
               'active:bg-gray-100',
               (disabled || loading || pin.length === 0) && 'opacity-30'
             )}
-            accessibilityRole="button" as AccessibilityRole
+            accessibilityRole="button"
             accessibilityLabel="Delete last digit"
           >
             <Ionicons 

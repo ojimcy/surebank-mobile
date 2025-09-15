@@ -25,7 +25,7 @@ function SecurityWrapper({ children }: SecurityProviderProps) {
   const { trackActivity } = useSession();
 
   return (
-    <ActivityTracker onTouchStart={trackActivity} onTouchMove={trackActivity}>
+    <ActivityTracker>
       <PinAuthGuard>
         <View style={{ flex: 1 }}>
           {children}

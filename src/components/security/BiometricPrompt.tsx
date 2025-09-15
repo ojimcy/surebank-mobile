@@ -125,7 +125,6 @@ export function BiometricPrompt({
       // Perform biometric authentication
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: title,
-        subtitle: subtitle,
         cancelLabel: cancelLabel,
         fallbackLabel: disableDeviceFallback ? undefined : fallbackLabel,
         disableDeviceFallback: disableDeviceFallback,
@@ -269,7 +268,7 @@ export function BiometricPrompt({
                 <Pressable
                   onPress={handleRetry}
                   className="bg-primary-600 active:bg-primary-700 py-3 px-6 rounded-lg items-center"
-                  accessibilityRole="button" as AccessibilityRole
+                  accessibilityRole="button"
                   accessibilityLabel="Retry authentication"
                 >
                   <Text className="text-white font-semibold">
@@ -281,7 +280,7 @@ export function BiometricPrompt({
                   <Pressable
                     onPress={onFallback}
                     className="bg-gray-100 active:bg-gray-200 py-3 px-6 rounded-lg items-center"
-                    accessibilityRole="button" as AccessibilityRole
+                    accessibilityRole="button"
                     accessibilityLabel="Use PIN instead"
                   >
                     <Text className="text-gray-700 font-semibold">
@@ -293,7 +292,7 @@ export function BiometricPrompt({
                 <Pressable
                   onPress={handleClose}
                   className="py-3 px-6 items-center"
-                  accessibilityRole="button" as AccessibilityRole
+                  accessibilityRole="button"
                   accessibilityLabel="Cancel authentication"
                 >
                   <Text className="text-gray-500 font-medium">
@@ -312,7 +311,7 @@ export function BiometricPrompt({
                       'bg-gray-100 active:bg-gray-200 py-3 px-6 rounded-lg items-center',
                       isAuthenticating && 'opacity-50'
                     )}
-                    accessibilityRole="button" as AccessibilityRole
+                    accessibilityRole="button"
                     accessibilityLabel="Use PIN instead"
                   >
                     <Text className="text-gray-700 font-semibold">
@@ -328,7 +327,7 @@ export function BiometricPrompt({
                     'py-3 px-6 items-center',
                     isAuthenticating && 'opacity-50'
                   )}
-                  accessibilityRole="button" as AccessibilityRole
+                  accessibilityRole="button"
                   accessibilityLabel="Cancel authentication"
                 >
                   <Text className="text-gray-500 font-medium">

@@ -8,7 +8,7 @@
 import React, { createContext, useContext, useEffect, useReducer, useCallback, ReactNode } from 'react';
 import tokenManager from '@/services/auth/tokenManager';
 import authService, { AuthenticationError } from '@/services/api/auth';
-import { storage, STORAGE_KEYS } from '@/services/storage';
+import { storage, STORAGE_KEYS } from '@/services/storage/index';
 import { User, AuthState, LoginPayload, RegisterPayload } from '@/services/api/types';
 
 interface AuthContextValue extends AuthState {

@@ -8,7 +8,7 @@
 import React, { createContext, useContext, useEffect, useReducer, useCallback, useRef, ReactNode } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { storage, STORAGE_KEYS } from '@/services/storage';
+import { storage, STORAGE_KEYS } from '@/services/storage/index';
 import { BiometricConfig, PinConfig } from '@/services/api/types';
 
 // PIN Security state interface

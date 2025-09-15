@@ -136,7 +136,7 @@ export function Checkbox({
         onPress={handlePress}
         disabled={disabled}
         className="flex-row items-start"
-        accessibilityRole="checkbox" as AccessibilityRole
+        accessibilityRole="checkbox"
         accessibilityState={{ checked, disabled }}
         accessibilityLabel={checkboxAccessibilityLabel}
         accessibilityHint={accessibilityHint || description}

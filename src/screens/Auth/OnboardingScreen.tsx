@@ -22,7 +22,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/navigation/types';
-import { storage, STORAGE_KEYS } from '@/services/storage';
+import { storage, STORAGE_KEYS } from '@/services/storage/index';
 import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Onboarding'>;
@@ -98,7 +98,7 @@ function OnboardingScreen({ navigation }: Props) {
 
   const handleSkip = async () => {
     await markOnboardingComplete();
-    navigation.navigate('Authentication', { initialTab: 'register' });
+    navigation.navigate('Register');
   };
 
   const handleNext = () => {
@@ -133,12 +133,12 @@ function OnboardingScreen({ navigation }: Props) {
 
   const handleGetStarted = async () => {
     await markOnboardingComplete();
-    navigation.navigate('Authentication', { initialTab: 'register' });
+    navigation.navigate('Register');
   };
 
   const handleSignIn = async () => {
     await markOnboardingComplete();
-    navigation.navigate('Authentication', { initialTab: 'login' });
+    navigation.navigate('Login');
   };
 
   const onViewableItemsChanged = useRef(

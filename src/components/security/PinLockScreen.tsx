@@ -218,7 +218,7 @@ export function PinLockScreen({
                 'bg-gray-100 active:bg-gray-200',
                 isVerifying && 'opacity-50'
               )}
-              accessibilityRole="button" as AccessibilityRole
+              accessibilityRole="button"
               accessibilityLabel="Use biometric authentication"
             >
               <Ionicons 
@@ -249,7 +249,7 @@ export function PinLockScreen({
                 'py-3 px-6',
                 isVerifying && 'opacity-50'
               )}
-              accessibilityRole="button" as AccessibilityRole
+              accessibilityRole="button"
               accessibilityLabel="Cancel PIN entry"
             >
               <Text className="text-gray-500 font-medium">
