@@ -1,8 +1,5 @@
 /**
- * SureBank Login Screen
- *
- * Professional login screen with form validation,
- * error handling, and API integration.
+ * Clean Login Screen - No complex dependencies
  */
 
 import React, { useState } from 'react';
@@ -11,272 +8,248 @@ import {
   Text,
   StatusBar,
   SafeAreaView,
-  Pressable,
+  TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import Toast from 'react-native-toast-message';
+import { Input } from '@/components/forms';
 import { useAuth } from '@/contexts/AuthContext';
-import { Input, PrimaryButton, GhostButton, Checkbox } from '@/components/forms';
-import { useActivityTracking } from '@/components/security/ActivityTracker';
-import { LoginFormData } from '@/services/api/types';
 import type { AuthScreenProps } from '@/navigation/types';
 
-console.log('LoginScreen rendered');
-
-
-// Login form validation schema
-const loginSchema = yup.object().shape({
-  identifier: yup
-    .string()
-    .required('Email or phone number is required')
-    .test('email-or-phone', 'Please enter a valid email or phone number', (value) => {
-      if (!value) return false;
-
-      // Check if it's a valid email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (emailRegex.test(value)) return true;
-
-      // Check if it's a valid phone number (basic validation)
-      const phoneRegex = /^\+?[\d\s-()]+$/;
-      if (phoneRegex.test(value) && value.replace(/\D/g, '').length >= 10) return true;
-
-      return false;
-    }),
-  password: yup
-    .string()
-    .required('Password is required')
-    .min(8, 'Password must be at least 8 characters'),
-  rememberMe: yup.boolean().default(false),
-});
-
 export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
-  console.log('[LoginScreen] Rendering Login Screen');
+  console.log('[LoginScreen] Rendering');
+
   const { login, isLoading, error, clearError } = useAuth();
-  const { trackFormSubmission } = useActivityTracking();
-  const [showPassword, setShowPassword] = useState(false);
-
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-    watch,
-  } = useForm<LoginFormData>({
-    resolver: yupResolver(loginSchema),
-    defaultValues: {
-      identifier: '',
-      password: '',
-      rememberMe: false,
-    },
+  const [formData, setFormData] = useState({
+    identifier: '',
+    password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const watchIdentifier = watch('identifier');
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
 
-  // Determine if identifier looks like email or phone
-  const getIdentifierType = (value: string) => {
-    if (!value) return 'email';
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value) ? 'email' : 'phone';
+    if (!formData.identifier.trim()) {
+      newErrors.identifier = 'Email or phone number is required';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const identifierType = getIdentifierType(watchIdentifier);
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
 
-  const onSubmit = async (data: LoginFormData) => {
     try {
-      trackFormSubmission();
       clearError();
-
       await login({
-        identifier: data.identifier.trim(),
-        password: data.password,
+        identifier: formData.identifier.trim(),
+        password: formData.password,
       });
 
-      // Navigation will be handled automatically by auth context
-    } catch (error: any) {
-      // Error handling is managed by the auth context
-      console.error('Login error:', error);
+      // Show success toast
+      Toast.show({
+        type: 'success',
+        text1: 'Login Successful',
+        text2: 'Welcome back to SureBank!',
+        position: 'top',
+        visibilityTime: 2000,
+      });
+
+      // Navigation will be handled by auth context after successful login
+    } catch (err: any) {
+      console.error('Login error:', err);
+
+      // Show error toast
+      Toast.show({
+        type: 'error',
+        text1: 'Login Failed',
+        text2: err?.message || 'Invalid email/phone or password. Please try again.',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     }
   };
 
-  const handleForgotPassword = () => {
-    navigation.navigate('ForgotPassword');
-  };
-
-  const handleRegister = () => {
-    navigation.navigate('Register');
-  };
-
-  const handleBackPress = () => {
-    navigation.goBack();
+  const updateField = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error for this field
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
 
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          className="flex-1"
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
           {/* Header */}
-          <View className="flex-row items-center justify-between px-6 py-4">
-            <Pressable
-              onPress={handleBackPress}
-              className="w-10 h-10 items-center justify-center rounded-full active:bg-gray-100"
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 24,
+            paddingVertical: 16
+          }}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ padding: 8 }}
             >
               <Ionicons name="arrow-back" size={24} color="#374151" />
-            </Pressable>
-
-            <View className="w-10" />
+            </TouchableOpacity>
+            <View style={{ width: 40 }} />
           </View>
 
-          <View className="flex-1 px-6 py-2">
+          <View style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 8 }}>
             {/* Welcome Message */}
-            <View className="mb-6">
-              <Text className="text-3xl font-bold text-gray-900 mb-2">
+            <View style={{ marginBottom: 24 }}>
+              <Text style={{
+                fontSize: 30,
+                fontWeight: 'bold',
+                color: '#111827',
+                marginBottom: 8
+              }}>
                 Welcome back
               </Text>
-              <Text className="text-gray-600 text-base">
+              <Text style={{ fontSize: 16, color: '#6b7280' }}>
                 Sign in to your SureBank account to continue
               </Text>
             </View>
 
-            {/* Error Display */}
+            {/* Error Display - kept for immediate feedback */}
             {error && (
-              <View className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <View className="flex-row items-center">
-                  <Ionicons name="alert-circle" size={20} color="#dc2626" />
-                  <Text className="text-red-800 font-medium flex-1 ml-2">
-                    {error}
-                  </Text>
-                </View>
+              <View style={{
+                backgroundColor: '#fee2e2',
+                borderWidth: 1,
+                borderColor: '#fecaca',
+                borderRadius: 8,
+                padding: 16,
+                marginBottom: 24,
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}>
+                <Ionicons name="alert-circle" size={20} color="#dc2626" />
+                <Text style={{
+                  color: '#991b1b',
+                  marginLeft: 8,
+                  flex: 1
+                }}>
+                  {error}
+                </Text>
               </View>
             )}
 
             {/* Form Fields */}
-            <View className="space-y-6">
-              <Controller
-                control={control}
-                name="identifier"
-                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                  <Input
-                    label="Email or Phone Number"
-                    placeholder={identifierType === 'email' ? 'Enter your email' : 'Enter your phone number'}
-                    leftIcon={identifierType === 'email' ? 'mail-outline' : 'call-outline'}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    keyboardType={identifierType === 'email' ? 'email-address' : 'phone-pad'}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    textContentType={identifierType === 'email' ? 'emailAddress' : 'telephoneNumber'}
-                    errorText={error?.message}
-                    accessibilityLabel="Email or phone number"
-                    accessibilityHint="Enter your email address or phone number"
-                  />
-                )}
+            <View style={{ gap: 16 }}>
+              <Input
+                label="Email or Phone Number"
+                placeholder="Enter your email or phone"
+                leftIcon="mail-outline"
+                value={formData.identifier}
+                onChangeText={(text) => updateField('identifier', text)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                errorText={errors.identifier}
               />
 
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                  <Input
-                    label="Password"
-                    placeholder="Enter your password"
-                    leftIcon="lock-closed-outline"
-                    rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                    onRightIconPress={() => setShowPassword(!showPassword)}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    secureTextEntry={!showPassword}
-                    textContentType="password"
-                    errorText={error?.message}
-                    accessibilityLabel="Password"
-                    accessibilityHint="Enter your account password"
-                  />
-                )}
+              <Input
+                label="Password"
+                placeholder="Enter your password"
+                leftIcon="lock-closed-outline"
+                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                onRightIconPress={() => setShowPassword(!showPassword)}
+                value={formData.password}
+                onChangeText={(text) => updateField('password', text)}
+                secureTextEntry={!showPassword}
+                errorText={errors.password}
               />
 
-              {/* Remember Me & Forgot Password Row */}
-              <View className="flex-row items-center justify-between">
-                <View />
-
-                <GhostButton
-                  title="Forgot Password?"
-                  onPress={handleForgotPassword}
-                  size="sm"
-                  accessibilityLabel="Forgot password"
-                  accessibilityHint="Reset your password"
-                />
+              {/* Forgot Password */}
+              <View style={{ alignItems: 'flex-end' }}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('ForgotPassword')}
+                  style={{ padding: 4 }}
+                >
+                  <Text style={{ color: '#0066A1', fontSize: 14 }}>
+                    Forgot Password?
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
 
-            {/* Privacy Policy Agreement */}
-            <View className="mt-6">
-              <Controller
-                control={control}
-                name="rememberMe"
-                render={({ field: { value, onChange } }) => (
-                  <View className="flex-row items-start">
-                    <Checkbox
-                      checked={value}
-                      onValueChange={onChange}
-                      accessibilityLabel="Accept privacy policy"
-                      accessibilityHint="Accept terms and privacy policy"
-                    />
-                    <View className="flex-1 ml-2">
-                      <Text className="text-sm text-gray-600 leading-5">
-                        I accept the{' '}
-                        <Text className="text-primary-600 font-medium">Terms of Service</Text>
-                        {' '}and{' '}
-                        <Text className="text-primary-600 font-medium">Privacy Policy</Text>
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              />
-            </View>
-
             {/* Submit Button */}
-            <View className="mt-6">
-              <PrimaryButton
-                title="Sign In"
-                onPress={handleSubmit(onSubmit)}
-                loading={isLoading || isSubmitting}
-                disabled={isSubmitting}
-                size="lg"
-                fullWidth
-                leftIcon="log-in-outline"
-                accessibilityLabel="Sign in"
-                accessibilityHint="Sign in to your account"
-              />
-            </View>
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={isLoading}
+              style={{
+                backgroundColor: isLoading ? '#9ca3af' : '#0066A1',
+                borderRadius: 8,
+                paddingVertical: 14,
+                alignItems: 'center',
+                marginTop: 32,
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}
+            >
+              {isLoading ? (
+                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+                  Signing in...
+                </Text>
+              ) : (
+                <>
+                  <Ionicons name="log-in-outline" size={20} color="white" />
+                  <Text style={{
+                    color: 'white',
+                    fontSize: 16,
+                    fontWeight: '600',
+                    marginLeft: 8
+                  }}>
+                    Sign In
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
 
-            {/* Switch to Register */}
-            <View className="items-center mt-8 mb-6">
-              <Text className="text-gray-600 mb-3 text-base">
+            {/* Register Link */}
+            <View style={{
+              alignItems: 'center',
+              marginTop: 32,
+              marginBottom: 24
+            }}>
+              <Text style={{ color: '#6b7280', marginBottom: 12 }}>
                 Don't have an account?
               </Text>
-              <GhostButton
-                title="Create Account"
-                onPress={handleRegister}
-                size="md"
-                accessibilityLabel="Create account"
-                accessibilityHint="Switch to account creation"
-              />
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Register')}
+                style={{ padding: 8 }}
+              >
+                <Text style={{
+                  color: '#0066A1',
+                  fontSize: 16,
+                  fontWeight: '600'
+                }}>
+                  Create Account
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>

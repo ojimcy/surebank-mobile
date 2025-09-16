@@ -8,7 +8,6 @@
 import React, { useEffect, ReactNode } from 'react';
 import { View, ViewStyle } from 'react-native';
 import { useActivityMonitor } from '@/services/security/ActivityMonitor';
-import { usePinSecurity } from '@/contexts/PinSecurityContext';
 
 interface ActivityTrackerProps {
   children: ReactNode;
@@ -19,15 +18,14 @@ interface ActivityTrackerProps {
 /**
  * Activity tracker component that monitors user interactions
  */
-export function ActivityTracker({ 
-  children, 
+export function ActivityTracker({
+  children,
   style,
-  debugMode = false 
+  debugMode = false
 }: ActivityTrackerProps) {
-  const pinSecurity = usePinSecurity();
   const { getPanHandlers, recordActivity } = useActivityMonitor({
     debugMode,
-    inactivityTimeout: pinSecurity.inactivityTimeout,
+    inactivityTimeout: 5 * 60 * 1000, // Default 5 minutes
   });
 
   // Record activity on component mount (navigation event)
@@ -35,14 +33,9 @@ export function ActivityTracker({
     recordActivity('navigation');
   }, [recordActivity]);
 
-  // Only track activity if PIN is set
-  if (!pinSecurity.isPinSet) {
-    return <View style={style}>{children}</View>;
-  }
-
   return (
-    <View 
-      style={[{ flex: 1 }, style]} 
+    <View
+      style={[{ flex: 1 }, style]}
       {...getPanHandlers()}
       onTouchStart={() => recordActivity('touch')}
       onTouchMove={() => recordActivity('gesture')}

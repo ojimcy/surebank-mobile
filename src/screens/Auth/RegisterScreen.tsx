@@ -1,8 +1,5 @@
 /**
- * SureBank Register Screen
- *
- * Professional registration screen with validation, terms acceptance,
- * and API integration.
+ * Clean Register Screen - No complex dependencies
  */
 
 import React, { useState } from 'react';
@@ -11,439 +8,392 @@ import {
   Text,
   StatusBar,
   SafeAreaView,
-  Pressable,
+  TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import Toast from 'react-native-toast-message';
+import { Input } from '@/components/forms';
 import { useAuth } from '@/contexts/AuthContext';
-import { Input, PrimaryButton, GhostButton } from '@/components/forms';
-import { useActivityTracking } from '@/components/security/ActivityTracker';
-import { RegisterFormData } from '@/services/api/types';
 import type { AuthScreenProps } from '@/navigation/types';
 
-// Registration form validation schema
-const registerSchema = yup.object().shape({
-  firstName: yup
-    .string()
-    .required('First name is required')
-    .min(2, 'First name must be at least 2 characters')
-    .max(50, 'First name must not exceed 50 characters')
-    .matches(/^[a-zA-Z\s'-]+$/, 'First name contains invalid characters'),
-
-  lastName: yup
-    .string()
-    .required('Last name is required')
-    .min(2, 'Last name must be at least 2 characters')
-    .max(50, 'Last name must not exceed 50 characters')
-    .matches(/^[a-zA-Z\s'-]+$/, 'Last name contains invalid characters'),
-
-  email: yup
-    .string()
-    .email('Please enter a valid email address')
-    .required('Email address is required')
-    .lowercase(),
-
-  phoneNumber: yup
-    .string()
-    .matches(/^\+?[\d\s-()]+$/, 'Please enter a valid phone number')
-    .test('phone-length', 'Phone number must be at least 10 digits', (value) => {
-      if (!value) return true; // Optional field
-      const digits = value.replace(/\D/g, '');
-      return digits.length >= 10;
-    }),
-
-  password: yup
-    .string()
-    .required('Password is required')
-    .min(8, 'Password must be at least 8 characters')
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-    ),
-
-  confirmPassword: yup
-    .string()
-    .required('Please confirm your password')
-    .oneOf([yup.ref('password')], 'Passwords do not match'),
-
-  address: yup
-    .string()
-    .max(200, 'Address must not exceed 200 characters'),
-
-  agreeToTerms: yup
-    .boolean()
-    .oneOf([true], 'You must agree to the Terms of Service and Privacy Policy'),
-});
+interface RegisterFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  confirmPassword: string;
+}
 
 export default function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
+  console.log('[RegisterScreen] Rendering');
+
   const { register, isLoading, error, clearError } = useAuth();
-  const { trackFormSubmission } = useActivityTracking();
+  const [formData, setFormData] = useState<RegisterFormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phoneNumber: '',
-      password: '',
-      confirmPassword: '',
-      address: '',
-      agreeToTerms: false,
-    },
-  });
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
 
+    // First Name validation
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    }
 
-  const onSubmit = async (data: RegisterFormData) => {
+    // Last Name validation
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = 'Please enter a valid email';
+      }
+    }
+
+    // Phone validation (optional but must be valid if provided)
+    if (formData.phoneNumber.trim()) {
+      const phoneRegex = /^\+?[\d\s-()]+$/;
+      const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
+      if (!phoneRegex.test(formData.phoneNumber) || cleanPhone.length < 10) {
+        newErrors.phoneNumber = 'Please enter a valid phone number';
+      }
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    // Confirm password validation
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    // Terms agreement
+    if (!agreeToTerms) {
+      newErrors.terms = 'You must agree to the terms and conditions';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
     try {
-      trackFormSubmission();
       clearError();
+      const result = await register({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        phoneNumber: formData.phoneNumber.trim() || undefined,
+        password: formData.password,
+      });
 
-      const registerData = {
-        firstName: data.firstName.trim(),
-        lastName: data.lastName.trim(),
-        email: data.email.trim().toLowerCase(),
-        phoneNumber: data.phoneNumber?.trim() || undefined,
-        password: data.password,
-        address: data.address?.trim() || undefined,
-      };
-
-      const result = await register(registerData);
+      // Show success toast
+      Toast.show({
+        type: 'success',
+        text1: 'Registration Successful',
+        text2: 'Please check your email to verify your account.',
+        position: 'top',
+        visibilityTime: 4000,
+      });
 
       // Navigate to verification screen
-      navigation.navigate('Verification', { identifier: result.identifier });
-    } catch (error: any) {
-      console.error('Registration error:', error);
+      setTimeout(() => {
+        navigation.navigate('Verification', { identifier: formData.email });
+      }, 1500);
+
+    } catch (err: any) {
+      console.error('Registration error:', err);
+
+      // Show error toast
+      Toast.show({
+        type: 'error',
+        text1: 'Registration Failed',
+        text2: err?.message || 'Unable to create account. Please try again.',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     }
   };
 
-  const handleLogin = () => {
-    navigation.navigate('Login');
-  };
-
-  const handleBackPress = () => {
-    navigation.goBack();
-  };
-
-  const handleTermsPress = async () => {
-    try {
-      await Linking.openURL('https://surebank.com/terms');
-    } catch (error) {
-      console.error('Error opening terms:', error);
-    }
-  };
-
-  const handlePrivacyPress = async () => {
-    try {
-      await Linking.openURL('https://surebank.com/privacy');
-    } catch (error) {
-      console.error('Error opening privacy policy:', error);
+  const updateField = (field: keyof RegisterFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error for this field
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
 
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          className="flex-1"
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <View className="flex-row items-center justify-between px-6 py-4">
-            <Pressable
-              onPress={handleBackPress}
-              className="w-10 h-10 items-center justify-center rounded-full active:bg-gray-100"
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 24,
+            paddingVertical: 16
+          }}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ padding: 8 }}
             >
               <Ionicons name="arrow-back" size={24} color="#374151" />
-            </Pressable>
-
-            <View className="items-center">
-              <View className="w-10 h-10 bg-primary-600 rounded-xl items-center justify-center">
-                <Ionicons name="person-add" size={20} color="white" />
-              </View>
-            </View>
-
-            <View className="w-10" />
+            </TouchableOpacity>
+            <View style={{ width: 40 }} />
           </View>
 
-          <View className="flex-1 px-6">
+          <View style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 8 }}>
             {/* Welcome Message */}
-            <View className="mb-8">
-              <Text className="text-3xl font-bold text-gray-900 mb-3">
-                Create your account
+            <View style={{ marginBottom: 24 }}>
+              <Text style={{
+                fontSize: 30,
+                fontWeight: 'bold',
+                color: '#111827',
+                marginBottom: 8
+              }}>
+                Create Account
               </Text>
-              <Text className="text-gray-600 text-lg">
-                Join SureBank and start your secure banking journey
+              <Text style={{ fontSize: 16, color: '#6b7280' }}>
+                Join SureBank and start managing your finances
               </Text>
             </View>
 
             {/* Error Display */}
             {error && (
-              <View className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <View className="flex-row items-center">
-                  <Ionicons name="alert-circle" size={20} color="#dc2626" />
-                  <Text className="text-red-800 font-medium flex-1 ml-2">
-                    {error}
-                  </Text>
-                </View>
+              <View style={{
+                backgroundColor: '#fee2e2',
+                borderWidth: 1,
+                borderColor: '#fecaca',
+                borderRadius: 8,
+                padding: 16,
+                marginBottom: 24,
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}>
+                <Ionicons name="alert-circle" size={20} color="#dc2626" />
+                <Text style={{
+                  color: '#991b1b',
+                  marginLeft: 8,
+                  flex: 1
+                }}>
+                  {error}
+                </Text>
               </View>
             )}
 
             {/* Form Fields */}
-            <View className="space-y-6">
-              {/* Name Fields */}
-              <View className="flex-row space-x-3">
-                <View className="flex-1">
-                  <Controller
-                    control={control}
-                    name="firstName"
-                    render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                      <Input
-                        label="First Name"
-                        placeholder="John"
-                        leftIcon="person-outline"
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        autoCapitalize="words"
-                        textContentType="givenName"
-                        errorText={error?.message}
-                        accessibilityLabel="First name"
-                        accessibilityHint="Enter your first name"
-                      />
-                    )}
+            <View style={{ gap: 16 }}>
+              {/* Name Fields Row */}
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <View style={{ flex: 1 }}>
+                  <Input
+                    label="First Name"
+                    placeholder="John"
+                    leftIcon="person-outline"
+                    value={formData.firstName}
+                    onChangeText={(text) => updateField('firstName', text)}
+                    autoCapitalize="words"
+                    errorText={errors.firstName}
                   />
                 </View>
-                <View className="flex-1">
-                  <Controller
-                    control={control}
-                    name="lastName"
-                    render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                      <Input
-                        label="Last Name"
-                        placeholder="Doe"
-                        leftIcon="person-outline"
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        autoCapitalize="words"
-                        textContentType="familyName"
-                        errorText={error?.message}
-                        accessibilityLabel="Last name"
-                        accessibilityHint="Enter your last name"
-                      />
-                    )}
+                <View style={{ flex: 1 }}>
+                  <Input
+                    label="Last Name"
+                    placeholder="Doe"
+                    leftIcon="person-outline"
+                    value={formData.lastName}
+                    onChangeText={(text) => updateField('lastName', text)}
+                    autoCapitalize="words"
+                    errorText={errors.lastName}
                   />
                 </View>
               </View>
 
-              {/* Email */}
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                  <Input
-                    label="Email Address"
-                    placeholder="john.doe@example.com"
-                    leftIcon="mail-outline"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    textContentType="emailAddress"
-                    errorText={error?.message}
-                    accessibilityLabel="Email address"
-                    accessibilityHint="Enter your email address"
-                  />
-                )}
+              <Input
+                label="Email Address"
+                placeholder="john.doe@example.com"
+                leftIcon="mail-outline"
+                value={formData.email}
+                onChangeText={(text) => updateField('email', text)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                errorText={errors.email}
               />
 
-              {/* Phone Number (Optional) */}
-              <Controller
-                control={control}
-                name="phoneNumber"
-                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                  <Input
-                    label="Phone Number (Optional)"
-                    placeholder="+1 (555) 123-4567"
-                    leftIcon="call-outline"
-                    value={value || ''}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    keyboardType="phone-pad"
-                    textContentType="telephoneNumber"
-                    errorText={error?.message}
-                    accessibilityLabel="Phone number"
-                    accessibilityHint="Enter your phone number (optional)"
-                  />
-                )}
+              <Input
+                label="Phone Number (Optional)"
+                placeholder="+1 234 567 8900"
+                leftIcon="call-outline"
+                value={formData.phoneNumber}
+                onChangeText={(text) => updateField('phoneNumber', text)}
+                keyboardType="phone-pad"
+                errorText={errors.phoneNumber}
               />
 
-              {/* Address (Optional) */}
-              <Controller
-                control={control}
-                name="address"
-                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                  <Input
-                    label="Address (Optional)"
-                    placeholder="123 Main St, City, State"
-                    leftIcon="location-outline"
-                    value={value || ''}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    multiline
-                    numberOfLines={2}
-                    textContentType="fullStreetAddress"
-                    errorText={error?.message}
-                    accessibilityLabel="Address"
-                    accessibilityHint="Enter your address (optional)"
-                  />
-                )}
+              <Input
+                label="Password"
+                placeholder="Enter a strong password"
+                leftIcon="lock-closed-outline"
+                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                onRightIconPress={() => setShowPassword(!showPassword)}
+                value={formData.password}
+                onChangeText={(text) => updateField('password', text)}
+                secureTextEntry={!showPassword}
+                errorText={errors.password}
               />
 
-              {/* Password */}
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                  <Input
-                    label="Password"
-                    placeholder="Enter a secure password"
-                    leftIcon="lock-closed-outline"
-                    rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                    onRightIconPress={() => setShowPassword(!showPassword)}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    secureTextEntry={!showPassword}
-                    textContentType="newPassword"
-                    errorText={error?.message}
-                    helperText="Must contain uppercase, lowercase, and number"
-                    accessibilityLabel="Password"
-                    accessibilityHint="Enter a secure password with at least 8 characters"
-                  />
-                )}
-              />
-
-              {/* Confirm Password */}
-              <Controller
-                control={control}
-                name="confirmPassword"
-                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                  <Input
-                    label="Confirm Password"
-                    placeholder="Re-enter your password"
-                    leftIcon="lock-closed-outline"
-                    rightIcon={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                    onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    secureTextEntry={!showConfirmPassword}
-                    textContentType="newPassword"
-                    errorText={error?.message}
-                    accessibilityLabel="Confirm password"
-                    accessibilityHint="Re-enter your password to confirm"
-                  />
-                )}
+              <Input
+                label="Confirm Password"
+                placeholder="Re-enter your password"
+                leftIcon="lock-closed-outline"
+                rightIcon={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                value={formData.confirmPassword}
+                onChangeText={(text) => updateField('confirmPassword', text)}
+                secureTextEntry={!showConfirmPassword}
+                errorText={errors.confirmPassword}
               />
 
               {/* Terms and Conditions */}
-              <Controller
-                control={control}
-                name="agreeToTerms"
-                render={({ field: { value, onChange }, fieldState: { error } }) => (
-                  <View>
-                    <Pressable
-                      onPress={() => onChange(!value)}
-                      className="flex-row items-start"
-                      accessibilityRole="checkbox"
-                      accessibilityState={{ checked: value }}
-                    >
-                      <View className={`w-5 h-5 border-2 rounded mr-3 mt-1 items-center justify-center ${
-                        value ? 'bg-primary-600 border-primary-600' : 'border-gray-300 bg-white'
-                      }`}>
-                        {value && (
-                          <Ionicons name="checkmark" size={14} color="white" />
-                        )}
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-gray-700 text-base leading-6">
-                          I agree to the{' '}
-                          <Text
-                            className="text-primary-600 font-medium"
-                            onPress={handleTermsPress}
-                          >
-                            Terms of Service
-                          </Text>
-                          {' '}and{' '}
-                          <Text
-                            className="text-primary-600 font-medium"
-                            onPress={handlePrivacyPress}
-                          >
-                            Privacy Policy
-                          </Text>
-                        </Text>
-                      </View>
-                    </Pressable>
-                    {error && (
-                      <Text className="text-red-600 text-sm mt-2 ml-8">{error.message}</Text>
-                    )}
-                  </View>
-                )}
-              />
+              <TouchableOpacity
+                onPress={() => {
+                  setAgreeToTerms(!agreeToTerms);
+                  if (errors.terms) {
+                    setErrors(prev => ({ ...prev, terms: '' }));
+                  }
+                }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'flex-start',
+                  marginTop: 8
+                }}
+              >
+                <View style={{
+                  width: 20,
+                  height: 20,
+                  borderWidth: 1,
+                  borderColor: errors.terms ? '#ef4444' : '#d1d5db',
+                  borderRadius: 4,
+                  marginRight: 8,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: agreeToTerms ? '#0066A1' : 'white'
+                }}>
+                  {agreeToTerms && (
+                    <Ionicons name="checkmark" size={14} color="white" />
+                  )}
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, color: '#4b5563', lineHeight: 20 }}>
+                    I agree to the{' '}
+                    <Text style={{ color: '#0066A1', fontWeight: '600' }}>
+                      Terms of Service
+                    </Text>
+                    {' '}and{' '}
+                    <Text style={{ color: '#0066A1', fontWeight: '600' }}>
+                      Privacy Policy
+                    </Text>
+                  </Text>
+                  {errors.terms && (
+                    <Text style={{ color: '#ef4444', fontSize: 12, marginTop: 4 }}>
+                      {errors.terms}
+                    </Text>
+                  )}
+                </View>
+              </TouchableOpacity>
             </View>
 
             {/* Submit Button */}
-            <View className="mt-8">
-              <PrimaryButton
-                title="Create Account"
-                onPress={handleSubmit(onSubmit)}
-                loading={isLoading || isSubmitting}
-                disabled={isSubmitting}
-                size="lg"
-                fullWidth
-                leftIcon="person-add-outline"
-                accessibilityLabel="Create account"
-                accessibilityHint="Create your SureBank account"
-              />
-            </View>
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={isLoading}
+              style={{
+                backgroundColor: isLoading ? '#9ca3af' : '#0066A1',
+                borderRadius: 8,
+                paddingVertical: 14,
+                alignItems: 'center',
+                marginTop: 32,
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}
+            >
+              {isLoading ? (
+                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+                  Creating Account...
+                </Text>
+              ) : (
+                <>
+                  <Ionicons name="person-add-outline" size={20} color="white" />
+                  <Text style={{
+                    color: 'white',
+                    fontSize: 16,
+                    fontWeight: '600',
+                    marginLeft: 8
+                  }}>
+                    Create Account
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
 
-            {/* Switch to Login */}
-            <View className="items-center mt-8 mb-6">
-              <Text className="text-gray-600 mb-3 text-base">
+            {/* Login Link */}
+            <View style={{
+              alignItems: 'center',
+              marginTop: 32,
+              marginBottom: 24
+            }}>
+              <Text style={{ color: '#6b7280', marginBottom: 12 }}>
                 Already have an account?
               </Text>
-              <GhostButton
-                title="Sign In"
-                onPress={handleLogin}
-                size="md"
-                accessibilityLabel="Sign in"
-                accessibilityHint="Switch to sign in form"
-              />
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Login')}
+                style={{ padding: 8 }}
+              >
+                <Text style={{
+                  color: '#0066A1',
+                  fontSize: 16,
+                  fontWeight: '600'
+                }}>
+                  Sign In
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>

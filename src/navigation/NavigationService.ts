@@ -36,7 +36,9 @@ class NavigationService {
    */
   navigate(name: string, params?: object): void {
     if (navigationRef.isReady()) {
-      navigationRef.navigate(name as never, params as never);
+      (navigationRef as any).navigate(name, params);
+    } else {
+      console.warn('[NavigationService] Navigation not ready, ignoring navigate call to:', name);
     }
   }
 
@@ -46,6 +48,8 @@ class NavigationService {
   goBack(): void {
     if (navigationRef.isReady() && navigationRef.canGoBack()) {
       navigationRef.goBack();
+    } else {
+      console.warn('[NavigationService] Navigation not ready or cannot go back');
     }
   }
 
@@ -58,6 +62,8 @@ class NavigationService {
         index: 0,
         routes: [{ name: routeName, params }],
       });
+    } else {
+      console.warn('[NavigationService] Navigation not ready, ignoring reset call to:', routeName);
     }
   }
 

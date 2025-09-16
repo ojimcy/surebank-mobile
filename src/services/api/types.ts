@@ -215,7 +215,7 @@ export interface LoginFormData {
 }
 
 export interface RegisterFormData {
-  email?: string;
+  email: string;
   phoneNumber?: string;
   firstName: string;
   lastName: string;

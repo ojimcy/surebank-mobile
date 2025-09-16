@@ -50,7 +50,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       bundler: 'metro'
     },
     plugins: [
-      'expo-router',
       'expo-font',
       [
         'expo-build-properties',
@@ -66,7 +65,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ]
     ],
     experiments: {
-      typedRoutes: true
+      typedRoutes: false
     },
     extra: {
       // Environment variables will be accessible via expo-constants
@@ -76,16 +75,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       appVersion: process.env.EXPO_PUBLIC_APP_VERSION || '1.0.0',
       nodeEnv: process.env.NODE_ENV || 'development',
       appEnv: process.env.EXPO_PUBLIC_APP_ENV || 'development',
-      
+
       // Feature flags
       enableMockData: process.env.EXPO_PUBLIC_ENABLE_MOCK_DATA === 'true',
       enableWebsockets: process.env.EXPO_PUBLIC_ENABLE_WEBSOCKETS !== 'false',
       enablePushNotifications: process.env.EXPO_PUBLIC_ENABLE_PUSH_NOTIFICATIONS !== 'false',
-      
+
       // Debug flags
       debugApiCalls: process.env.EXPO_PUBLIC_DEBUG_API_CALLS === 'true',
       debugWebsockets: process.env.EXPO_PUBLIC_DEBUG_WEBSOCKETS === 'true',
-      
+
       // Firebase config (will be set via environment variables)
       firebase: {
         apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -95,7 +94,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
         appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
       },
-      
+
       // Use Firebase emulator in development
       useFirebaseEmulator: process.env.EXPO_PUBLIC_USE_FIREBASE_EMULATOR === 'true'
     },

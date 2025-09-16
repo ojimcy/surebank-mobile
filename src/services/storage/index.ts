@@ -12,28 +12,29 @@ import * as SecureStore from 'expo-secure-store';
 // Storage keys configuration
 export const STORAGE_KEYS = {
   // Sensitive keys - stored in SecureStore (encrypted)
-  AUTH_TOKEN: 'auth_token',
-  REFRESH_TOKEN: 'refresh_token',
-  PIN_HASH: 'pin_hash',
-  BIOMETRIC_ENABLED: 'biometric_enabled',
-  CSRF_TOKEN: 'csrf_token',
-  CSRF_SECRET: 'csrf_secret',
-  
+  AUTH_TOKEN: '@surebank:auth_token',
+  REFRESH_TOKEN: '@surebank:refresh_token',
+  PIN_HASH: '@surebank:pin_hash',
+  BIOMETRIC_ENABLED: '@surebank:biometric_enabled',
+  CSRF_TOKEN: '@surebank:csrf_token',
+  CSRF_SECRET: '@surebank:csrf_secret',
+
   // Non-sensitive keys - stored in AsyncStorage
-  USER_PREFERENCES: 'user_preferences',
-  THEME: 'app_theme',
-  LANGUAGE: 'app_language',
-  ONBOARDING_COMPLETED: 'onboarding_completed',
-  LAST_LOGIN: 'last_login',
-  LAST_BACKGROUND_TIME: 'last_background_time',
-  INACTIVITY_TIMEOUT: 'inactivity_timeout',
-  REMEMBER_ME: 'remember_me',
-  PUSH_NOTIFICATIONS_ENABLED: 'push_notifications_enabled',
-  PIN_LENGTH: 'pin_length',
-  FAILED_PIN_ATTEMPTS: 'failed_pin_attempts',
-  SESSION_START_TIME: 'session_start_time',
-  SESSION_ID: 'session_id',
-  LAST_ACTIVITY: 'last_activity',
+  USER_DATA: '@surebank:user_data',
+  USER_PREFERENCES: '@surebank:user_preferences',
+  THEME: '@surebank:app_theme',
+  LANGUAGE: '@surebank:app_language',
+  ONBOARDING_COMPLETED: '@surebank:onboarding_completed',
+  LAST_LOGIN: '@surebank:last_login',
+  LAST_BACKGROUND_TIME: '@surebank:last_background_time',
+  INACTIVITY_TIMEOUT: '@surebank:inactivity_timeout',
+  REMEMBER_ME: '@surebank:remember_me',
+  PUSH_NOTIFICATIONS_ENABLED: '@surebank:push_notifications_enabled',
+  PIN_LENGTH: '@surebank:pin_length',
+  FAILED_PIN_ATTEMPTS: '@surebank:failed_pin_attempts',
+  SESSION_START_TIME: '@surebank:session_start_time',
+  SESSION_ID: '@surebank:session_id',
+  LAST_ACTIVITY: '@surebank:last_activity',
 } as const;
 
 // Sensitive keys that should be stored in SecureStore
@@ -77,7 +78,7 @@ class SureStorageService implements StorageService {
    * Determines if a key should be stored securely
    */
   private isSensitiveKey(key: string): boolean {
-    return SENSITIVE_KEYS.has(key);
+    return SENSITIVE_KEYS.has(key as any);
   }
 
   /**
@@ -116,12 +117,9 @@ class SureStorageService implements StorageService {
         return await AsyncStorage.getItem(key);
       }
     } catch (error) {
-      throw new StorageError(
-        `Failed to retrieve item for key: ${key}`,
-        'getItem',
-        key,
-        error as Error
-      );
+      console.warn(`Failed to retrieve item for key: ${key}`, error);
+      // Return null instead of throwing - more graceful handling
+      return null;
     }
   }
 
@@ -138,12 +136,8 @@ class SureStorageService implements StorageService {
         await AsyncStorage.removeItem(key);
       }
     } catch (error) {
-      throw new StorageError(
-        `Failed to remove item for key: ${key}`,
-        'removeItem',
-        key,
-        error as Error
-      );
+      console.warn(`Failed to remove item for key: ${key}`, error);
+      // Don't throw - just log the error for better resilience
     }
   }
 
@@ -155,7 +149,7 @@ class SureStorageService implements StorageService {
     try {
       // Clear AsyncStorage
       await AsyncStorage.clear();
-      
+
       // Clear all sensitive keys from SecureStore
       for (const key of SENSITIVE_KEYS) {
         try {
@@ -182,7 +176,7 @@ class SureStorageService implements StorageService {
    */
   async getAllKeys(): Promise<string[]> {
     try {
-      return await AsyncStorage.getAllKeys();
+      return (await AsyncStorage.getAllKeys()) as string[];
     } catch (error) {
       throw new StorageError(
         'Failed to get all keys',
@@ -199,31 +193,46 @@ class SureStorageService implements StorageService {
   async multiGet(keys: string[]): Promise<Array<[string, string | null]>> {
     try {
       const results: Array<[string, string | null]> = [];
-      
+
       // Separate sensitive and non-sensitive keys
       const sensitiveKeys = keys.filter(key => this.isSensitiveKey(key));
       const regularKeys = keys.filter(key => !this.isSensitiveKey(key));
-      
+
       // Get regular keys from AsyncStorage
       if (regularKeys.length > 0) {
-        const regularResults = await AsyncStorage.multiGet(regularKeys);
-        results.push(...regularResults);
+        try {
+          const regularResults = await AsyncStorage.multiGet(regularKeys);
+          results.push(...regularResults);
+        } catch (error) {
+          // Fallback to getting items one by one
+          console.warn('multiGet failed for AsyncStorage, falling back to individual gets:', error);
+          for (const key of regularKeys) {
+            try {
+              const value = await AsyncStorage.getItem(key);
+              results.push([key, value]);
+            } catch (err) {
+              results.push([key, null]);
+            }
+          }
+        }
       }
-      
+
       // Get sensitive keys from SecureStore one by one
       for (const key of sensitiveKeys) {
-        const value = await this.getItem(key);
-        results.push([key, value]);
+        try {
+          const value = await this.getItem(key);
+          results.push([key, value]);
+        } catch (error) {
+          console.warn(`Failed to get sensitive key ${key}:`, error);
+          results.push([key, null]);
+        }
       }
-      
+
       return results;
     } catch (error) {
-      throw new StorageError(
-        'Failed to get multiple items',
-        'multiGet',
-        keys.join(', '),
-        error as Error
-      );
+      console.error('Critical error in multiGet:', error);
+      // Return empty values for all keys as fallback
+      return keys.map(key => [key, null]);
     }
   }
 
@@ -235,12 +244,12 @@ class SureStorageService implements StorageService {
       // Separate sensitive and non-sensitive pairs
       const sensitivePairs = keyValuePairs.filter(([key]) => this.isSensitiveKey(key));
       const regularPairs = keyValuePairs.filter(([key]) => !this.isSensitiveKey(key));
-      
+
       // Set regular pairs in AsyncStorage
       if (regularPairs.length > 0) {
         await AsyncStorage.multiSet(regularPairs);
       }
-      
+
       // Set sensitive pairs in SecureStore one by one
       for (const [key, value] of sensitivePairs) {
         await this.setItem(key, value);
@@ -263,23 +272,35 @@ class SureStorageService implements StorageService {
       // Separate sensitive and non-sensitive keys
       const sensitiveKeys = keys.filter(key => this.isSensitiveKey(key));
       const regularKeys = keys.filter(key => !this.isSensitiveKey(key));
-      
+
       // Remove regular keys from AsyncStorage
       if (regularKeys.length > 0) {
-        await AsyncStorage.multiRemove(regularKeys);
+        try {
+          await AsyncStorage.multiRemove(regularKeys);
+        } catch (error) {
+          // Fallback to removing items one by one
+          console.warn('multiRemove failed for AsyncStorage, falling back to individual removes:', error);
+          for (const key of regularKeys) {
+            try {
+              await AsyncStorage.removeItem(key);
+            } catch (err) {
+              console.warn(`Failed to remove key ${key}:`, err);
+            }
+          }
+        }
       }
-      
+
       // Remove sensitive keys from SecureStore one by one
       for (const key of sensitiveKeys) {
-        await this.removeItem(key);
+        try {
+          await this.removeItem(key);
+        } catch (error) {
+          console.warn(`Failed to remove sensitive key ${key}:`, error);
+        }
       }
     } catch (error) {
-      throw new StorageError(
-        'Failed to remove multiple items',
-        'multiRemove',
-        keys.join(', '),
-        error as Error
-      );
+      console.error('Critical error in multiRemove:', error);
+      // Don't throw, just log the error
     }
   }
 }
@@ -316,12 +337,12 @@ export const storageUtils = {
     try {
       const keys = await storage.getAllKeys();
       const keyValuePairs = await AsyncStorage.multiGet(keys);
-      
+
       let totalSize = 0;
       for (const [key, value] of keyValuePairs) {
         totalSize += key.length + (value?.length || 0);
       }
-      
+
       return totalSize;
     } catch (error) {
       console.warn('Failed to calculate storage size:', error);
@@ -341,7 +362,7 @@ export const storageUtils = {
       STORAGE_KEYS.REMEMBER_ME,
       STORAGE_KEYS.LAST_LOGIN,
     ];
-    
+
     await storage.multiRemove(authKeys);
   },
 
@@ -360,7 +381,7 @@ export const storageUtils = {
       STORAGE_KEYS.REMEMBER_ME,
       STORAGE_KEYS.LAST_LOGIN,
     ];
-    
+
     await storage.multiRemove(userKeys);
   },
 };

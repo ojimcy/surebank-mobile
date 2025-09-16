@@ -7,7 +7,7 @@
 
 import { jwtDecode } from 'jwt-decode';
 import apiClient, { ApiNetworkError, apiUtils } from '@/services/api/client';
-import { storage, STORAGE_KEYS } from '@/services/storage';
+import { storage, STORAGE_KEYS } from '@/services/storage/index';
 import { TokenResponse } from '@/services/api/types';
 
 // JWT token payload interface
@@ -136,7 +136,7 @@ export class TokenManager {
 
     const now = Date.now();
     const timeUntilExpiry = validation.expiresAt.getTime() - now;
-    
+
     return timeUntilExpiry <= this.refreshBuffer;
   }
 
@@ -261,7 +261,7 @@ export class TokenManager {
       });
 
       const newTokens = response.data;
-      
+
       // Store new tokens
       await this.storeTokens(newTokens);
 
@@ -333,7 +333,7 @@ export class TokenManager {
 
       // Token needs refresh
       const refreshResult = await this.refreshTokens();
-      
+
       if (refreshResult.success && refreshResult.tokens) {
         return refreshResult.tokens.access.token;
       }
@@ -371,7 +371,7 @@ export class TokenManager {
    */
   async isAuthenticated(): Promise<boolean> {
     const { accessToken, refreshToken } = await this.getTokens();
-    
+
     if (!accessToken && !refreshToken) {
       return false;
     }
@@ -411,7 +411,7 @@ export class TokenManager {
     const accessValidation = accessToken ? this.validateToken(accessToken) : null;
     const refreshValidation = refreshToken ? this.validateToken(refreshToken) : null;
 
-    const timeUntilExpiry = accessValidation?.expiresAt 
+    const timeUntilExpiry = accessValidation?.expiresAt
       ? accessValidation.expiresAt.getTime() - Date.now()
       : null;
 

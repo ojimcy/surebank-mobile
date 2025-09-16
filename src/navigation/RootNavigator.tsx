@@ -21,7 +21,7 @@ export default function RootNavigator() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
 
-  console.log('[RootNavigator] State:', {
+  console.log('[RootNavigator] Rendering with state:', {
     isAuthenticated,
     isLoading,
     hasCompletedOnboarding,
@@ -40,7 +40,7 @@ export default function RootNavigator() {
         setCheckingOnboarding(false);
       }
     };
- 
+
     checkOnboardingStatus();
   }, []);
 
@@ -64,22 +64,22 @@ export default function RootNavigator() {
         ) : (
           <Stack.Screen name="Main" component={MainTabs} />
         )}
-      
-      {/* Modal screens */}
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen 
-          name="QRScanner" 
-          component={QRScannerScreen}
-          options={{ headerShown: true, title: 'Scan QR Code' }}
-        />
-        <Stack.Screen 
-          name="ImageViewer" 
-          component={ImageViewerScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Group>
-    </Stack.Navigator>
-  );
+
+        {/* Modal screens */}
+        <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen
+            name="QRScanner"
+            component={QRScannerScreen}
+            options={{ headerShown: true, title: 'Scan QR Code' }}
+          />
+          <Stack.Screen
+            name="ImageViewer"
+            component={ImageViewerScreen}
+            options={{ headerShown: false }}
+          />
+        </Stack.Group>
+      </Stack.Navigator>
+    );
   } catch (error) {
     console.error('[RootNavigator] Error rendering navigator:', error);
     return (

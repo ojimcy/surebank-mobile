@@ -8,7 +8,7 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import NetInfo from '@react-native-community/netinfo';
-import { storage, STORAGE_KEYS } from '@/services/storage';
+import { storage, STORAGE_KEYS } from '@/services/storage/index';
 import tokenManager from '@/services/auth/tokenManager';
 import { ApiConfig, ApiErrorResponse, NetworkError } from './types';
 
@@ -94,11 +94,11 @@ apiClient.interceptors.request.use(
         if (!csrfToken || !csrfSecret) {
           try {
             const tokenResponse = await tokenFetcher.get('/users/me', {
-              headers: { 
-                Authorization: authToken ? `Bearer ${authToken}` : undefined 
+              headers: {
+                Authorization: authToken ? `Bearer ${authToken}` : undefined
               }
             });
-            
+
             csrfToken = tokenResponse.headers['x-csrf-token'];
             csrfSecret = tokenResponse.headers['x-csrf-secret'];
 
@@ -159,7 +159,7 @@ apiClient.interceptors.response.use(
     }
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as any;
 
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
@@ -171,7 +171,7 @@ apiClient.interceptors.response.use(
 
         // Emit token expired event for auth context to handle
         console.log('Authentication expired - tokens cleared');
-        
+
       } catch (storageError) {
         console.error('Failed to clear tokens on 401:', storageError);
       }
@@ -219,10 +219,10 @@ apiClient.interceptors.response.use(
 
     // Handle client errors (4xx)
     if (error.response?.status >= 400 && error.response?.status < 500) {
-      const errorMessage = error.response.data?.message || 
-                          error.response.data?.error?.message || 
-                          'Request failed';
-      
+      const errorMessage = (error.response.data as any)?.message ||
+        (error.response.data as any)?.error?.message ||
+        'Request failed';
+
       return Promise.reject(new ApiNetworkError(
         errorMessage,
         'CLIENT_ERROR',
@@ -288,7 +288,7 @@ export const apiUtils = {
     return {
       baseURL: apiClient.defaults.baseURL || API_CONFIG.baseURL,
       timeout: apiClient.defaults.timeout || API_CONFIG.timeout,
-      headers: { ...apiClient.defaults.headers.common },
+      headers: { ...apiClient.defaults.headers.common } as Record<string, string>,
     };
   },
 
@@ -307,12 +307,12 @@ export const apiUtils = {
         return await requestFn();
       } catch (error) {
         lastError = error as Error;
-        
+
         // Don't retry on client errors (4xx) except 408, 429
         if (error instanceof ApiNetworkError) {
-          if (!error.isRetriable || 
-              (error.status && error.status >= 400 && error.status < 500 && 
-               error.status !== 408 && error.status !== 429)) {
+          if (!error.isRetriable ||
+            (error.status && error.status >= 400 && error.status < 500 &&
+              error.status !== 408 && error.status !== 429)) {
             throw error;
           }
         }

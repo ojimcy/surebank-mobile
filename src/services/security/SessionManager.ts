@@ -6,7 +6,7 @@
  */
 
 import { AppState, AppStateStatus } from 'react-native';
-import { storage, STORAGE_KEYS } from '@/services/storage';
+import { storage, STORAGE_KEYS } from '@/services/storage/index';
 import tokenManager from '@/services/auth/tokenManager';
 
 // Session configuration
@@ -26,7 +26,7 @@ const DEFAULT_CONFIG: SessionConfig = {
 };
 
 // Session event types
-export type SessionEvent = 
+export type SessionEvent =
   | 'session_started'
   | 'session_extended'
   | 'session_warning'
@@ -47,7 +47,7 @@ export class SessionManager {
   private appStateSubscription: any = null;
   private isActive = false;
   private sessionId: string | null = null;
-  
+
   private listeners: Set<SessionListener> = new Set();
 
   constructor(config?: Partial<SessionConfig>) {
@@ -195,7 +195,7 @@ export class SessionManager {
    */
   async restoreSession(): Promise<boolean> {
     try {
-      const [sessionStartResult, sessionIdResult, lastActivityResult] = 
+      const [sessionStartResult, sessionIdResult, lastActivityResult] =
         await storage.multiGet([
           STORAGE_KEYS.SESSION_START_TIME,
           STORAGE_KEYS.SESSION_ID,
@@ -217,7 +217,7 @@ export class SessionManager {
 
       // Validate restored session
       const isValid = await this.isSessionValid();
-      
+
       if (isValid) {
         this.startTimers();
         console.log('Session restored:', sessionId);
@@ -245,7 +245,7 @@ export class SessionManager {
    */
   updateConfig(newConfig: Partial<SessionConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    
+
     if (this.isActive) {
       this.resetTimers();
     }
@@ -371,7 +371,7 @@ export class SessionManager {
    */
   destroy(): void {
     this.stopTimers();
-    
+
     if (this.appStateSubscription) {
       this.appStateSubscription.remove();
       this.appStateSubscription = null;
@@ -394,7 +394,7 @@ declare module '@/services/storage' {
 // Extend storage keys
 Object.assign(STORAGE_KEYS, {
   SESSION_START_TIME: 'session_start_time',
-  SESSION_ID: 'session_id', 
+  SESSION_ID: 'session_id',
   LAST_ACTIVITY: 'last_activity',
 });
 

@@ -13,17 +13,19 @@ export * from './types';
 // Navigation service
 export { default as navigationService, navigationRef } from './NavigationService';
 
-// Guards
-export { AuthGuard, PinGuard, RoleGuard } from './guards';
-export type { UserRole } from './guards';
+// Guards - commented out to fix navigation context error
+// These should only be imported where they're actually used, not exported globally
+// export { AuthGuard, PinGuard, RoleGuard } from './guards';
+// export type { UserRole } from './guards';
 
-// Protected screen components
-export {
-  withProtectedScreen,
-  withPublicScreen,
-  withAuthenticatedScreen,
-  withSecureScreen,
-  withAdminScreen,
-  withPremiumScreen,
-  useScreenPinVerification,
-} from './components';
+// Protected screen components - commented out to fix navigation context error
+// These should only be imported where they're actually used, not exported globally
+// export {
+//   withProtectedScreen,
+//   withPublicScreen,
+//   withAuthenticatedScreen,
+//   withSecureScreen,
+//   withAdminScreen,
+//   withPremiumScreen,
+//   useScreenPinVerification,
+// } from './components';

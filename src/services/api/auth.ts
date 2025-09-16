@@ -6,7 +6,7 @@
  */
 
 import apiClient, { ApiNetworkError, apiUtils } from './client';
-import { storage, STORAGE_KEYS, storageUtils } from '@/services/storage';
+import { storage, STORAGE_KEYS, storageUtils } from '@/services/storage/index';
 import {
   LoginPayload,
   RegisterPayload,
@@ -194,8 +194,8 @@ export class AuthService {
   async verifyAccount(payload: VerifyPayload): Promise<User> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<VerifyResponse>('/auth/verify-email', { 
-          otp: payload.code 
+        () => apiClient.post<VerifyResponse>('/auth/verify-email', {
+          otp: payload.code
         }),
         2,
         1000
@@ -313,7 +313,7 @@ export class AuthService {
       if (error instanceof ApiNetworkError && error.status === 401) {
         // Token expired or invalid - clear stored tokens
         await storageUtils.clearAuthData();
-        
+
         throw new AuthenticationError(
           'Session expired. Please log in again',
           'TOKEN_EXPIRED',
@@ -456,7 +456,7 @@ export class AuthService {
     try {
       // Clear all authentication-related storage
       await storageUtils.clearAuthData();
-      
+
       // Optionally notify the server (fire-and-forget)
       try {
         await apiClient.post('/auth/logout', {}, { timeout: 5000 });

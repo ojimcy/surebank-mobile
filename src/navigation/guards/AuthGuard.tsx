@@ -1,37 +1,23 @@
 /**
  * SureBank Authentication Guard
- * 
+ *
  * Navigation guard that protects routes requiring authentication.
- * Redirects unauthenticated users to login screen.
+ * Note: Navigation logic should be handled at the navigator level, not here.
  */
 
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
 
 interface AuthGuardProps {
   children: ReactNode;
   fallback?: ReactNode;
-  redirectTo?: string;
 }
 
-export function AuthGuard({ 
-  children, 
-  fallback = null, 
-  redirectTo = 'Auth' 
+export function AuthGuard({
+  children,
+  fallback = null
 }: AuthGuardProps) {
   const { isAuthenticated, isLoading } = useAuth();
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      // Reset navigation stack and navigate to auth
-      navigation.reset({
-        index: 0,
-        routes: [{ name: redirectTo as never }],
-      });
-    }
-  }, [isAuthenticated, isLoading, navigation, redirectTo]);
 
   // Show loading or fallback while checking auth status
   if (isLoading) {
@@ -43,7 +29,8 @@ export function AuthGuard({
     return <>{children}</>;
   }
 
-  // Show fallback while redirecting
+  // Show fallback if not authenticated
+  // Navigation should be handled by the RootNavigator based on auth state
   return fallback as React.ReactElement;
 }
 

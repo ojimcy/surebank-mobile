@@ -7,7 +7,6 @@
 
 import React from 'react';
 import { AppState, AppStateStatus, PanResponder, GestureResponderEvent } from 'react-native';
-import { usePinSecurity } from '@/contexts/PinSecurityContext';
 
 // Activity event types
 export type ActivityEvent = 
@@ -320,46 +319,19 @@ export function getActivityMonitor(config?: Partial<ActivityMonitorConfig>): Act
 }
 
 /**
- * React hook for activity monitoring with PIN security integration
+ * React hook for activity monitoring
  */
 export function useActivityMonitor(config?: Partial<ActivityMonitorConfig>) {
-  const pinSecurity = usePinSecurity();
   const monitor = getActivityMonitor(config);
 
-  // Subscribe to activity events and integrate with PIN security
+  // Start monitoring on mount
   React.useEffect(() => {
-    const unsubscribe = monitor.subscribe((event: ActivityEvent, timestamp: Date) => {
-      // Update PIN security activity on any user interaction
-      if (event !== 'background' && event !== 'foreground') {
-        pinSecurity.updateActivity();
-      }
-
-      // Handle inactivity timeout by locking the app
-      if (event === 'background' && monitor.isInactive()) {
-        if (pinSecurity.isPinSet && !pinSecurity.isLocked) {
-          pinSecurity.lock();
-        }
-      }
-    });
-
-    // Start monitoring when PIN is set
-    if (pinSecurity.isPinSet) {
-      monitor.start();
-    } else {
-      monitor.stop();
-    }
+    monitor.start();
 
     return () => {
-      unsubscribe();
+      // Don't stop the monitor as it's a singleton
     };
-  }, [pinSecurity.isPinSet, pinSecurity.isLocked]);
-
-  // Update monitor timeout when PIN security timeout changes
-  React.useEffect(() => {
-    monitor.updateConfig({
-      inactivityTimeout: pinSecurity.inactivityTimeout,
-    });
-  }, [pinSecurity.inactivityTimeout]);
+  }, [monitor]);
 
   return {
     monitor,

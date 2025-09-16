@@ -102,7 +102,7 @@ export function useAuthValidationQuery(options?: {
         await authService.getCurrentUser();
         return { isValid: true, timestamp: new Date().toISOString() };
       } catch (error) {
-        return { isValid: false, timestamp: new Date().toISOString(), error: error.message };
+        return { isValid: false, timestamp: new Date().toISOString(), error: (error as Error).message };
       }
     },
     enabled: isAuthenticated && (options?.enabled !== false),
@@ -124,20 +124,20 @@ export function useAuthQueries(options?: {
   enableTokenQuery?: boolean;
   enableValidationQuery?: boolean;
 }) {
-  const userQuery = useCurrentUserQuery({ 
-    enabled: options?.enableUserQuery 
+  const userQuery = useCurrentUserQuery({
+    enabled: options?.enableUserQuery
   });
-  
-  const statusQuery = useAuthStatusQuery({ 
-    enabled: options?.enableStatusQuery 
+
+  const statusQuery = useAuthStatusQuery({
+    enabled: options?.enableStatusQuery
   });
-  
-  const tokenQuery = useTokenInfoQuery({ 
-    enabled: options?.enableTokenQuery 
+
+  const tokenQuery = useTokenInfoQuery({
+    enabled: options?.enableTokenQuery
   });
-  
-  const validationQuery = useAuthValidationQuery({ 
-    enabled: options?.enableValidationQuery 
+
+  const validationQuery = useAuthValidationQuery({
+    enabled: options?.enableValidationQuery
   });
 
   return {
@@ -145,12 +145,12 @@ export function useAuthQueries(options?: {
     status: statusQuery,
     tokens: tokenQuery,
     validation: validationQuery,
-    
+
     // Convenience flags
     isLoading: userQuery.isLoading || statusQuery.isLoading,
     isError: userQuery.isError || statusQuery.isError,
     error: userQuery.error || statusQuery.error,
-    
+
     // Data
     userData: userQuery.data,
     statusData: statusQuery.data,
