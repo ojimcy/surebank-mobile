@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions } from './navigationTheme';
+import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions } from './navigationTheme';
 
 import type { DashboardStackParamList } from './types';
 
@@ -19,30 +19,45 @@ export default function DashboardStack() {
       initialRouteName="Dashboard"
       screenOptions={stackScreenOptions}
     >
-      <Stack.Screen 
-        name="Dashboard" 
-        component={DashboardScreen} 
-        options={{ title: 'Dashboard' }}
+      <Stack.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        options={{
+          ...homeScreenOptions,
+          title: 'Dashboard'
+        }}
       />
-      <Stack.Screen 
-        name="Overview" 
-        component={OverviewScreen} 
-        options={{ title: 'Overview' }}
+      <Stack.Screen
+        name="Overview"
+        component={OverviewScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Overview'
+        }}
       />
-      <Stack.Screen 
-        name="Analytics" 
-        component={AnalyticsScreen} 
-        options={{ title: 'Analytics' }}
+      <Stack.Screen
+        name="Analytics"
+        component={AnalyticsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Analytics'
+        }}
       />
-      <Stack.Screen 
-        name="Notifications" 
-        component={NotificationsScreen} 
-        options={{ title: 'Notifications' }}
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Notifications'
+        }}
       />
-      <Stack.Screen 
-        name="MarketOverview" 
-        component={MarketOverviewScreen} 
-        options={{ title: 'Market Overview' }}
+      <Stack.Screen
+        name="MarketOverview"
+        component={MarketOverviewScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Market Overview'
+        }}
       />
     </Stack.Navigator>
   );

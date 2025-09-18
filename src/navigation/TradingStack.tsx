@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions } from './navigationTheme';
+import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions } from './navigationTheme';
 
 import type { TradingStackParamList } from './types';
 
@@ -19,30 +19,45 @@ export default function TradingStack() {
       initialRouteName="TradingHome"
       screenOptions={stackScreenOptions}
     >
-      <Stack.Screen 
-        name="TradingHome" 
-        component={TradingHomeScreen} 
-        options={{ title: 'Trading' }}
+      <Stack.Screen
+        name="TradingHome"
+        component={TradingHomeScreen}
+        options={{
+          ...homeScreenOptions,
+          title: 'Trading'
+        }}
       />
-      <Stack.Screen 
-        name="BotManagement" 
-        component={BotManagementScreen} 
-        options={{ title: 'Bot Management' }}
+      <Stack.Screen
+        name="BotManagement"
+        component={BotManagementScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Bot Management'
+        }}
       />
-      <Stack.Screen 
-        name="CreateBot" 
-        component={CreateBotScreen} 
-        options={{ title: 'Create Bot' }}
+      <Stack.Screen
+        name="CreateBot"
+        component={CreateBotScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Create Bot'
+        }}
       />
-      <Stack.Screen 
-        name="EditBot" 
-        component={EditBotScreen} 
-        options={{ title: 'Edit Bot' }}
+      <Stack.Screen
+        name="EditBot"
+        component={EditBotScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Edit Bot'
+        }}
       />
-      <Stack.Screen 
-        name="BotDetails" 
-        component={BotDetailsScreen} 
-        options={{ title: 'Bot Details' }}
+      <Stack.Screen
+        name="BotDetails"
+        component={BotDetailsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Bot Details'
+        }}
       />
     </Stack.Navigator>
   );

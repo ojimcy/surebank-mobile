@@ -60,14 +60,14 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
   const borderColor = errorText
     ? '#ef4444'
     : isFocused
-    ? '#f5d523'
-    : '#2a3f5f';
+      ? '#d4af37'
+      : '#2a3f5f';
 
   const iconColor = errorText
     ? '#ef4444'
     : isFocused
-    ? '#f5d523'
-    : '#94a3b8';
+      ? '#d4af37'
+      : '#94a3b8';
 
   return (
     <View style={containerStyle}>

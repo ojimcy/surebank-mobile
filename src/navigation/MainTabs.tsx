@@ -19,7 +19,7 @@ export default function MainTabs() {
       initialRouteName="DashboardTab"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#f5d523', // Yellow accent
+        tabBarActiveTintColor: '#d4af37', // Gold accent
         tabBarInactiveTintColor: '#94a3b8', // Muted text
         tabBarStyle: {
           backgroundColor: '#0f1721', // Main dark background

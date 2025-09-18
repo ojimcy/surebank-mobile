@@ -28,12 +28,12 @@ module.exports = {
           200: '#fff7c7',  // Soft yellow
           300: '#ffeb99',  // Medium light yellow
           400: '#ffd652',  // Medium yellow
-          500: '#f5d523',  // Main vibrant yellow (from screenshots)
+          500: '#d4af37',  // Main gold accent (elegant and sophisticated)
           600: '#e5c31f',  // Darker yellow
           700: '#c9a61a',  // Deep yellow
           800: '#a68817',  // Very dark yellow
           900: '#896f15',  // Darkest yellow
-          DEFAULT: '#f5d523',
+          DEFAULT: '#d4af37',
           foreground: '#1a2c4f',
         },
 
@@ -142,7 +142,7 @@ module.exports = {
           border: '#2a3f5f',       // Input borders
         },
         ring: {
-          DEFAULT: '#f5d523',      // Focus ring color (yellow accent)
+          DEFAULT: '#d4af37',      // Focus ring color (gold accent)
         },
 
         // Accent: Bright Yellow - Primary Actions & Premium
@@ -152,12 +152,12 @@ module.exports = {
           200: '#fff7c7',
           300: '#ffeb99',
           400: '#ffd652',
-          500: '#f5d523',  // Bright yellow accent
+          500: '#d4af37',  // Elegant gold accent
           600: '#e5c31f',
           700: '#c9a61a',
           800: '#a68817',
           900: '#896f15',
-          DEFAULT: '#f5d523',
+          DEFAULT: '#d4af37',
           foreground: '#1a2c4f',
         },
       },
@@ -177,24 +177,24 @@ module.exports = {
       // Dark theme gradients
       backgroundImage: {
         'gradient-primary': 'linear-gradient(135deg, #1a2c4f 0%, #243449 100%)',
-        'gradient-accent': 'linear-gradient(135deg, #f5d523 0%, #ffd652 100%)',
+        'gradient-accent': 'linear-gradient(135deg, #d4af37 0%, #e6c547 100%)',
         'gradient-success': 'linear-gradient(135deg, #22c55e 0%, #4ade80 100%)',
         'gradient-warning': 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
         'gradient-subtle': 'linear-gradient(135deg, #1a2c4f 0%, #0f1721 100%)',
-        'gradient-card': 'linear-gradient(135deg, rgba(245,213,35,0.1) 0%, rgba(245,213,35,0.05) 100%)',
+        'gradient-card': 'linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%)',
         'gradient-dark': 'linear-gradient(180deg, #0f1721 0%, #1a2c4f 100%)',
       },
 
       // Typography system
       fontFamily: {
         'sans': [
-          'SF Pro Display', 
-          '-apple-system', 
+          'SF Pro Display',
+          '-apple-system',
           'BlinkMacSystemFont',
-          'Segoe UI', 
+          'Segoe UI',
           'Roboto',
-          'Helvetica Neue', 
-          'Arial', 
+          'Helvetica Neue',
+          'Arial',
           'sans-serif'
         ],
         'mono': [

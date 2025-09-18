@@ -6,12 +6,12 @@
 export const navigationTheme = {
   colors: {
     // Dark theme colors matching the new design
-    primary: '#f5d523',        // Yellow accent
+    primary: '#d4af37',        // Gold accent
     background: '#0f1721',     // Main dark background
     card: '#1a2c4f',          // Card/header background
     text: '#ffffff',          // Primary text
     border: '#1f3048',        // Subtle borders
-    notification: '#f5d523',   // Notification badge
+    notification: '#d4af37',   // Notification badge
   },
   dark: true,
 };
@@ -24,17 +24,39 @@ export const stackScreenOptions = {
     borderBottomColor: '#1f3048', // Subtle border
     elevation: 0,
     shadowOpacity: 0,
+    height: 60, // Consistent header height
   },
-  headerTintColor: '#f5d523', // Yellow accent for back buttons
+  headerTintColor: '#d4af37', // Gold accent for back buttons
   headerTitleStyle: {
     fontWeight: '600' as const,
     color: '#ffffff', // White text
     fontSize: 18,
+    textAlign: 'center' as const,
+  },
+  headerTitleAlign: 'center' as const, // Center align titles
+  headerBackTitleVisible: false, // Hide back button text, show only icon
+  headerLeftContainerStyle: {
+    paddingLeft: 16,
+  },
+  headerRightContainerStyle: {
+    paddingRight: 16,
   },
 };
 
+// Specific options for home screens (first screen in each stack)
+export const homeScreenOptions = {
+  ...stackScreenOptions,
+  headerLeft: () => null, // Remove back button for home screens
+};
+
+// Specific options for secondary screens with back button
+export const secondaryScreenOptions = {
+  ...stackScreenOptions,
+  // Back button will be automatically added by React Navigation
+};
+
 export const tabBarOptions = {
-  activeTintColor: '#f5d523',   // Yellow accent
+  activeTintColor: '#d4af37',   // Gold accent
   inactiveTintColor: '#94a3b8', // Muted text
   style: {
     backgroundColor: '#0f1721',  // Main dark background

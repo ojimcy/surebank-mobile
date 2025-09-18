@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions } from './navigationTheme';
+import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions } from './navigationTheme';
 
 import type { HistoryStackParamList } from './types';
 
@@ -19,30 +19,45 @@ export default function HistoryStack() {
       initialRouteName="HistoryHome"
       screenOptions={stackScreenOptions}
     >
-      <Stack.Screen 
-        name="HistoryHome" 
-        component={HistoryHomeScreen} 
-        options={{ title: 'History' }}
+      <Stack.Screen
+        name="HistoryHome"
+        component={HistoryHomeScreen}
+        options={{
+          ...homeScreenOptions,
+          title: 'History'
+        }}
       />
-      <Stack.Screen 
-        name="Transactions" 
-        component={TransactionsScreen} 
-        options={{ title: 'Transactions' }}
+      <Stack.Screen
+        name="Transactions"
+        component={TransactionsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Transactions'
+        }}
       />
-      <Stack.Screen 
-        name="Trades" 
-        component={TradesScreen} 
-        options={{ title: 'Trades' }}
+      <Stack.Screen
+        name="Trades"
+        component={TradesScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Trades'
+        }}
       />
-      <Stack.Screen 
-        name="Orders" 
-        component={OrdersScreen} 
-        options={{ title: 'Orders' }}
+      <Stack.Screen
+        name="Orders"
+        component={OrdersScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Orders'
+        }}
       />
-      <Stack.Screen 
-        name="Reports" 
-        component={ReportsScreen} 
-        options={{ title: 'Reports' }}
+      <Stack.Screen
+        name="Reports"
+        component={ReportsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Reports'
+        }}
       />
     </Stack.Navigator>
   );

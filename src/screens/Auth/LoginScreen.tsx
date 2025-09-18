@@ -190,7 +190,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
                   onPress={() => navigation.navigate('ForgotPassword')}
                   style={{ padding: 4 }}
                 >
-                  <Text style={{ color: '#f5d523', fontSize: 14 }}>
+                  <Text style={{ color: '#d4af37', fontSize: 14 }}>
                     Forgot Password?
                   </Text>
                 </TouchableOpacity>
@@ -202,7 +202,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               onPress={handleSubmit}
               disabled={isLoading}
               style={{
-                backgroundColor: isLoading ? '#9ca3af' : '#f5d523',
+                backgroundColor: isLoading ? '#9ca3af' : '#d4af37',
                 borderRadius: 8,
                 paddingVertical: 14,
                 alignItems: 'center',
@@ -244,7 +244,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
                 style={{ padding: 8 }}
               >
                 <Text style={{
-                  color: '#f5d523',
+                  color: '#d4af37',
                   fontSize: 16,
                   fontWeight: '600'
                 }}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions } from './navigationTheme';
+import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions } from './navigationTheme';
 
 import type { PortfolioStackParamList } from './types';
 
@@ -19,30 +19,45 @@ export default function PortfolioStack() {
       initialRouteName="PortfolioHome"
       screenOptions={stackScreenOptions}
     >
-      <Stack.Screen 
-        name="PortfolioHome" 
-        component={PortfolioHomeScreen} 
-        options={{ title: 'Portfolio' }}
+      <Stack.Screen
+        name="PortfolioHome"
+        component={PortfolioHomeScreen}
+        options={{
+          ...homeScreenOptions,
+          title: 'Portfolio'
+        }}
       />
-      <Stack.Screen 
-        name="Assets" 
-        component={AssetsScreen} 
-        options={{ title: 'Assets' }}
+      <Stack.Screen
+        name="Assets"
+        component={AssetsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Assets'
+        }}
       />
-      <Stack.Screen 
-        name="Performance" 
-        component={PerformanceScreen} 
-        options={{ title: 'Performance' }}
+      <Stack.Screen
+        name="Performance"
+        component={PerformanceScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Performance'
+        }}
       />
-      <Stack.Screen 
-        name="Positions" 
-        component={PositionsScreen} 
-        options={{ title: 'Positions' }}
+      <Stack.Screen
+        name="Positions"
+        component={PositionsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Positions'
+        }}
       />
-      <Stack.Screen 
-        name="AssetDetails" 
-        component={AssetDetailsScreen} 
-        options={{ title: 'Asset Details' }}
+      <Stack.Screen
+        name="AssetDetails"
+        component={AssetDetailsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Asset Details'
+        }}
       />
     </Stack.Navigator>
   );
