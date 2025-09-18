@@ -9,7 +9,10 @@ export type AuthStackParamList = {
   Verification: { identifier: string };
   PasswordRecovery: undefined;
   PINSetup: undefined;
-  Login: undefined;
+  Login: {
+    message?: string;
+    prefilledIdentifier?: string;
+  } | undefined;
   Register: undefined;
   ForgotPassword: undefined;
   ResetPassword: { token: string };

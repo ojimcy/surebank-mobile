@@ -27,23 +27,34 @@ import type { AuthScreenProps } from '@/navigation/types';
 const { width } = Dimensions.get('window');
 
 interface RegisterFormData {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   phoneNumber: string;
+  address: string;
   password: string;
   confirmPassword: string;
 }
+
+interface CountryCode {
+  code: string;
+  flag: string;
+  name: string;
+  dialCode: string;
+}
+
+const countryCodes: CountryCode[] = [
+  { code: 'NG', flag: '🇳🇬', name: 'Nigeria', dialCode: '+234' },
+];
 
 export default function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
   console.log('[RegisterScreen] Rendering');
 
   const { register, isLoading, error, clearError } = useAuth();
   const [formData, setFormData] = useState<RegisterFormData>({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
     phoneNumber: '',
+    address: '',
     password: '',
     confirmPassword: '',
   });
@@ -51,21 +62,68 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>(countryCodes[0]); // Default to Nigeria
+
+  const validatePhoneNumber = (phone: string, country: CountryCode): boolean => {
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+
+    if (country.code === 'NG') {
+      // Nigerian phone number validation
+      // Supports: 08057172283, 8057172283, +2348057172283, formatted versions
+
+      // Remove country code if present
+      const phoneWithoutCountryCode = cleanPhone.replace(/^(\+234|234)/, '');
+
+      // Check if it's 11 digits starting with 0 and valid network prefix
+      if (/^0[789]\d{9}$/.test(phoneWithoutCountryCode)) {
+        return true;
+      }
+
+      // Check if it's 10 digits with valid network prefix (without leading 0)
+      if (/^[789]\d{9}$/.test(phoneWithoutCountryCode)) {
+        return true;
+      }
+
+      return false;
+    }
+
+    // General validation for other countries
+    const phoneRegex = /^[\+]?[1-9][\d]{6,14}$/;
+    return phoneRegex.test(cleanPhone);
+  };
+
+  const formatPhoneForSubmission = (phone: string, country: CountryCode): string => {
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+
+    if (country.code === 'NG') {
+      // Remove country code if present
+      let phoneWithoutCountryCode = cleanPhone.replace(/^(\+234|234)/, '');
+
+      // If it's 10 digits, add leading 0
+      if (/^[789]\d{9}$/.test(phoneWithoutCountryCode)) {
+        phoneWithoutCountryCode = '0' + phoneWithoutCountryCode;
+      }
+
+      // Return with country code
+      return '+234' + phoneWithoutCountryCode.substring(1);
+    }
+
+    // For other countries, ensure it starts with country code
+    if (!cleanPhone.startsWith(country.dialCode)) {
+      return country.dialCode + cleanPhone;
+    }
+
+    return cleanPhone.startsWith('+') ? cleanPhone : '+' + cleanPhone;
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     // Name validation
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = 'First name must be at least 2 characters';
-    }
-
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = 'Last name must be at least 2 characters';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full name is required';
+    } else if (formData.name.trim().length < 3) {
+      newErrors.name = 'Full name must be at least 3 characters';
     }
 
     // Email validation
@@ -82,11 +140,21 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = 'Phone number is required';
     } else {
-      const phoneRegex = /^[\+]?[1-9][\d]{3,14}$/;
-      const cleanPhone = formData.phoneNumber.replace(/[\s\-\(\)]/g, '');
-      if (!phoneRegex.test(cleanPhone)) {
-        newErrors.phoneNumber = 'Please enter a valid phone number';
+      const isValidPhone = validatePhoneNumber(formData.phoneNumber, selectedCountry);
+      if (!isValidPhone) {
+        if (selectedCountry.code === 'NG') {
+          newErrors.phoneNumber = 'Enter 11 digits (e.g., 08057172283) or 10 digits (e.g., 8057172283)';
+        } else {
+          newErrors.phoneNumber = 'Please enter a valid phone number';
+        }
       }
+    }
+
+    // Address validation
+    if (!formData.address.trim()) {
+      newErrors.address = 'Address is required';
+    } else if (formData.address.trim().length < 10) {
+      newErrors.address = 'Please provide a complete address';
     }
 
     // Password validation
@@ -119,33 +187,46 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
 
     try {
       clearError();
+      const formattedPhone = formatPhoneForSubmission(formData.phoneNumber, selectedCountry);
+
+      // Split name into firstName and lastName
+      const nameParts = formData.name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
       await register({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
+        firstName,
+        lastName,
         email: formData.email.trim(),
-        phoneNumber: formData.phoneNumber.trim(),
+        phoneNumber: formattedPhone,
+        address: formData.address.trim(),
         password: formData.password,
       });
 
       // Show success toast
       Toast.show({
         type: 'success',
-        text1: 'Registration Successful',
-        text2: 'Welcome to SureBank!',
+        text1: 'Account Created Successfully!',
+        text2: 'Please log in with your credentials',
         position: 'top',
-        visibilityTime: 2000,
+        visibilityTime: 3000,
       });
 
-      // Navigation will be handled by auth context after successful registration
+      // Navigate to login screen with success message
+      console.log('[RegisterScreen] Registration successful, navigating to login');
+      navigation.navigate('Login', {
+        message: 'Your account has been created successfully. Please log in to continue.',
+        prefilledIdentifier: formData.email.trim() || formattedPhone,
+      });
     } catch (err: any) {
       console.error('Registration error:', err);
 
       let errorMessage = 'Registration failed. Please try again.';
 
-      if (err?.message?.includes('email already exists')) {
-        errorMessage = 'This email is already registered. Please use a different email.';
+      if (err?.message?.includes('email already exists') || err?.message?.includes('ACCOUNT_EXISTS')) {
+        errorMessage = 'This email is already registered. Please use a different email or try logging in.';
       } else if (err?.message?.includes('phone already exists')) {
-        errorMessage = 'This phone number is already registered. Please use a different number.';
+        errorMessage = 'This phone number is already registered. Please use a different number or try logging in.';
       } else if (err?.message?.includes('timeout')) {
         errorMessage = 'Registration request timed out. Please check your connection and try again.';
       } else if (err?.message?.includes('Network')) {
@@ -163,8 +244,35 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
     }
   };
 
+  const formatPhoneInput = (value: string, country: CountryCode): string => {
+    // Remove all non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+
+    if (country.code === 'NG') {
+      // For Nigerian numbers, add spacing for readability
+      if (digitsOnly.length <= 4) {
+        return digitsOnly;
+      } else if (digitsOnly.length <= 7) {
+        return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4)}`;
+      } else if (digitsOnly.length <= 11) {
+        return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7)}`;
+      }
+      // Limit to 11 digits for Nigerian numbers
+      return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7, 11)}`;
+    }
+
+    return digitsOnly;
+  };
+
   const updateField = (field: keyof RegisterFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    let processedValue = value;
+
+    // Format phone number as user types
+    if (field === 'phoneNumber') {
+      processedValue = formatPhoneInput(value, selectedCountry);
+    }
+
+    setFormData(prev => ({ ...prev, [field]: processedValue }));
     // Clear error for this field
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -227,84 +335,110 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
 
             {/* Registration Form */}
             <View style={styles.formContainer}>
-              {/* Name Fields */}
-              <View style={styles.nameRow}>
-                <View style={styles.nameField}>
-                  <Input
-                    label="First Name"
-                    placeholder="First name"
-                    value={formData.firstName}
-                    onChangeText={(text) => updateField('firstName', text)}
-                    leftIcon="person-outline"
-                    autoCapitalize="words"
-                    errorText={errors.firstName}
-                    editable={!isLoading}
-                  />
+              {/* Personal Information Section */}
+              <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>Personal Information</Text>
+
+                <Input
+                  label="Full Name"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChangeText={(text) => updateField('name', text)}
+                  leftIcon="person-outline"
+                  autoCapitalize="words"
+                  errorText={errors.name}
+                  editable={!isLoading}
+                />
+
+                {/* Contact Fields */}
+                <Input
+                  label="Email Address"
+                  placeholder="Enter your email address"
+                  value={formData.email}
+                  onChangeText={(text) => updateField('email', text)}
+                  leftIcon="mail-outline"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  errorText={errors.email}
+                  editable={!isLoading}
+                />
+
+                {/* Phone Number with Country Selector */}
+                <View style={styles.phoneContainer}>
+                  <Text style={styles.phoneLabel}>Phone Number</Text>
+                  <View style={styles.phoneInputContainer}>
+                    <TouchableOpacity
+                      style={styles.countrySelector}
+                      onPress={() => {
+                        // For now, cycle through country codes. In a real app, you'd show a picker
+                        const currentIndex = countryCodes.findIndex(c => c.code === selectedCountry.code);
+                        const nextIndex = (currentIndex + 1) % countryCodes.length;
+                        setSelectedCountry(countryCodes[nextIndex]);
+                      }}
+                      disabled={isLoading}
+                    >
+                      <Text style={styles.countryFlag}>{selectedCountry.flag}</Text>
+                      <Text style={styles.countryCode}>{selectedCountry.dialCode}</Text>
+                      <Ionicons name="chevron-down" size={16} color="#6b7280" />
+                    </TouchableOpacity>
+                    <View style={styles.phoneInputWrapper}>
+                      <Input
+                        placeholder={'Enter phone number'}
+                        value={formData.phoneNumber}
+                        onChangeText={(text) => updateField('phoneNumber', text)}
+                        keyboardType="phone-pad"
+                        errorText={errors.phoneNumber}
+                        editable={!isLoading}
+                        style={styles.phoneInput}
+                      />
+                    </View>
+                  </View>
                 </View>
-                <View style={styles.nameField}>
-                  <Input
-                    label="Last Name"
-                    placeholder="Last name"
-                    value={formData.lastName}
-                    onChangeText={(text) => updateField('lastName', text)}
-                    leftIcon="person-outline"
-                    autoCapitalize="words"
-                    errorText={errors.lastName}
-                    editable={!isLoading}
-                  />
-                </View>
+
+                <Input
+                  label="Address"
+                  placeholder="Enter your complete address"
+                  value={formData.address}
+                  onChangeText={(text) => updateField('address', text)}
+                  leftIcon="location-outline"
+                  autoCapitalize="sentences"
+                  errorText={errors.address}
+                  editable={!isLoading}
+                  multiline
+                />
               </View>
 
-              {/* Contact Fields */}
-              <Input
-                label="Email Address"
-                placeholder="Enter your email address"
-                value={formData.email}
-                onChangeText={(text) => updateField('email', text)}
-                leftIcon="mail-outline"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                errorText={errors.email}
-                editable={!isLoading}
-              />
+              {/* Security Section */}
+              <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>Security</Text>
 
-              <Input
-                label="Phone Number"
-                placeholder="Enter your phone number"
-                value={formData.phoneNumber}
-                onChangeText={(text) => updateField('phoneNumber', text)}
-                leftIcon="call-outline"
-                keyboardType="phone-pad"
-                errorText={errors.phoneNumber}
-                editable={!isLoading}
-              />
+                {/* Password Fields */}
+                <Input
+                  label="Password"
+                  placeholder="Create a strong password"
+                  value={formData.password}
+                  onChangeText={(text) => updateField('password', text)}
+                  leftIcon="lock-closed-outline"
+                  secureTextEntry={!showPassword}
+                  rightIcon={showPassword ? "eye-off-outline" : "eye-outline"}
+                  onRightIconPress={() => setShowPassword(!showPassword)}
+                  errorText={errors.password}
+                  editable={!isLoading}
+                />
 
-              {/* Password Fields */}
-              <Input
-                label="Password"
-                placeholder="Create a strong password"
-                value={formData.password}
-                onChangeText={(text) => updateField('password', text)}
-                leftIcon="lock-closed-outline"
-                secureTextEntry={!showPassword}
-                rightIcon={showPassword ? "eye-off-outline" : "eye-outline"}
-                onRightIconPress={() => setShowPassword(!showPassword)}
-                errorText={errors.password}
-                editable={!isLoading}
-              />
-
-              <Input
-                label="Confirm Password"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChangeText={(text) => updateField('confirmPassword', text)}
-                leftIcon="lock-closed-outline"
-                secureTextEntry={!showConfirmPassword}
-                rightIcon={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
-                onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                errorText={errors.confirmPassword}
-                editable={!isLoading}
-              />
+                <Input
+                  label="Confirm Password"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChangeText={(text) => updateField('confirmPassword', text)}
+                  leftIcon="lock-closed-outline"
+                  secureTextEntry={!showConfirmPassword}
+                  rightIcon={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                  onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  errorText={errors.confirmPassword}
+                  editable={!isLoading}
+                />
+              </View>
             </View>
 
             {/* Terms Agreement */}
@@ -526,7 +660,16 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     marginBottom: 24,
+    gap: 20,
+  },
+  sectionContainer: {
     gap: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#374151',
+    marginBottom: 4,
   },
   nameRow: {
     flexDirection: 'row',
@@ -669,5 +812,46 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
     lineHeight: 18,
+  },
+  // Phone Input Styles
+  phoneContainer: {
+    marginBottom: 16,
+  },
+  phoneLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  countrySelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 16,
+    gap: 8,
+    minWidth: 100,
+  },
+  countryFlag: {
+    fontSize: 18,
+  },
+  countryCode: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  phoneInputWrapper: {
+    flex: 1,
+  },
+  phoneInput: {
+    // Additional styles if needed
   },
 });

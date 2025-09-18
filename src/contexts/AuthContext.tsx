@@ -16,14 +16,14 @@ interface AuthContextValue extends AuthState {
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<{ success: boolean; identifier: string; message?: string }>;
   logout: () => Promise<void>;
-  
+
   // User management
   refreshUser: () => Promise<void>;
   clearError: () => void;
-  
+
   // Authentication status
   checkAuthStatus: () => Promise<void>;
-  
+
   // Error state
   error: string | null;
   errorCode: string | null;
@@ -64,46 +64,46 @@ function authReducer(state: AuthStateExtended, action: AuthAction): AuthStateExt
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
-      
+
     case 'SET_USER':
-      return { 
-        ...state, 
+      return {
+        ...state,
         user: action.payload,
         isAuthenticated: !!action.payload,
         error: null,
         errorCode: null,
       };
-      
+
     case 'SET_AUTHENTICATED':
       return { ...state, isAuthenticated: action.payload };
-      
+
     case 'SET_TOKENS':
       return { ...state, tokens: action.payload };
-      
+
     case 'SET_LAST_LOGIN':
       return { ...state, lastLogin: action.payload };
-      
+
     case 'SET_REMEMBER_ME':
       return { ...state, rememberMe: action.payload };
-      
+
     case 'SET_ERROR':
-      return { 
-        ...state, 
+      return {
+        ...state,
         error: action.payload.message,
         errorCode: action.payload.code,
         isLoading: false,
       };
-      
+
     case 'CLEAR_ERROR':
       return { ...state, error: null, errorCode: null };
-      
+
     case 'RESET_AUTH':
-      return { 
-        ...initialState, 
+      return {
+        ...initialState,
         isLoading: false,
         rememberMe: state.rememberMe, // Preserve remember me setting
       };
-      
+
     default:
       return state;
   }
@@ -127,19 +127,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Set error helper
   const setError = useCallback((error: unknown) => {
     if (error instanceof AuthenticationError) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: { message: error.message, code: error.code } 
+      dispatch({
+        type: 'SET_ERROR',
+        payload: { message: error.message, code: error.code }
       });
     } else if (error instanceof Error) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: { message: error.message, code: 'UNKNOWN_ERROR' } 
+      dispatch({
+        type: 'SET_ERROR',
+        payload: { message: error.message, code: 'UNKNOWN_ERROR' }
       });
     } else {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: { message: 'An unexpected error occurred', code: 'UNKNOWN_ERROR' } 
+      dispatch({
+        type: 'SET_ERROR',
+        payload: { message: 'An unexpected error occurred', code: 'UNKNOWN_ERROR' }
       });
     }
   }, []);
@@ -208,7 +208,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const isAuth = await tokenManager.isAuthenticated();
       dispatch({ type: 'SET_AUTHENTICATED', payload: isAuth });
-      
+
       if (!isAuth && state.user) {
         // Clear user data if not authenticated
         dispatch({ type: 'RESET_AUTH' });
@@ -226,10 +226,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       clearError();
 
       const user = await authService.login(payload);
-      
+
       // Get updated tokens after login
       const tokens = await authService.getTokens();
-      
+
       // Update state
       dispatch({ type: 'SET_USER', payload: user });
       dispatch({ type: 'SET_TOKENS', payload: tokens });
@@ -272,7 +272,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       console.error('Failed to refresh user data:', error);
       setError(error);
-      
+
       // If refresh fails due to auth, clear everything
       if (error instanceof AuthenticationError && error.type === 'TOKEN_EXPIRED') {
         await logout();
@@ -284,13 +284,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = useCallback(async () => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      
+
       // Clear server session and local storage
       await authService.logout();
-      
+
       // Reset authentication state
       dispatch({ type: 'RESET_AUTH' });
-      
+
     } catch (error) {
       console.error('Logout error:', error);
       // Even if server logout fails, clear local state
@@ -378,11 +378,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 // Custom hook to use the auth context
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
 }
 

@@ -12,6 +12,7 @@ import {
     StyleSheet,
     Platform,
     Alert,
+    ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -156,10 +157,12 @@ const SettingsSection = ({ section }: SettingsSectionProps) => (
 );
 
 export default function SettingsScreen({ navigation }: SettingsScreenProps<'Settings'>) {
-    const { user, logout } = useAuth();
+    const { user, logout, isLoading } = useAuth();
 
     const handleNotificationPress = () => {
-        navigation.navigate('Notifications');
+        console.log('Notification pressed - screen not implemented yet');
+        // TODO: Add Notifications screen to SettingsStack
+        // navigation.navigate('Notifications');
     };
 
     const handleAvatarPress = () => {
@@ -179,7 +182,14 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps<'Sett
                 {
                     text: 'Sign Out',
                     style: 'destructive',
-                    onPress: () => logout(),
+                    onPress: async () => {
+                        try {
+                            await logout();
+                        } catch (error) {
+                            console.error('Logout failed:', error);
+                            // The AuthContext already handles the error and clears state
+                        }
+                    },
                 },
             ]
         );
@@ -352,11 +362,22 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps<'Sett
                     style={styles.logoutButton}
                     onPress={handleLogout}
                     activeOpacity={0.7}
+                    disabled={isLoading}
                 >
                     <Ionicons name="log-out-outline" size={20} color="#ef4444" />
                     <Text style={styles.logoutText}>Sign Out</Text>
                 </TouchableOpacity>
             </ScrollView>
+
+            {/* Loading Overlay */}
+            {isLoading && (
+                <View style={styles.loadingOverlay}>
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#0066A1" />
+                        <Text style={styles.loadingText}>Signing out...</Text>
+                    </View>
+                </View>
+            )}
         </SafeAreaView>
     );
 }
@@ -594,5 +615,42 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#ef4444',
+    },
+    // Loading Overlay Styles
+    loadingOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+    },
+    loadingContainer: {
+        backgroundColor: '#ffffff',
+        borderRadius: 16,
+        padding: 32,
+        alignItems: 'center',
+        minWidth: 200,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 8,
+            },
+        }),
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#374151',
+        textAlign: 'center',
     },
 });

@@ -27,12 +27,13 @@ import type { AuthScreenProps } from '@/navigation/types';
 
 const { width, height } = Dimensions.get('window');
 
-export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
+export default function LoginScreen({ navigation, route }: AuthScreenProps<'Login'>) {
   console.log('[LoginScreen] Rendering');
 
+  const { message, prefilledIdentifier } = route.params || {};
   const { login, isLoading, error, clearError } = useAuth();
   const [formData, setFormData] = useState({
-    identifier: '',
+    identifier: prefilledIdentifier || '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -151,6 +152,16 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
 
           {/* Form Section */}
           <View style={styles.formSection}>
+            {/* Success Message Display */}
+            {message && (
+              <View style={styles.successContainer}>
+                <View style={styles.successIcon}>
+                  <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+                </View>
+                <Text style={styles.successText}>{message}</Text>
+              </View>
+            )}
+
             {/* Error Display */}
             {error && (
               <View style={styles.errorContainer}>
@@ -394,6 +405,27 @@ const styles = StyleSheet.create({
         elevation: 8,
       },
     }),
+  },
+  successContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ecfdf5',
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    gap: 12,
+  },
+  successIcon: {
+    padding: 2,
+  },
+  successText: {
+    flex: 1,
+    color: '#065f46',
+    fontSize: 14,
+    fontWeight: '500',
+    lineHeight: 20,
   },
   errorContainer: {
     flexDirection: 'row',
