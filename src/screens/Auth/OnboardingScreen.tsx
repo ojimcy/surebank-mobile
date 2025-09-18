@@ -43,42 +43,42 @@ const onboardingSlides: OnboardingSlide[] = [
   {
     id: '1',
     title: 'Welcome to SureBank',
-    subtitle: 'Smart Savings Made Easy',
-    description: 'Build your financial future with our innovative savings app. Start saving today and watch your money grow.',
-    icon: 'wallet',
-    gradient: ['#0066A1', '#1e40af'],
+    subtitle: 'Your Trusted Financial Partner',
+    description: 'Experience modern banking with secure savings, smart investments, and financial growth tools designed for your success.',
+    icon: 'shield-checkmark',
+    gradient: ['#0066A1', '#0077B5', '#0088CC'],
   },
   {
     id: '2',
-    title: 'Daily Savings (DS)',
-    subtitle: 'Save Every Day',
-    description: 'Build a consistent saving habit with daily contributions. Small amounts add up to big results over time.',
-    icon: 'calendar',
-    gradient: ['#0066A1', '#1e40af'],
+    title: 'Smart Savings',
+    subtitle: 'Build Your Future Daily',
+    description: 'Create consistent saving habits with our Daily Savings (DS) program. Small daily contributions lead to significant financial growth.',
+    icon: 'calendar-outline',
+    gradient: ['#0066A1', '#0077B5', '#0088CC'],
   },
   {
     id: '3',
-    title: 'Target Savings (SB)',
-    subtitle: 'Save for What You Want',
-    description: 'Set savings goals for products you want to buy from our store. Save up and purchase when you reach your target.',
-    icon: 'bag',
-    gradient: ['#0066A1', '#1e40af'],
+    title: 'Goal-Based Savings',
+    subtitle: 'Save for What Matters',
+    description: 'Set and achieve specific financial goals with our Target Savings (SB). Save for products, vacations, or any dream you have.',
+    icon: 'flag-outline',
+    gradient: ['#0066A1', '#0077B5', '#0088CC'],
   },
   {
     id: '4',
-    title: 'Earn Interest',
+    title: 'Competitive Returns',
     subtitle: 'Watch Your Money Grow',
-    description: 'Your savings earn competitive interest rates. The more you save, the more you earn on your contributions.',
-    icon: 'trending-up',
-    gradient: ['#0066A1', '#1e40af'],
+    description: 'Earn attractive interest rates on your savings. The more you save, the more you earn with our competitive return programs.',
+    icon: 'trending-up-outline',
+    gradient: ['#0066A1', '#0077B5', '#0088CC'],
   },
   {
     id: '5',
-    title: 'Start Saving Today',
-    subtitle: 'Join Thousands of Smart Savers',
-    description: 'Create your account in minutes and begin your journey to financial freedom with SureBank.',
-    icon: 'rocket',
-    gradient: ['#0066A1', '#1e40af'],
+    title: 'Bank-Level Security',
+    subtitle: 'Your Money is Safe',
+    description: 'Advanced encryption, biometric security, and regulatory compliance ensure your financial information is always protected.',
+    icon: 'lock-closed-outline',
+    gradient: ['#0066A1', '#0077B5', '#0088CC'],
   },
 ];
 
@@ -289,10 +289,10 @@ function OnboardingScreen({ navigation }: Props) {
             <View
               key={index}
               className={`h-2 mx-1 rounded-full transition-all duration-300 ${index === currentIndex
-                  ? 'w-8 bg-white'
-                  : index < currentIndex
-                    ? 'w-6 bg-white/60'
-                    : 'w-2 bg-white/30'
+                ? 'w-8 bg-white'
+                : index < currentIndex
+                  ? 'w-6 bg-white/60'
+                  : 'w-2 bg-white/30'
                 }`}
             />
           ))}

@@ -63,13 +63,17 @@ export type HistoryStackParamList = {
 
 // Settings Stack
 export type SettingsStackParamList = {
-  SettingsHome: undefined;
-  Profile: undefined;
-  Account: undefined;
-  Security: undefined;
-  Preferences: undefined;
-  ExchangeConnections: undefined;
-  Support: undefined;
+  Settings: undefined;
+  PersonalInformation: undefined;
+  NotificationSettings: undefined;
+  SecurityPin: undefined;
+  ChangePassword: undefined;
+  TwoFactorAuth: undefined;
+  TransactionHistory: undefined;
+  PaymentMethods: undefined;
+  Statements: undefined;
+  KycVerification: undefined;
+  Help: undefined;
   About: undefined;
 };
 
@@ -126,6 +130,6 @@ export type RootScreenProps<Screen extends keyof RootStackParamList> = StackScre
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }

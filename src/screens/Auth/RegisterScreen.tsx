@@ -1,5 +1,6 @@
 /**
- * Clean Register Screen - No complex dependencies
+ * Professional Register Screen
+ * Beautiful and modern banking app registration design
  */
 
 import React, { useState } from 'react';
@@ -12,12 +13,18 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { Input } from '@/components/forms';
 import { useAuth } from '@/contexts/AuthContext';
 import type { AuthScreenProps } from '@/navigation/types';
+
+const { width } = Dimensions.get('window');
 
 interface RegisterFormData {
   firstName: string;
@@ -48,14 +55,17 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // First Name validation
+    // Name validation
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = 'First name must be at least 2 characters';
     }
 
-    // Last Name validation
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Last name is required';
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = 'Last name must be at least 2 characters';
     }
 
     // Email validation
@@ -63,16 +73,18 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
       newErrors.email = 'Email is required';
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        newErrors.email = 'Please enter a valid email';
+      if (!emailRegex.test(formData.email.trim())) {
+        newErrors.email = 'Please enter a valid email address';
       }
     }
 
-    // Phone validation (optional but must be valid if provided)
-    if (formData.phoneNumber.trim()) {
-      const phoneRegex = /^\+?[\d\s-()]+$/;
-      const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
-      if (!phoneRegex.test(formData.phoneNumber) || cleanPhone.length < 10) {
+    // Phone validation
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = 'Phone number is required';
+    } else {
+      const phoneRegex = /^[\+]?[1-9][\d]{3,14}$/;
+      const cleanPhone = formData.phoneNumber.replace(/[\s\-\(\)]/g, '');
+      if (!phoneRegex.test(cleanPhone)) {
         newErrors.phoneNumber = 'Please enter a valid phone number';
       }
     }
@@ -82,6 +94,8 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      newErrors.password = 'Password must contain uppercase, lowercase, and number';
     }
 
     // Confirm password validation
@@ -91,9 +105,9 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    // Terms agreement
+    // Terms agreement validation
     if (!agreeToTerms) {
-      newErrors.terms = 'You must agree to the terms and conditions';
+      newErrors.terms = 'Please agree to the Terms of Service and Privacy Policy';
     }
 
     setErrors(newErrors);
@@ -105,11 +119,11 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
 
     try {
       clearError();
-      const result = await register({
+      await register({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
-        phoneNumber: formData.phoneNumber.trim() || undefined,
+        phoneNumber: formData.phoneNumber.trim(),
         password: formData.password,
       });
 
@@ -117,24 +131,32 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
       Toast.show({
         type: 'success',
         text1: 'Registration Successful',
-        text2: 'Please check your email to verify your account.',
+        text2: 'Welcome to SureBank!',
         position: 'top',
-        visibilityTime: 4000,
+        visibilityTime: 2000,
       });
 
-      // Navigate to verification screen
-      setTimeout(() => {
-        navigation.navigate('Verification', { identifier: formData.email });
-      }, 1500);
-
+      // Navigation will be handled by auth context after successful registration
     } catch (err: any) {
       console.error('Registration error:', err);
+
+      let errorMessage = 'Registration failed. Please try again.';
+
+      if (err?.message?.includes('email already exists')) {
+        errorMessage = 'This email is already registered. Please use a different email.';
+      } else if (err?.message?.includes('phone already exists')) {
+        errorMessage = 'This phone number is already registered. Please use a different number.';
+      } else if (err?.message?.includes('timeout')) {
+        errorMessage = 'Registration request timed out. Please check your connection and try again.';
+      } else if (err?.message?.includes('Network')) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
 
       // Show error toast
       Toast.show({
         type: 'error',
         text1: 'Registration Failed',
-        text2: err?.message || 'Unable to create account. Please try again.',
+        text2: errorMessage,
         position: 'top',
         visibilityTime: 4000,
       });
@@ -150,148 +172,143 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#0066A1" />
 
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: 24,
-            paddingVertical: 16
-          }}>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ padding: 8 }}
-            >
-              <Ionicons name="arrow-back" size={24} color="#6b7280" />
-            </TouchableOpacity>
-            <View style={{ width: 40 }} />
-          </View>
+          {/* Header Section with Gradient */}
+          <LinearGradient
+            colors={['#0066A1', '#0077B5', '#0088CC']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.header}
+          >
+            {/* Decorative Elements */}
+            <View style={styles.decorativeCircle1} />
+            <View style={styles.decorativeCircle2} />
 
-          <View style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 8 }}>
-            {/* Welcome Message */}
-            <View style={{ marginBottom: 24 }}>
-              <Text style={{
-                fontSize: 30,
-                fontWeight: 'bold',
-                color: '#111827',
-                marginBottom: 8
-              }}>
-                Create Account
-              </Text>
-              <Text style={{ fontSize: 16, color: '#6b7280' }}>
-                Join SureBank and start managing your finances
-              </Text>
+            {/* Logo/Brand Section */}
+            <View style={styles.brandSection}>
+              <View style={styles.logoContainer}>
+                <Ionicons name="person-add" size={32} color="#ffffff" />
+              </View>
+              <Text style={styles.brandText}>Join SureBank</Text>
+              <Text style={styles.brandSubtext}>Create your secure banking account</Text>
             </View>
 
+            {/* Welcome Message */}
+            <View style={styles.welcomeSection}>
+              <Text style={styles.welcomeTitle}>Get Started</Text>
+              <Text style={styles.welcomeSubtitle}>
+                Create your account and start your financial journey with us
+              </Text>
+            </View>
+          </LinearGradient>
+
+          {/* Form Section */}
+          <View style={styles.formSection}>
             {/* Error Display */}
             {error && (
-              <View style={{
-                backgroundColor: '#fee2e2',
-                borderWidth: 1,
-                borderColor: '#fecaca',
-                borderRadius: 8,
-                padding: 16,
-                marginBottom: 24,
-                flexDirection: 'row',
-                alignItems: 'center'
-              }}>
-                <Ionicons name="alert-circle" size={20} color="#dc2626" />
-                <Text style={{
-                  color: '#ef4444',
-                  marginLeft: 8,
-                  flex: 1
-                }}>
-                  {error}
-                </Text>
+              <View style={styles.errorContainer}>
+                <View style={styles.errorIcon}>
+                  <Ionicons name="alert-circle" size={20} color="#ef4444" />
+                </View>
+                <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
 
-            {/* Form Fields */}
-            <View style={{ gap: 16 }}>
-              {/* Name Fields Row */}
-              <View style={{ flexDirection: 'row', gap: 12 }}>
-                <View style={{ flex: 1 }}>
+            {/* Registration Form */}
+            <View style={styles.formContainer}>
+              {/* Name Fields */}
+              <View style={styles.nameRow}>
+                <View style={styles.nameField}>
                   <Input
                     label="First Name"
-                    placeholder="John"
-                    leftIcon="person-outline"
+                    placeholder="First name"
                     value={formData.firstName}
                     onChangeText={(text) => updateField('firstName', text)}
+                    leftIcon="person-outline"
                     autoCapitalize="words"
                     errorText={errors.firstName}
+                    editable={!isLoading}
                   />
                 </View>
-                <View style={{ flex: 1 }}>
+                <View style={styles.nameField}>
                   <Input
                     label="Last Name"
-                    placeholder="Doe"
-                    leftIcon="person-outline"
+                    placeholder="Last name"
                     value={formData.lastName}
                     onChangeText={(text) => updateField('lastName', text)}
+                    leftIcon="person-outline"
                     autoCapitalize="words"
                     errorText={errors.lastName}
+                    editable={!isLoading}
                   />
                 </View>
               </View>
 
+              {/* Contact Fields */}
               <Input
                 label="Email Address"
-                placeholder="john.doe@example.com"
-                leftIcon="mail-outline"
+                placeholder="Enter your email address"
                 value={formData.email}
                 onChangeText={(text) => updateField('email', text)}
+                leftIcon="mail-outline"
                 keyboardType="email-address"
                 autoCapitalize="none"
-                autoCorrect={false}
                 errorText={errors.email}
+                editable={!isLoading}
               />
 
               <Input
-                label="Phone Number (Optional)"
-                placeholder="+1 234 567 8900"
-                leftIcon="call-outline"
+                label="Phone Number"
+                placeholder="Enter your phone number"
                 value={formData.phoneNumber}
                 onChangeText={(text) => updateField('phoneNumber', text)}
+                leftIcon="call-outline"
                 keyboardType="phone-pad"
                 errorText={errors.phoneNumber}
+                editable={!isLoading}
               />
 
+              {/* Password Fields */}
               <Input
                 label="Password"
-                placeholder="Enter a strong password"
-                leftIcon="lock-closed-outline"
-                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                onRightIconPress={() => setShowPassword(!showPassword)}
+                placeholder="Create a strong password"
                 value={formData.password}
                 onChangeText={(text) => updateField('password', text)}
+                leftIcon="lock-closed-outline"
                 secureTextEntry={!showPassword}
+                rightIcon={showPassword ? "eye-off-outline" : "eye-outline"}
+                onRightIconPress={() => setShowPassword(!showPassword)}
                 errorText={errors.password}
+                editable={!isLoading}
               />
 
               <Input
                 label="Confirm Password"
-                placeholder="Re-enter your password"
-                leftIcon="lock-closed-outline"
-                rightIcon={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChangeText={(text) => updateField('confirmPassword', text)}
+                leftIcon="lock-closed-outline"
                 secureTextEntry={!showConfirmPassword}
+                rightIcon={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
                 errorText={errors.confirmPassword}
+                editable={!isLoading}
               />
+            </View>
 
-              {/* Terms and Conditions */}
+            {/* Terms Agreement */}
+            <View style={styles.termsContainer}>
               <TouchableOpacity
                 onPress={() => {
                   setAgreeToTerms(!agreeToTerms);
@@ -299,101 +316,78 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
                     setErrors(prev => ({ ...prev, terms: '' }));
                   }
                 }}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'flex-start',
-                  marginTop: 8
-                }}
+                style={styles.checkboxContainer}
+                disabled={isLoading}
               >
-                <View style={{
-                  width: 20,
-                  height: 20,
-                  borderWidth: 1,
-                  borderColor: errors.terms ? '#ef4444' : '#d1d5db',
-                  borderRadius: 4,
-                  marginRight: 8,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: agreeToTerms ? '#0066A1' : '#e5e7eb'
-                }}>
+                <View style={[
+                  styles.checkbox,
+                  agreeToTerms && styles.checkboxActive,
+                  errors.terms && styles.checkboxError
+                ]}>
                   {agreeToTerms && (
-                    <Ionicons name="checkmark" size={14} color="white" />
+                    <Ionicons name="checkmark" size={16} color="#ffffff" />
                   )}
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, color: '#6b7280', lineHeight: 20 }}>
+                <View style={styles.termsTextContainer}>
+                  <Text style={styles.termsText}>
                     I agree to the{' '}
-                    <Text style={{ color: '#0066A1', fontWeight: '600' }}>
-                      Terms of Service
-                    </Text>
-                    {' '}and{' '}
-                    <Text style={{ color: '#0066A1', fontWeight: '600' }}>
-                      Privacy Policy
-                    </Text>
+                    <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
+                    <Text style={styles.termsLink}>Privacy Policy</Text>
                   </Text>
                   {errors.terms && (
-                    <Text style={{ color: '#ef4444', fontSize: 12, marginTop: 4 }}>
-                      {errors.terms}
-                    </Text>
+                    <Text style={styles.termsError}>{errors.terms}</Text>
                   )}
                 </View>
               </TouchableOpacity>
             </View>
 
-            {/* Submit Button */}
+            {/* Register Button */}
             <TouchableOpacity
+              style={[styles.registerButton, isLoading && styles.registerButtonDisabled]}
               onPress={handleSubmit}
               disabled={isLoading}
-              style={{
-                backgroundColor: isLoading ? '#6b7280' : '#0066A1',
-                borderRadius: 8,
-                paddingVertical: 14,
-                alignItems: 'center',
-                marginTop: 32,
-                flexDirection: 'row',
-                justifyContent: 'center',
-              }}
+              activeOpacity={0.8}
             >
-              {isLoading ? (
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-                  Creating Account...
-                </Text>
-              ) : (
-                <>
-                  <Ionicons name="person-add-outline" size={20} color="white" />
-                  <Text style={{
-                    color: 'white',
-                    fontSize: 16,
-                    fontWeight: '600',
-                    marginLeft: 8
-                  }}>
-                    Create Account
-                  </Text>
-                </>
-              )}
+              <LinearGradient
+                colors={isLoading ? ['#9ca3af', '#9ca3af'] : ['#0066A1', '#0077B5']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.registerButtonGradient}
+              >
+                {isLoading ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" color="#ffffff" />
+                    <Text style={styles.registerButtonText}>Creating Account...</Text>
+                  </View>
+                ) : (
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.registerButtonText}>Create Account</Text>
+                    <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+                  </View>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
 
-            {/* Login Link */}
-            <View style={{
-              alignItems: 'center',
-              marginTop: 32,
-              marginBottom: 24
-            }}>
-              <Text style={{ color: '#6b7280', marginBottom: 12 }}>
-                Already have an account?
-              </Text>
+            {/* Sign In Link */}
+            <View style={styles.signInContainer}>
+              <Text style={styles.signInPrompt}>Already have an account? </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Login')}
-                style={{ padding: 8 }}
+                disabled={isLoading}
+                style={styles.signInButton}
               >
-                <Text style={{
-                  color: '#0066A1',
-                  fontSize: 16,
-                  fontWeight: '600'
-                }}>
-                  Sign In
-                </Text>
+                <Text style={styles.signInText}>Sign In</Text>
               </TouchableOpacity>
+            </View>
+
+            {/* Security Note */}
+            <View style={styles.securityNote}>
+              <View style={styles.securityIcon}>
+                <Ionicons name="shield-checkmark" size={16} color="#10b981" />
+              </View>
+              <Text style={styles.securityText}>
+                Your information is encrypted and secured with bank-level security
+              </Text>
             </View>
           </View>
         </ScrollView>
@@ -401,3 +395,279 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  // Header Styles
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 20 : 40,
+    paddingBottom: 40,
+    paddingHorizontal: 24,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  decorativeCircle1: {
+    position: 'absolute',
+    top: -50,
+    right: -30,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  decorativeCircle2: {
+    position: 'absolute',
+    bottom: -20,
+    left: -40,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  brandSection: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  logoContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  brandText: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  brandSubtext: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '500',
+  },
+  welcomeSection: {
+    alignItems: 'center',
+  },
+  welcomeTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
+    lineHeight: 24,
+    maxWidth: width * 0.8,
+  },
+  // Form Styles
+  formSection: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    marginTop: -20,
+    paddingTop: 32,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    gap: 12,
+  },
+  errorIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#fee2e2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    flex: 1,
+    color: '#991b1b',
+    fontSize: 14,
+    fontWeight: '500',
+    lineHeight: 20,
+  },
+  formContainer: {
+    marginBottom: 24,
+    gap: 16,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  nameField: {
+    flex: 1,
+  },
+  // Terms Styles
+  termsContainer: {
+    marginBottom: 32,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#d1d5db',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  checkboxActive: {
+    backgroundColor: '#0066A1',
+    borderColor: '#0066A1',
+  },
+  checkboxError: {
+    borderColor: '#ef4444',
+  },
+  termsTextContainer: {
+    flex: 1,
+  },
+  termsText: {
+    color: '#374151',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  termsLink: {
+    color: '#0066A1',
+    fontWeight: '600',
+  },
+  termsError: {
+    color: '#ef4444',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  // Button Styles
+  registerButton: {
+    borderRadius: 12,
+    marginBottom: 24,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0066A1',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  registerButtonDisabled: {
+    ...Platform.select({
+      ios: {
+        shadowOpacity: 0.1,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
+  registerButtonGradient: {
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  registerButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  signInContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  signInPrompt: {
+    color: '#6b7280',
+    fontSize: 15,
+  },
+  signInButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+  },
+  signInText: {
+    color: '#0066A1',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  securityNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+    borderRadius: 12,
+    padding: 16,
+    gap: 12,
+  },
+  securityIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#dcfce7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  securityText: {
+    flex: 1,
+    color: '#166534',
+    fontSize: 13,
+    fontWeight: '500',
+    lineHeight: 18,
+  },
+});

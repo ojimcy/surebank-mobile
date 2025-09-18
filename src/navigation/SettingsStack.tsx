@@ -1,89 +1,121 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
+import { stackScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
 
 import type { SettingsStackParamList } from './types';
 
-// Import settings screens (placeholder components for now)
-import SettingsHomeScreen from '@/screens/Settings/SettingsHomeScreen';
-import ProfileScreen from '@/screens/Settings/ProfileScreen';
-import AccountScreen from '@/screens/Settings/AccountScreen';
-import SecurityScreen from '@/screens/Settings/SecurityScreen';
-import PreferencesScreen from '@/screens/Settings/PreferencesScreen';
-import ExchangeConnectionsScreen from '@/screens/Settings/ExchangeConnectionsScreen';
-import SupportScreen from '@/screens/Settings/SupportScreen';
-import AboutScreen from '@/screens/Settings/AboutScreen';
+// Import settings screens
+import {
+  SettingsScreen,
+  PersonalInformationScreen,
+  NotificationSettingsScreen
+} from '@/screens/Settings';
+
+// Placeholder screens for future implementation
+const PlaceholderScreen = () => null;
 
 const Stack = createStackNavigator<SettingsStackParamList>();
 
 export default function SettingsStack() {
   return (
     <Stack.Navigator
-      initialRouteName="SettingsHome"
+      initialRouteName="Settings"
       screenOptions={stackScreenOptions}
     >
       <Stack.Screen
-        name="SettingsHome"
-        component={SettingsHomeScreen}
+        name="Settings"
+        component={SettingsScreen}
         options={{
           ...mainScreenOptions,
           title: 'Settings'
         }}
       />
       <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="PersonalInformation"
+        component={PersonalInformationScreen}
         options={{
           ...secondaryScreenOptions,
-          title: 'Profile'
+          title: 'Personal Information'
         }}
       />
       <Stack.Screen
-        name="Account"
-        component={AccountScreen}
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
         options={{
           ...secondaryScreenOptions,
-          title: 'Account'
+          title: 'Notification Settings'
         }}
       />
       <Stack.Screen
-        name="Security"
-        component={SecurityScreen}
+        name="SecurityPin"
+        component={PlaceholderScreen}
         options={{
           ...secondaryScreenOptions,
-          title: 'Security'
+          title: 'Security PIN'
         }}
       />
       <Stack.Screen
-        name="Preferences"
-        component={PreferencesScreen}
+        name="ChangePassword"
+        component={PlaceholderScreen}
         options={{
           ...secondaryScreenOptions,
-          title: 'Preferences'
+          title: 'Change Password'
         }}
       />
       <Stack.Screen
-        name="ExchangeConnections"
-        component={ExchangeConnectionsScreen}
+        name="TwoFactorAuth"
+        component={PlaceholderScreen}
         options={{
           ...secondaryScreenOptions,
-          title: 'Exchange Connections'
+          title: 'Two-Factor Authentication'
         }}
       />
       <Stack.Screen
-        name="Support"
-        component={SupportScreen}
+        name="TransactionHistory"
+        component={PlaceholderScreen}
         options={{
           ...secondaryScreenOptions,
-          title: 'Support'
+          title: 'Transaction History'
+        }}
+      />
+      <Stack.Screen
+        name="PaymentMethods"
+        component={PlaceholderScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Payment Methods'
+        }}
+      />
+      <Stack.Screen
+        name="Statements"
+        component={PlaceholderScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Statements'
+        }}
+      />
+      <Stack.Screen
+        name="KycVerification"
+        component={PlaceholderScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'KYC Verification'
+        }}
+      />
+      <Stack.Screen
+        name="Help"
+        component={PlaceholderScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Help & Support'
         }}
       />
       <Stack.Screen
         name="About"
-        component={AboutScreen}
+        component={PlaceholderScreen}
         options={{
           ...secondaryScreenOptions,
-          title: 'About'
+          title: 'About SureBank'
         }}
       />
     </Stack.Navigator>
