@@ -46,7 +46,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Smart Savings Made Easy',
     description: 'Build your financial future with our innovative savings app. Start saving today and watch your money grow.',
     icon: 'wallet',
-    gradient: ['#1a2c4f', '#243449'],
+    gradient: ['#0066A1', '#1e40af'],
   },
   {
     id: '2',
@@ -54,7 +54,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Save Every Day',
     description: 'Build a consistent saving habit with daily contributions. Small amounts add up to big results over time.',
     icon: 'calendar',
-    gradient: ['#1a2c4f', '#243449'],
+    gradient: ['#0066A1', '#1e40af'],
   },
   {
     id: '3',
@@ -62,7 +62,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Save for What You Want',
     description: 'Set savings goals for products you want to buy from our store. Save up and purchase when you reach your target.',
     icon: 'bag',
-    gradient: ['#1a2c4f', '#243449'],
+    gradient: ['#0066A1', '#1e40af'],
   },
   {
     id: '4',
@@ -70,7 +70,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Watch Your Money Grow',
     description: 'Your savings earn competitive interest rates. The more you save, the more you earn on your contributions.',
     icon: 'trending-up',
-    gradient: ['#1a2c4f', '#243449'],
+    gradient: ['#0066A1', '#1e40af'],
   },
   {
     id: '5',
@@ -78,7 +78,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Join Thousands of Smart Savers',
     description: 'Create your account in minutes and begin your journey to financial freedom with SureBank.',
     icon: 'rocket',
-    gradient: ['#1a2c4f', '#243449'],
+    gradient: ['#0066A1', '#1e40af'],
   },
 ];
 
@@ -159,12 +159,12 @@ function OnboardingScreen({ navigation }: Props) {
     return (
       <View style={{ width: SCREEN_WIDTH }} className="flex-1">
         <LinearGradient
-          colors={item.gradient}
+          colors={item.gradient as [string, string]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           className="flex-1"
         >
-          <SafeAreaView className="flex-1" edges={['top']}>
+          <SafeAreaView className="flex-1">
             {/* Skip Button - Top Right */}
             {currentIndex < onboardingSlides.length - 1 && (
               <View className="absolute top-4 right-6 z-10">
@@ -288,13 +288,12 @@ function OnboardingScreen({ navigation }: Props) {
           {onboardingSlides.map((_, index) => (
             <View
               key={index}
-              className={`h-2 mx-1 rounded-full transition-all duration-300 ${
-                index === currentIndex
+              className={`h-2 mx-1 rounded-full transition-all duration-300 ${index === currentIndex
                   ? 'w-8 bg-white'
                   : index < currentIndex
-                  ? 'w-6 bg-white/60'
-                  : 'w-2 bg-white/30'
-              }`}
+                    ? 'w-6 bg-white/60'
+                    : 'w-2 bg-white/30'
+                }`}
             />
           ))}
         </View>

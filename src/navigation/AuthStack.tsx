@@ -52,7 +52,7 @@ export default function AuthStack() {
       initialRouteName={initialRouteName}
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: '#0f1721' }, // Main dark background
+        cardStyle: { backgroundColor: '#ffffff' }, // White background
       }}
     >
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />

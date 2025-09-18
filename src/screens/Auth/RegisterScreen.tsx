@@ -150,8 +150,8 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#0f1721' }}>
-      <StatusBar barStyle="light-content" backgroundColor="#0f1721" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -173,7 +173,7 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
               onPress={() => navigation.goBack()}
               style={{ padding: 8 }}
             >
-              <Ionicons name="arrow-back" size={24} color="#d4af37" />
+              <Ionicons name="arrow-back" size={24} color="#6b7280" />
             </TouchableOpacity>
             <View style={{ width: 40 }} />
           </View>
@@ -184,12 +184,12 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
               <Text style={{
                 fontSize: 30,
                 fontWeight: 'bold',
-                color: '#ffffff',
+                color: '#111827',
                 marginBottom: 8
               }}>
                 Create Account
               </Text>
-              <Text style={{ fontSize: 16, color: '#94a3b8' }}>
+              <Text style={{ fontSize: 16, color: '#6b7280' }}>
                 Join SureBank and start managing your finances
               </Text>
             </View>
@@ -197,9 +197,9 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
             {/* Error Display */}
             {error && (
               <View style={{
-                backgroundColor: '#1f1f23',
+                backgroundColor: '#fee2e2',
                 borderWidth: 1,
-                borderColor: '#374151',
+                borderColor: '#fecaca',
                 borderRadius: 8,
                 padding: 16,
                 marginBottom: 24,
@@ -309,25 +309,25 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
                   width: 20,
                   height: 20,
                   borderWidth: 1,
-                  borderColor: errors.terms ? '#ef4444' : '#2a3f5f',
+                  borderColor: errors.terms ? '#ef4444' : '#d1d5db',
                   borderRadius: 4,
                   marginRight: 8,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: agreeToTerms ? '#d4af37' : '#1f3048'
+                  backgroundColor: agreeToTerms ? '#0066A1' : '#e5e7eb'
                 }}>
                   {agreeToTerms && (
                     <Ionicons name="checkmark" size={14} color="white" />
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, color: '#94a3b8', lineHeight: 20 }}>
+                  <Text style={{ fontSize: 14, color: '#6b7280', lineHeight: 20 }}>
                     I agree to the{' '}
-                    <Text style={{ color: '#d4af37', fontWeight: '600' }}>
+                    <Text style={{ color: '#0066A1', fontWeight: '600' }}>
                       Terms of Service
                     </Text>
                     {' '}and{' '}
-                    <Text style={{ color: '#d4af37', fontWeight: '600' }}>
+                    <Text style={{ color: '#0066A1', fontWeight: '600' }}>
                       Privacy Policy
                     </Text>
                   </Text>
@@ -345,7 +345,7 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
               onPress={handleSubmit}
               disabled={isLoading}
               style={{
-                backgroundColor: isLoading ? '#6b7280' : '#d4af37',
+                backgroundColor: isLoading ? '#6b7280' : '#0066A1',
                 borderRadius: 8,
                 paddingVertical: 14,
                 alignItems: 'center',
@@ -379,7 +379,7 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
               marginTop: 32,
               marginBottom: 24
             }}>
-              <Text style={{ color: '#94a3b8', marginBottom: 12 }}>
+              <Text style={{ color: '#6b7280', marginBottom: 12 }}>
                 Already have an account?
               </Text>
               <TouchableOpacity
@@ -387,7 +387,7 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
                 style={{ padding: 8 }}
               >
                 <Text style={{
-                  color: '#d4af37',
+                  color: '#0066A1',
                   fontSize: 16,
                   fontWeight: '600'
                 }}>

@@ -5,31 +5,31 @@
 
 export const navigationTheme = {
   colors: {
-    // Dark theme colors matching the new design
-    primary: '#d4af37',        // Gold accent
-    background: '#0f1721',     // Main dark background
-    card: '#1a2c4f',          // Card/header background
-    text: '#ffffff',          // Primary text
-    border: '#1f3048',        // Subtle borders
-    notification: '#d4af37',   // Notification badge
+    // Light theme colors matching the Capacitor app
+    primary: '#0066A1',        // Blue accent
+    background: '#ffffff',     // White background
+    card: '#ffffff',          // Card/header background
+    text: '#111827',          // Dark text
+    border: '#e5e7eb',        // Light borders
+    notification: '#0066A1',   // Notification badge
   },
-  dark: true,
+  dark: false,
 };
 
 export const stackScreenOptions = {
   headerShown: true,
   headerStyle: {
-    backgroundColor: '#0f1721', // Main dark background
+    backgroundColor: '#ffffff', // White background
     borderBottomWidth: 1,
-    borderBottomColor: '#1f3048', // Subtle border
+    borderBottomColor: '#e5e7eb', // Light border
     elevation: 0,
     shadowOpacity: 0,
     height: 60, // Consistent header height
   },
-  headerTintColor: '#d4af37', // Gold accent for back buttons
+  headerTintColor: '#0066A1', // Blue accent for back buttons
   headerTitleStyle: {
     fontWeight: '600' as const,
-    color: '#ffffff', // White text
+    color: '#111827', // Dark text
     fontSize: 18,
     textAlign: 'center' as const,
   },
@@ -49,6 +49,11 @@ export const homeScreenOptions = {
   headerLeft: () => null, // Remove back button for home screens
 };
 
+// Custom header options for main screens with MainHeader component
+export const mainScreenOptions = {
+  headerShown: false, // We'll use our custom header component instead
+};
+
 // Specific options for secondary screens with back button
 export const secondaryScreenOptions = {
   ...stackScreenOptions,
@@ -56,11 +61,11 @@ export const secondaryScreenOptions = {
 };
 
 export const tabBarOptions = {
-  activeTintColor: '#d4af37',   // Gold accent
-  inactiveTintColor: '#94a3b8', // Muted text
+  activeTintColor: '#0066A1',   // Blue accent
+  inactiveTintColor: '#6c757d', // Muted text
   style: {
-    backgroundColor: '#0f1721',  // Main dark background
-    borderTopColor: '#1f3048',   // Subtle border
+    backgroundColor: '#ffffff',  // White background
+    borderTopColor: '#e5e8ed',   // Light border
     borderTopWidth: 1,
     paddingBottom: 5,
     height: 60,

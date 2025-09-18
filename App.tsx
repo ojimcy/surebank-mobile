@@ -18,6 +18,7 @@ enableScreens();
 // Import providers
 import { QueryContextProvider } from '@/contexts/QueryContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 
 // Import navigation
 import { RootNavigator } from '@/navigation';
@@ -53,7 +54,9 @@ export default function App() {
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
           <QueryContextProvider>
             <AuthProvider>
-              <RootNavigator />
+              <NotificationProvider>
+                <RootNavigator />
+              </NotificationProvider>
             </AuthProvider>
           </QueryContextProvider>
         </NavigationContainer>

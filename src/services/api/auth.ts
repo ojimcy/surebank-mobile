@@ -53,11 +53,55 @@ export class AuthService {
    */
   async login(payload: LoginPayload): Promise<User> {
     try {
-      const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<LoginResponse>('/auth/login', payload),
-        2, // Max 2 retries for login
-        1000 // 1 second delay
-      );
+      console.log('[AuthService] Starting login process...');
+      console.log('[AuthService] API Base URL:', apiClient.defaults.baseURL);
+
+      // In development mode, provide a mock response for testing
+      if (__DEV__ && (payload.identifier === 'test@test.com' || payload.identifier === 'ojimcy247@gmail.com')) {
+        console.log('[AuthService] Using development mock login');
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+
+        const mockUser: User = {
+          id: 'mock-user-id',
+          email: payload.identifier,
+          firstName: 'Test',
+          lastName: 'User',
+          role: 'user',
+          isActive: true,
+          kycStatus: 'pending',
+          kycType: 'individual',
+          isEmailVerified: true,
+          isVerified: true,
+          isTwoFactorAuthEnabled: false,
+          passwordAttempts: 0,
+          lastPasswordChange: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          packages: [],
+        };
+
+        // Store mock tokens
+        await storage.multiSet([
+          [STORAGE_KEYS.AUTH_TOKEN, 'mock-access-token'],
+          [STORAGE_KEYS.REFRESH_TOKEN, 'mock-refresh-token'],
+        ]);
+
+        await storage.setItem(STORAGE_KEYS.LAST_LOGIN, new Date().toISOString());
+        console.log('[AuthService] Mock login successful');
+        return mockUser;
+      }
+
+      console.log('[AuthService] Making API request to /auth/login');
+      const response = await Promise.race([
+        apiUtils.requestWithRetry(
+          () => apiClient.post<LoginResponse>('/auth/login', payload),
+          2, // Max 2 retries for login
+          1000 // 1 second delay
+        ),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Login timeout after 15 seconds')), 15000)
+        )
+      ]);
 
       const { user, tokens } = response.data;
 
@@ -84,7 +128,7 @@ export class AuthService {
       return user;
     } catch (error) {
       console.log('Auth error debug', error);
-      
+
       if (error instanceof ApiNetworkError) {
         // Map API errors to authentication errors
         switch (error.status) {

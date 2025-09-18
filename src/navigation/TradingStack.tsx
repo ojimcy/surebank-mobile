@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions } from './navigationTheme';
+import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
 
 import type { TradingStackParamList } from './types';
 
@@ -23,7 +23,7 @@ export default function TradingStack() {
         name="TradingHome"
         component={TradingHomeScreen}
         options={{
-          ...homeScreenOptions,
+          ...mainScreenOptions,
           title: 'Trading'
         }}
       />

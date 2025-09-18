@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions } from './navigationTheme';
+import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
 
 import type { HistoryStackParamList } from './types';
 
@@ -23,7 +23,7 @@ export default function HistoryStack() {
         name="HistoryHome"
         component={HistoryHomeScreen}
         options={{
-          ...homeScreenOptions,
+          ...mainScreenOptions,
           title: 'History'
         }}
       />

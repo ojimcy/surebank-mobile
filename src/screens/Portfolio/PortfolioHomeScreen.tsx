@@ -1,16 +1,42 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MainHeader } from '@/components/navigation';
+import type { PortfolioScreenProps } from '@/navigation/types';
 
-export default function PortfolioHomeScreen() {
+export default function PortfolioHomeScreen({ navigation }: PortfolioScreenProps<'PortfolioHome'>) {
+  const handleNotificationPress = () => {
+    // TODO: Navigate to notifications
+    console.log('Notifications pressed');
+  };
+
+  const handleSearchPress = () => {
+    // TODO: Implement search functionality
+    console.log('Search pressed');
+  };
+
+  const handleAvatarPress = () => {
+    // TODO: Navigate to profile or show user menu
+    console.log('Avatar pressed');
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 justify-center items-center px-6">
-        <Text className="text-2xl font-bold text-primary mb-4">Portfolio</Text>
-        <Text className="text-muted-foreground text-center">
-          Portfolio screen placeholder - to be implemented in future phases
-        </Text>
-      </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+      <MainHeader
+        onNotificationPress={handleNotificationPress}
+        onAvatarPress={handleAvatarPress}
+      />
+
+      <ScrollView style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#0066A1', marginBottom: 16 }}>
+            Packages
+          </Text>
+          <Text style={{ fontSize: 16, color: '#6b7280', textAlign: 'center' }}>
+            Packages screen with Capacitor app style header - to be implemented in future phases
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

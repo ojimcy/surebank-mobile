@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions } from './navigationTheme';
+import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
 
 import type { PortfolioStackParamList } from './types';
 
@@ -23,7 +23,7 @@ export default function PortfolioStack() {
         name="PortfolioHome"
         component={PortfolioHomeScreen}
         options={{
-          ...homeScreenOptions,
+          ...mainScreenOptions,
           title: 'Portfolio'
         }}
       />

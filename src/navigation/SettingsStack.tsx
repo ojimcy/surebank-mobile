@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions } from './navigationTheme';
+import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
 
 import type { SettingsStackParamList } from './types';
 
@@ -26,7 +26,7 @@ export default function SettingsStack() {
         name="SettingsHome"
         component={SettingsHomeScreen}
         options={{
-          ...homeScreenOptions,
+          ...mainScreenOptions,
           title: 'Settings'
         }}
       />
