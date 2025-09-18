@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import { storage, STORAGE_KEYS } from '@/services/storage';
 
 import type { AuthStackParamList } from './types';
 
@@ -20,10 +21,35 @@ import WelcomeScreen from '@/screens/Auth/WelcomeScreen';
 const Stack = createStackNavigator<AuthStackParamList>();
 
 export default function AuthStack() {
-  console.log('[AuthStack] Rendering AuthStack...');
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
+
+  // Check onboarding status directly from storage
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const completed = await storage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
+        setHasCompletedOnboarding(completed === 'true');
+      } catch (error) {
+        console.error('[AuthStack] Error checking onboarding:', error);
+        setHasCompletedOnboarding(false);
+      }
+    };
+    checkOnboarding();
+  }, []);
+
+  console.log('[AuthStack] Rendering AuthStack...', { hasCompletedOnboarding });
+
+  // Don't render until we know the onboarding status
+  if (hasCompletedOnboarding === null) {
+    return null;
+  }
+
+  // Determine initial route based on onboarding status
+  const initialRouteName = hasCompletedOnboarding ? 'Login' : 'Onboarding';
+
   return (
     <Stack.Navigator
-      initialRouteName="Onboarding"
+      initialRouteName={initialRouteName}
       screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: '#ffffff' },

@@ -63,17 +63,28 @@ export class AuthService {
 
       // Store authentication tokens securely
       if (tokens.access.token) {
-        await storage.multiSet([
-          [STORAGE_KEYS.AUTH_TOKEN, tokens.access.token],
-          [STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh.token],
-        ]);
+        console.log('Storing auth tokens...');
+        try {
+          await storage.multiSet([
+            [STORAGE_KEYS.AUTH_TOKEN, tokens.access.token],
+            [STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh.token],
+          ]);
+          console.log('Auth tokens stored successfully');
+        } catch (storageError) {
+          console.error('Failed to store auth tokens:', storageError);
+          throw storageError;
+        }
       }
 
       // Store last login timestamp
+      console.log('Storing last login timestamp...');
       await storage.setItem(STORAGE_KEYS.LAST_LOGIN, new Date().toISOString());
+      console.log('Last login timestamp stored');
 
       return user;
     } catch (error) {
+      console.log('Auth error debug', error);
+      
       if (error instanceof ApiNetworkError) {
         // Map API errors to authentication errors
         switch (error.status) {

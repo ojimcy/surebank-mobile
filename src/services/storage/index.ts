@@ -87,10 +87,16 @@ class SureStorageService implements StorageService {
   async setItem(key: string, value: string): Promise<void> {
     try {
       if (this.isSensitiveKey(key)) {
-        await SecureStore.setItemAsync(key, value, {
-          keychainService: 'SureBank',
-          requireAuthentication: false, // We handle our own auth
-        });
+        try {
+          await SecureStore.setItemAsync(key, value, {
+            keychainService: 'SureBank',
+            requireAuthentication: false, // We handle our own auth
+          });
+        } catch (secureStoreError) {
+          console.warn(`SecureStore failed for key ${key}, falling back to AsyncStorage:`, secureStoreError);
+          // Fallback to AsyncStorage if SecureStore fails (e.g., in development)
+          await AsyncStorage.setItem(key, value);
+        }
       } else {
         await AsyncStorage.setItem(key, value);
       }
@@ -110,9 +116,15 @@ class SureStorageService implements StorageService {
   async getItem(key: string): Promise<string | null> {
     try {
       if (this.isSensitiveKey(key)) {
-        return await SecureStore.getItemAsync(key, {
-          keychainService: 'SureBank',
-        });
+        try {
+          return await SecureStore.getItemAsync(key, {
+            keychainService: 'SureBank',
+          });
+        } catch (secureStoreError) {
+          console.warn(`SecureStore failed for key ${key}, falling back to AsyncStorage:`, secureStoreError);
+          // Fallback to AsyncStorage if SecureStore fails (e.g., in development)
+          return await AsyncStorage.getItem(key);
+        }
       } else {
         return await AsyncStorage.getItem(key);
       }
@@ -247,14 +259,47 @@ class SureStorageService implements StorageService {
 
       // Set regular pairs in AsyncStorage
       if (regularPairs.length > 0) {
-        await AsyncStorage.multiSet(regularPairs);
+        try {
+          await AsyncStorage.multiSet(regularPairs);
+        } catch (error) {
+          // Fallback to setting items one by one
+          console.warn('multiSet failed for AsyncStorage, falling back to individual sets:', error);
+          for (const [key, value] of regularPairs) {
+            try {
+              await AsyncStorage.setItem(key, value);
+            } catch (err) {
+              console.warn(`Failed to set key ${key}:`, err);
+              throw new StorageError(
+                `Failed to set item for key: ${key}`,
+                'multiSet',
+                key,
+                err as Error
+              );
+            }
+          }
+        }
       }
 
       // Set sensitive pairs in SecureStore one by one
       for (const [key, value] of sensitivePairs) {
-        await this.setItem(key, value);
+        try {
+          await this.setItem(key, value);
+        } catch (error) {
+          console.warn(`Failed to set sensitive key ${key}:`, error);
+          throw new StorageError(
+            `Failed to set sensitive item for key: ${key}`,
+            'multiSet',
+            key,
+            error as Error
+          );
+        }
       }
     } catch (error) {
+      // If error is already a StorageError, re-throw it
+      if (error instanceof StorageError) {
+        throw error;
+      }
+      // Otherwise create a new StorageError
       throw new StorageError(
         'Failed to set multiple items',
         'multiSet',

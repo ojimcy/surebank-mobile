@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { Input } from '@/components/forms';
 import { useAuth } from '@/contexts/AuthContext';
+import { storage, STORAGE_KEYS } from '@/services/storage';
 import type { AuthScreenProps } from '@/navigation/types';
 
 export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
@@ -251,6 +252,30 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
                 </Text>
               </TouchableOpacity>
             </View>
+
+            {/* Dev Option: Reset Onboarding (only in dev mode) */}
+            {__DEV__ && (
+              <TouchableOpacity
+                onPress={async () => {
+                  await storage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
+                  Toast.show({
+                    type: 'info',
+                    text1: 'Onboarding Reset',
+                    text2: 'Restart the app to see onboarding again',
+                    position: 'top',
+                  });
+                }}
+                style={{
+                  alignItems: 'center',
+                  paddingVertical: 8,
+                  marginBottom: 16,
+                }}
+              >
+                <Text style={{ color: '#9ca3af', fontSize: 12 }}>
+                  [Dev] Reset Onboarding
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

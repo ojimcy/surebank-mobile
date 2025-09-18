@@ -75,7 +75,7 @@ export type SettingsStackParamList = {
 
 // Root Navigator
 export type RootStackParamList = {
-  Auth: NavigatorScreenParams<AuthStackParamList>;
+  Auth: NavigatorScreenParams<AuthStackParamList> & { hasCompletedOnboarding?: boolean };
   Main: NavigatorScreenParams<MainTabParamList>;
   Onboarding: undefined;
   // Modal screens

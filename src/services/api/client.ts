@@ -6,11 +6,11 @@
  * Ported from Capacitor app with React Native optimizations.
  */
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import NetInfo from '@react-native-community/netinfo';
 import { storage, STORAGE_KEYS } from '@/services/storage/index';
 import tokenManager from '@/services/auth/tokenManager';
-import { ApiConfig, ApiErrorResponse, NetworkError } from './types';
+import { ApiConfig,  NetworkError } from './types';
 
 // API configuration
 const API_CONFIG: ApiConfig = {

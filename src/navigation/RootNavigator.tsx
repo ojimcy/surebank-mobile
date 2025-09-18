@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useAuth } from '@/contexts/AuthContext';
-import { storage, STORAGE_KEYS } from '@/services/storage/index';
 
 import type { RootStackParamList } from './types';
 
@@ -18,34 +17,28 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
-  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   console.log('[RootNavigator] Rendering with state:', {
     isAuthenticated,
     isLoading,
-    hasCompletedOnboarding,
-    checkingOnboarding
+    initialLoadComplete
   });
 
-  // Check onboarding status
+  // Track when initial auth check is complete
   useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      try {
-        const onboardingComplete = await storage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
-        setHasCompletedOnboarding(onboardingComplete === 'true');
-      } catch (error) {
-        console.error('Error checking onboarding status:', error);
-      } finally {
-        setCheckingOnboarding(false);
-      }
-    };
+    // After the first auth check completes, mark initial load as done
+    // Use a timeout to ensure we don't show loading screen on subsequent auth operations
+    if (!isLoading && !initialLoadComplete) {
+      const timer = setTimeout(() => {
+        setInitialLoadComplete(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, initialLoadComplete]);
 
-    checkOnboardingStatus();
-  }, []);
-
-  // Show loading screen while checking auth and onboarding status
-  if (isLoading || checkingOnboarding) {
+  // Only show loading screen during initial app load, not during auth operations
+  if (!initialLoadComplete && isLoading) {
     return (
       <View className="flex-1 bg-white justify-center items-center">
         <ActivityIndicator size="large" color="#0066A1" />
