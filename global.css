@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* XpatTrada Cyberpunk Finance Theme - Simplified */
+/* Dark Navy Theme with Yellow Accent - Modern Banking App */
 @layer base {
   * {
     border-color: theme('colors.border.DEFAULT');
   }
-  
+
   body {
     background-color: theme('colors.background.DEFAULT');
     color: theme('colors.foreground.DEFAULT');
@@ -16,38 +16,57 @@
 }
 
 @layer components {
-  /* Trading Cards */
-  .trading-card {
+  /* Main Cards - Navy background with subtle borders */
+  .card-base {
     background-color: theme('colors.card.DEFAULT');
-    border: 1px solid theme('colors.border.DEFAULT');
-    border-radius: 0.5rem;
+    border: 1px solid theme('colors.border.subtle');
+    border-radius: 0.75rem;
     padding: 1rem;
   }
 
-  /* AI Bot Status */
-  .bot-active {
-    background-color: theme('colors.primary.DEFAULT');
-    color: theme('colors.primary.foreground');
-  }
-  
-  .bot-learning {
-    background-color: theme('colors.secondary.DEFAULT');
-    color: theme('colors.secondary.foreground');
+  .card-elevated {
+    background-color: theme('colors.card.elevated');
+    border: 1px solid theme('colors.border.DEFAULT');
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: theme('boxShadow.card');
   }
 
-  /* Profit/Loss Display */
-  .profit-display {
+  /* Status Indicators */
+  .status-active {
+    background-color: theme('colors.success.DEFAULT');
+    color: theme('colors.success.foreground');
+  }
+
+  .status-pending {
+    background-color: theme('colors.warning.DEFAULT');
+    color: theme('colors.warning.foreground');
+  }
+
+  .status-inactive {
+    background-color: theme('colors.muted.DEFAULT');
+    color: theme('colors.muted.foreground');
+  }
+
+  /* Balance & Transaction Display */
+  .balance-positive {
     color: theme('colors.success.DEFAULT');
     font-weight: 700;
   }
-  
-  .loss-display {
-    color: theme('colors.danger.DEFAULT');
+
+  .balance-negative {
+    color: theme('colors.error.DEFAULT');
     font-weight: 700;
   }
 
-  /* Premium Badge */
-  .premium-badge {
+  .balance-primary {
+    color: theme('colors.accent.DEFAULT');
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+
+  /* Badges & Labels */
+  .badge-premium {
     background-color: theme('colors.accent.DEFAULT');
     color: theme('colors.accent.foreground');
     font-weight: 700;
@@ -58,16 +77,81 @@
     letter-spacing: 0.05em;
   }
 
+  .badge-merchant {
+    background-color: theme('colors.secondary.DEFAULT');
+    color: theme('colors.secondary.foreground');
+    font-weight: 600;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+  }
+
+  .badge-level {
+    background-color: theme('colors.primary.DEFAULT');
+    color: theme('colors.primary.foreground');
+    font-weight: 600;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+  }
+
   /* Background Gradients */
-  .ai-gradient {
-    background: linear-gradient(135deg, theme('colors.primary.DEFAULT') 0%, theme('colors.secondary.DEFAULT') 100%);
+  .gradient-dark {
+    background: theme('backgroundImage.gradient-dark');
   }
-  
-  .profit-gradient {
-    background: linear-gradient(135deg, theme('colors.success.DEFAULT') 0%, theme('colors.primary.DEFAULT') 100%);
+
+  .gradient-accent {
+    background: theme('backgroundImage.gradient-accent');
   }
-  
-  .loss-gradient {
-    background: linear-gradient(135deg, theme('colors.danger.DEFAULT') 0%, theme('colors.secondary.DEFAULT') 100%);
+
+  .gradient-primary {
+    background: theme('backgroundImage.gradient-primary');
+  }
+
+  /* Button Styles */
+  .btn-primary {
+    background-color: theme('colors.accent.DEFAULT');
+    color: theme('colors.accent.foreground');
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    background-color: theme('colors.accent.600');
+    box-shadow: theme('boxShadow.glow-accent');
+  }
+
+  .btn-secondary {
+    background-color: theme('colors.card.DEFAULT');
+    color: theme('colors.foreground.DEFAULT');
+    border: 1px solid theme('colors.border.DEFAULT');
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background-color: theme('colors.card.elevated');
+    border-color: theme('colors.accent.DEFAULT');
+  }
+
+  /* Form Elements */
+  .input-base {
+    background-color: theme('colors.input.DEFAULT');
+    border: 1px solid theme('colors.input.border');
+    color: theme('colors.foreground.DEFAULT');
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+  }
+
+  .input-base:focus {
+    border-color: theme('colors.accent.DEFAULT');
+    outline: none;
+    box-shadow: 0 0 0 3px theme('colors.accent.DEFAULT/10');
   }
 }

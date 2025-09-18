@@ -12,12 +12,13 @@ import * as SecureStore from 'expo-secure-store';
 // Storage keys configuration
 export const STORAGE_KEYS = {
   // Sensitive keys - stored in SecureStore (encrypted)
-  AUTH_TOKEN: '@surebank:auth_token',
-  REFRESH_TOKEN: '@surebank:refresh_token',
-  PIN_HASH: '@surebank:pin_hash',
-  BIOMETRIC_ENABLED: '@surebank:biometric_enabled',
-  CSRF_TOKEN: '@surebank:csrf_token',
-  CSRF_SECRET: '@surebank:csrf_secret',
+  // Note: SecureStore keys can only contain alphanumeric, ".", "-", and "_"
+  AUTH_TOKEN: 'surebank_auth_token',
+  REFRESH_TOKEN: 'surebank_refresh_token',
+  PIN_HASH: 'surebank_pin_hash',
+  BIOMETRIC_ENABLED: 'surebank_biometric_enabled',
+  CSRF_TOKEN: 'surebank_csrf_token',
+  CSRF_SECRET: 'surebank_csrf_secret',
 
   // Non-sensitive keys - stored in AsyncStorage
   USER_DATA: '@surebank:user_data',

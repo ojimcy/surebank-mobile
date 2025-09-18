@@ -5,67 +5,67 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Primary: SureBank Blue - Trust & Security
+        // Primary: Deep Navy Blue - Main Brand Color
         primary: {
-          50: '#eff6ff',   // Very light blue for backgrounds
-          100: '#dbeafe',  // Light blue for subtle backgrounds
-          200: '#bfdbfe',  // Soft blue for disabled states
-          300: '#93c5fd',  // Medium light blue
-          400: '#60a5fa',  // Medium blue
-          500: '#0066A1',  // Main SureBank blue
-          600: '#005580',  // Darker blue for hover states
-          700: '#004466',  // Deep blue for active states
-          800: '#003355',  // Very deep blue
-          900: '#002244',  // Darkest blue
-          DEFAULT: '#0066A1',
+          50: '#e6e9f0',   // Very light navy for backgrounds
+          100: '#c7cfdf',  // Light navy for subtle backgrounds
+          200: '#a3b1ca',  // Soft navy for disabled states
+          300: '#7f92b5',  // Medium light navy
+          400: '#5c74a0',  // Medium navy
+          500: '#1a2c4f',  // Main deep navy blue (from screenshots)
+          600: '#162642',  // Darker navy for hover states
+          700: '#122035',  // Deep navy for active states
+          800: '#0e1a29',  // Very deep navy
+          900: '#0a141d',  // Darkest navy
+          DEFAULT: '#1a2c4f',
           foreground: '#ffffff',
         },
 
-        // Secondary: Light Blue - Innovation & Tech
+        // Secondary: Vibrant Yellow/Gold - Accent Color
         secondary: {
-          50: '#f0f9ff',   // Very light sky
-          100: '#e0f2fe',  // Light sky backgrounds
-          200: '#bae6fd',  // Soft sky
-          300: '#7dd3fc',  // Medium sky
-          400: '#38bdf8',  // Bright sky
-          500: '#0ea5e9',  // Main secondary blue
-          600: '#0284c7',  // Darker sky
-          700: '#0369a1',  // Deep sky
-          800: '#075985',  // Very dark sky
-          900: '#0c4a6e',  // Darkest sky
-          DEFAULT: '#0ea5e9',
-          foreground: '#ffffff',
+          50: '#fffef7',   // Very light yellow
+          100: '#fffce8',  // Light yellow backgrounds
+          200: '#fff7c7',  // Soft yellow
+          300: '#ffeb99',  // Medium light yellow
+          400: '#ffd652',  // Medium yellow
+          500: '#f5d523',  // Main vibrant yellow (from screenshots)
+          600: '#e5c31f',  // Darker yellow
+          700: '#c9a61a',  // Deep yellow
+          800: '#a68817',  // Very dark yellow
+          900: '#896f15',  // Darkest yellow
+          DEFAULT: '#f5d523',
+          foreground: '#1a2c4f',
         },
 
-        // Success: Professional Green - Growth & Profits
+        // Success: Bright Green - Confirmed & Active
         success: {
           50: '#f0fdf4',   // Very light green
           100: '#dcfce7',  // Light green backgrounds
           200: '#bbf7d0',  // Soft green
           300: '#86efac',  // Medium light green
           400: '#4ade80',  // Medium green
-          500: '#10b981',  // Main success green
-          600: '#059669',  // Darker green for buttons
-          700: '#047857',  // Deep green
-          800: '#065f46',  // Very deep green
-          900: '#064e3b',  // Darkest green
-          DEFAULT: '#10b981',
+          500: '#22c55e',  // Main success green
+          600: '#16a34a',  // Darker green for buttons
+          700: '#15803d',  // Deep green
+          800: '#166534',  // Very deep green
+          900: '#14532d',  // Darkest green
+          DEFAULT: '#22c55e',
           foreground: '#ffffff',
         },
 
-        // Warning: Professional Gold - Pending & Premium
+        // Warning: Orange - Alerts & Attention
         warning: {
-          50: '#fffbeb',   // Very light amber
-          100: '#fef3c7',  // Light amber backgrounds
-          200: '#fde68a',  // Soft amber
-          300: '#fcd34d',  // Medium light amber
-          400: '#fbbf24',  // Medium amber
-          500: '#f59e0b',  // Main warning gold
-          600: '#d97706',  // Darker amber
-          700: '#b45309',  // Deep amber
-          800: '#92400e',  // Very deep amber
-          900: '#78350f',  // Darkest amber
-          DEFAULT: '#f59e0b',
+          50: '#fff7ed',   // Very light orange
+          100: '#ffedd5',  // Light orange backgrounds
+          200: '#fed7aa',  // Soft orange
+          300: '#fdba74',  // Medium light orange
+          400: '#fb923c',  // Medium orange
+          500: '#f97316',  // Main warning orange
+          600: '#ea580c',  // Darker orange
+          700: '#c2410c',  // Deep orange
+          800: '#9a3412',  // Very deep orange
+          900: '#7c2d12',  // Darkest orange
+          DEFAULT: '#f97316',
           foreground: '#ffffff',
         },
 
@@ -105,74 +105,84 @@ module.exports = {
           900: '#0f172a',  // Primary text
         },
 
-        // Semantic Colors - Light/Dark Mode Support
+        // Semantic Colors - Dark Theme First
         background: {
-          DEFAULT: '#ffffff',      // Light mode background
-          dark: '#0f172a',        // Dark mode background
+          DEFAULT: '#0f1721',      // Main dark background (deep navy)
+          dark: '#0f1721',         // Dark mode background
+          secondary: '#1a2c4f',    // Secondary background (card backgrounds)
+          tertiary: '#243449',     // Tertiary background (elevated cards)
         },
         foreground: {
-          DEFAULT: '#0f172a',     // Light mode text
-          dark: '#f8fafc',        // Dark mode text
+          DEFAULT: '#ffffff',      // Primary text
+          dark: '#ffffff',         // Dark mode text
+          muted: '#94a3b8',       // Muted text
+          subtle: '#64748b',      // Subtle text
         },
         card: {
-          DEFAULT: '#ffffff',     // Light mode cards
-          dark: '#1e293b',       // Dark mode cards
-          foreground: '#0f172a', // Light mode card text
-          'foreground-dark': '#f8fafc', // Dark mode card text
+          DEFAULT: '#1a2c4f',      // Card backgrounds (navy)
+          dark: '#1a2c4f',         // Dark mode cards
+          foreground: '#ffffff',   // Card text
+          'foreground-dark': '#ffffff', // Dark mode card text
+          elevated: '#243449',     // Elevated cards
         },
         muted: {
-          DEFAULT: '#f1f5f9',     // Light mode muted backgrounds
-          dark: '#334155',        // Dark mode muted backgrounds
-          foreground: '#64748b',  // Light mode muted text
+          DEFAULT: '#243449',      // Muted backgrounds
+          dark: '#243449',         // Dark mode muted backgrounds
+          foreground: '#94a3b8',   // Muted text
           'foreground-dark': '#94a3b8', // Dark mode muted text
         },
         border: {
-          DEFAULT: '#e2e8f0',     // Light mode borders
-          dark: '#334155',        // Dark mode borders
+          DEFAULT: '#2a3f5f',      // Borders (subtle navy)
+          dark: '#2a3f5f',         // Dark mode borders
+          subtle: '#1f3048',       // Subtle borders
         },
         input: {
-          DEFAULT: '#ffffff',     // Light mode inputs
-          dark: '#1e293b',       // Dark mode inputs
+          DEFAULT: '#1a2c4f',      // Input backgrounds
+          dark: '#1a2c4f',         // Dark mode inputs
+          border: '#2a3f5f',       // Input borders
         },
         ring: {
-          DEFAULT: '#0066A1',     // Focus ring color
+          DEFAULT: '#f5d523',      // Focus ring color (yellow accent)
         },
 
-        // Accent: Premium Gold - VIP Features
+        // Accent: Bright Yellow - Primary Actions & Premium
         accent: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',  // Premium gold
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
-          DEFAULT: '#f59e0b',
-          foreground: '#0f172a',
+          50: '#fffef7',
+          100: '#fffce8',
+          200: '#fff7c7',
+          300: '#ffeb99',
+          400: '#ffd652',
+          500: '#f5d523',  // Bright yellow accent
+          600: '#e5c31f',
+          700: '#c9a61a',
+          800: '#a68817',
+          900: '#896f15',
+          DEFAULT: '#f5d523',
+          foreground: '#1a2c4f',
         },
       },
 
-      // Professional shadows
+      // Dark theme shadows with glow effects
       boxShadow: {
-        'soft': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'floating': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        'glow-primary': '0 0 20px rgba(0, 102, 161, 0.15)',
-        'glow-success': '0 0 20px rgba(16, 185, 129, 0.15)',
-        'glow-warning': '0 0 20px rgba(245, 158, 11, 0.15)',
-        'glow-error': '0 0 20px rgba(220, 38, 38, 0.15)',
+        'soft': '0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2)',
+        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
+        'floating': '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
+        'glow-primary': '0 0 20px rgba(26, 44, 79, 0.3)',
+        'glow-accent': '0 0 20px rgba(245, 213, 35, 0.3)',
+        'glow-success': '0 0 20px rgba(34, 197, 94, 0.3)',
+        'glow-warning': '0 0 20px rgba(249, 115, 22, 0.3)',
+        'glow-error': '0 0 20px rgba(220, 38, 38, 0.3)',
       },
 
-      // Professional gradients
+      // Dark theme gradients
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #0066A1 0%, #0ea5e9 100%)',
-        'gradient-success': 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
-        'gradient-warning': 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
-        'gradient-subtle': 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-        'gradient-card': 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #1a2c4f 0%, #243449 100%)',
+        'gradient-accent': 'linear-gradient(135deg, #f5d523 0%, #ffd652 100%)',
+        'gradient-success': 'linear-gradient(135deg, #22c55e 0%, #4ade80 100%)',
+        'gradient-warning': 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
+        'gradient-subtle': 'linear-gradient(135deg, #1a2c4f 0%, #0f1721 100%)',
+        'gradient-card': 'linear-gradient(135deg, rgba(245,213,35,0.1) 0%, rgba(245,213,35,0.05) 100%)',
+        'gradient-dark': 'linear-gradient(180deg, #0f1721 0%, #1a2c4f 100%)',
       },
 
       // Typography system

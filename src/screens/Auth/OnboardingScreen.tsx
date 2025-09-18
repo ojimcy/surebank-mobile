@@ -46,7 +46,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Smart Savings Made Easy',
     description: 'Build your financial future with our innovative savings app. Start saving today and watch your money grow.',
     icon: 'wallet',
-    gradient: ['#0066A1', '#0088CC'],
+    gradient: ['#1a2c4f', '#243449'],
   },
   {
     id: '2',
@@ -54,7 +54,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Save Every Day',
     description: 'Build a consistent saving habit with daily contributions. Small amounts add up to big results over time.',
     icon: 'calendar',
-    gradient: ['#0066A1', '#0088CC'],
+    gradient: ['#1a2c4f', '#243449'],
   },
   {
     id: '3',
@@ -62,7 +62,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Save for What You Want',
     description: 'Set savings goals for products you want to buy from our store. Save up and purchase when you reach your target.',
     icon: 'bag',
-    gradient: ['#0066A1', '#0088CC'],
+    gradient: ['#1a2c4f', '#243449'],
   },
   {
     id: '4',
@@ -70,7 +70,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Watch Your Money Grow',
     description: 'Your savings earn competitive interest rates. The more you save, the more you earn on your contributions.',
     icon: 'trending-up',
-    gradient: ['#0066A1', '#0088CC'],
+    gradient: ['#1a2c4f', '#243449'],
   },
   {
     id: '5',
@@ -78,7 +78,7 @@ const onboardingSlides: OnboardingSlide[] = [
     subtitle: 'Join Thousands of Smart Savers',
     description: 'Create your account in minutes and begin your journey to financial freedom with SureBank.',
     icon: 'rocket',
-    gradient: ['#0066A1', '#0088CC'],
+    gradient: ['#1a2c4f', '#243449'],
   },
 ];
 

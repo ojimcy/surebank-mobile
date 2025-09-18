@@ -1,5 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import { stackScreenOptions } from './navigationTheme';
 
 import type { TradingStackParamList } from './types';
 
@@ -16,20 +17,7 @@ export default function TradingStack() {
   return (
     <Stack.Navigator
       initialRouteName="TradingHome"
-      screenOptions={{
-        headerShown: true,
-        headerStyle: { 
-          backgroundColor: '#1a1a1b',
-          borderBottomWidth: 1,
-          borderBottomColor: '#3a3a3b',
-        },
-        headerTintColor: '#06b6d4', // Electric cyan
-        headerTitleStyle: { 
-          fontWeight: '600',
-          color: '#eaeaeb',
-          fontSize: 18,
-        },
-      }}
+      screenOptions={stackScreenOptions}
     >
       <Stack.Screen 
         name="TradingHome" 

@@ -19,12 +19,14 @@ export default function MainTabs() {
       initialRouteName="DashboardTab"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#06b6d4', // Electric cyan
-        tabBarInactiveTintColor: '#8a8a8b', // Muted gray
+        tabBarActiveTintColor: '#f5d523', // Yellow accent
+        tabBarInactiveTintColor: '#94a3b8', // Muted text
         tabBarStyle: {
-          backgroundColor: '#1a1a1b', // Dark card background
-          borderTopColor: '#3a3a3b', // Dark border
+          backgroundColor: '#0f1721', // Main dark background
+          borderTopColor: '#1f3048', // Subtle border
           borderTopWidth: 1,
+          paddingBottom: 5,
+          height: 60,
         },
         tabBarLabelStyle: {
           fontSize: 12,

@@ -91,8 +91,8 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0f1721' }}>
+      <StatusBar barStyle="light-content" backgroundColor="#0f1721" />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -114,7 +114,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               onPress={() => navigation.goBack()}
               style={{ padding: 8 }}
             >
-              <Ionicons name="arrow-back" size={24} color="#374151" />
+              <Ionicons name="arrow-back" size={24} color="#ffffff" />
             </TouchableOpacity>
             <View style={{ width: 40 }} />
           </View>
@@ -125,12 +125,12 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               <Text style={{
                 fontSize: 30,
                 fontWeight: 'bold',
-                color: '#111827',
+                color: '#ffffff',
                 marginBottom: 8
               }}>
                 Welcome back
               </Text>
-              <Text style={{ fontSize: 16, color: '#6b7280' }}>
+              <Text style={{ fontSize: 16, color: '#94a3b8' }}>
                 Sign in to your SureBank account to continue
               </Text>
             </View>
@@ -190,7 +190,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
                   onPress={() => navigation.navigate('ForgotPassword')}
                   style={{ padding: 4 }}
                 >
-                  <Text style={{ color: '#0066A1', fontSize: 14 }}>
+                  <Text style={{ color: '#f5d523', fontSize: 14 }}>
                     Forgot Password?
                   </Text>
                 </TouchableOpacity>
@@ -202,7 +202,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               onPress={handleSubmit}
               disabled={isLoading}
               style={{
-                backgroundColor: isLoading ? '#9ca3af' : '#0066A1',
+                backgroundColor: isLoading ? '#9ca3af' : '#f5d523',
                 borderRadius: 8,
                 paddingVertical: 14,
                 alignItems: 'center',
@@ -212,14 +212,14 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               }}
             >
               {isLoading ? (
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+                <Text style={{ color: '#1a2c4f', fontSize: 16, fontWeight: '600' }}>
                   Signing in...
                 </Text>
               ) : (
                 <>
-                  <Ionicons name="log-in-outline" size={20} color="white" />
+                  <Ionicons name="log-in-outline" size={20} color="#1a2c4f" />
                   <Text style={{
-                    color: 'white',
+                    color: '#1a2c4f',
                     fontSize: 16,
                     fontWeight: '600',
                     marginLeft: 8
@@ -236,7 +236,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               marginTop: 32,
               marginBottom: 24
             }}>
-              <Text style={{ color: '#6b7280', marginBottom: 12 }}>
+              <Text style={{ color: '#94a3b8', marginBottom: 12 }}>
                 Don't have an account?
               </Text>
               <TouchableOpacity
@@ -244,7 +244,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
                 style={{ padding: 8 }}
               >
                 <Text style={{
-                  color: '#0066A1',
+                  color: '#f5d523',
                   fontSize: 16,
                   fontWeight: '600'
                 }}>

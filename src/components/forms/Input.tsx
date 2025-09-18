@@ -60,21 +60,21 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
   const borderColor = errorText
     ? '#ef4444'
     : isFocused
-    ? '#0066A1'
-    : '#e5e7eb';
+    ? '#f5d523'
+    : '#2a3f5f';
 
   const iconColor = errorText
     ? '#ef4444'
     : isFocused
-    ? '#0066A1'
-    : '#6b7280';
+    ? '#f5d523'
+    : '#94a3b8';
 
   return (
     <View style={containerStyle}>
       {label && (
         <Text
           style={{
-            color: '#374151',
+            color: '#ffffff',
             fontSize: 14,
             fontWeight: '500',
             marginBottom: 4,
@@ -93,7 +93,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
           borderRadius: 8,
           paddingHorizontal: 12,
           paddingVertical: 10,
-          backgroundColor: disabled ? '#f9fafb' : '#ffffff',
+          backgroundColor: disabled ? '#243449' : '#1a2c4f',
         }}
       >
         {leftIcon && (
@@ -108,13 +108,13 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
             {
               flex: 1,
               fontSize: 16,
-              color: '#111827',
+              color: '#ffffff',
               padding: 0,
             },
             inputStyle,
           ]}
           placeholder={placeholder}
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor="#64748b"
           editable={!disabled}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -135,7 +135,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
       {(helperText || errorText) && (
         <Text
           style={{
-            color: errorText ? '#ef4444' : '#6b7280',
+            color: errorText ? '#ef4444' : '#94a3b8',
             fontSize: 12,
             marginTop: 4,
           }}

@@ -147,14 +147,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Load stored authentication data on app start
   const loadStoredAuthData = useCallback(async () => {
     console.log('[AuthContext] Loading stored auth data...');
+
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.warn('[AuthContext] Auth initialization timed out, resetting auth state');
+      dispatch({ type: 'RESET_AUTH' });
+    }, 5000); // 5 second timeout
+
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
 
       // Check if user has valid authentication
       const isAuth = await tokenManager.isAuthenticated();
-      
+
       if (!isAuth) {
+        console.log('[AuthContext] No valid authentication found');
         dispatch({ type: 'RESET_AUTH' });
+        clearTimeout(timeoutId);
         return;
       }
 
@@ -167,16 +176,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const user = await authService.getCurrentUser();
           dispatch({ type: 'SET_USER', payload: user });
-          
+
           // Load last login and remember me settings
           const [lastLoginResult, rememberMeResult] = await storage.multiGet([
             STORAGE_KEYS.LAST_LOGIN,
             STORAGE_KEYS.REMEMBER_ME,
           ]);
-          
+
           dispatch({ type: 'SET_LAST_LOGIN', payload: lastLoginResult[1] });
           dispatch({ type: 'SET_REMEMBER_ME', payload: rememberMeResult[1] === 'true' });
-          
+
         } catch (userError) {
           console.error('Failed to get user info on startup:', userError);
           // Clear tokens if user fetch fails
@@ -189,6 +198,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       dispatch({ type: 'RESET_AUTH' });
     } finally {
       console.log('[AuthContext] Auth initialization complete');
+      clearTimeout(timeoutId);
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, []);
