@@ -1,11 +1,11 @@
 /**
- * Packages API Service
- *
- * Handles all package-related API operations including
- * daily savings, SureBank packages, and interest-based packages.
+ * SureBank Packages API
+ * 
+ * Package management service methods for Daily Savings (DS),
+ * Interest-Based Savings (IBS), and Savings Buying (SB) packages.
  */
 
-import apiClient from './client';
+import apiClient, { ApiNetworkError, apiUtils } from './client';
 
 // Package Types
 export interface DailySavingsPackage {
@@ -17,11 +17,11 @@ export interface DailySavingsPackage {
   totalContribution: number;
   totalCount: number;
   totalCharge?: number;
-  status: string;
+  status: 'active' | 'closed' | 'pending';
   startDate: string;
+  endDate?: string;
   createdAt: string;
   updatedAt: string;
-  endDate?: string;
 }
 
 export interface SBPackage {
@@ -29,13 +29,16 @@ export interface SBPackage {
   accountNumber: string;
   targetAmount: number;
   totalContribution: number;
-  status: string;
+  status: 'active' | 'closed' | 'pending';
   startDate: string;
   endDate?: string;
   product?: {
     name: string;
     images?: string[];
+    price?: number;
   };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IBPackage {
@@ -47,20 +50,53 @@ export interface IBPackage {
   interestRate: number;
   lockPeriod: number;
   compoundingFrequency: string;
-  status: string;
+  status: 'active' | 'matured' | 'pending';
   maturityDate: string;
   interestAccrued: number;
+  currentBalance: number;
+  accountNumber?: string;
+  startDate: string;
   createdAt: string;
   updatedAt: string;
-  accountNumber?: string;
-  targetAmount?: number;
-  totalContribution?: number;
-  startDate?: string;
-  endDate?: string;
-  currentBalance?: number;
 }
 
-// Package creation interfaces
+// Unified Package Interface for UI
+export interface UIPackage {
+  id: string;
+  title: string;
+  type: 'DS' | 'IBS' | 'SB';
+  typeLabel: 'Daily Savings' | 'Interest-Based' | 'SB Package';
+  icon: string;
+  progress: number;
+  current: number;
+  target: number;
+  color: string;
+  statusColor: string;
+  status: string;
+  accountNumber: string;
+  lastContribution?: string;
+  nextContribution?: string;
+  interestRate?: string;
+  maturityDate?: string;
+  productImage?: string;
+  startDate: string;
+  endDate?: string;
+  amountPerDay?: number;
+  totalCount?: number;
+}
+
+// Package Type Definitions
+export interface PackageType {
+  id: 'ds' | 'ibs' | 'sb';
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  cta: string;
+  features: string[];
+}
+
+// API Request/Response Types
 export interface CreateDailySavingsPackageParams {
   amountPerDay: number;
   target: string;
@@ -79,174 +115,256 @@ export interface InitiateIBPackageParams {
   compoundingFrequency?: string;
 }
 
-// Combined packages response
-export interface AllPackagesResponse {
+export interface CreateIBPackageParams extends InitiateIBPackageParams {
+  paymentReference: string;
+}
+
+export interface InitiateIBPackageResponse {
+  reference: string;
+  authorization_url: string;
+  access_code: string;
+  principalAmount: number;
+  interestRate: number;
+  lockPeriod: number;
+}
+
+export interface InitializeContributionParams {
+  packageId?: string;
+  amount: number;
+  contributionType: 'daily_savings' | 'savings_buying' | 'interest_package';
+  redirect_url?: string;
+  callbackUrl?: string;
+  name?: string;
+  principalAmount?: number;
+  interestRate?: number;
+  lockPeriod?: number;
+  compoundingFrequency?: string;
+}
+
+export interface InitializeContributionResponse {
+  reference: string;
+  authorization_url: string;
+  access_code: string;
+}
+
+export interface GetAllPackagesResponse {
   dailySavings: DailySavingsPackage[];
   sbPackages: SBPackage[];
   ibPackages: IBPackage[];
 }
 
-// API Functions
-const packagesApi = {
+// Package API Service
+export class PackagesService {
   /**
-   * Get daily savings packages for the authenticated user
-   * Note: The API should extract userId from the JWT token
+   * Get all packages for a user
    */
-  async getDailySavings(): Promise<DailySavingsPackage[]> {
+  async getAllPackages(userId: string): Promise<GetAllPackagesResponse> {
     try {
-      const response = await apiClient.get<DailySavingsPackage[]>('/daily-savings/self-packages');
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.get<GetAllPackagesResponse>(`/packages/user/${userId}`),
+        2,
+        1000
+      );
       return response.data;
     } catch (error) {
-      // If self endpoint doesn't exist, return empty array
-      console.warn('Daily savings self endpoint not available, returning empty array');
-      return [];
+      console.error('Failed to fetch packages:', error);
+      throw error;
     }
-  },
+  }
 
   /**
-   * Get SureBank packages for the authenticated user
-   * Note: The API should extract userId from the JWT token
+   * Check if user has required account type
    */
-  async getSBPackages(): Promise<SBPackage[]> {
+  async checkAccountType(accountType: 'ds' | 'sb' | 'ibs'): Promise<boolean> {
     try {
-      const response = await apiClient.get<SBPackage[]>('/daily-savings/sb/self-packages');
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.get<{ hasAccount: boolean }>(`/accounts/check/${accountType}`),
+        2,
+        1000
+      );
+      return response.data.hasAccount;
+    } catch (error) {
+      console.error('Failed to check account type:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Create Daily Savings Package
+   */
+  async createDailySavingsPackage(params: CreateDailySavingsPackageParams): Promise<DailySavingsPackage> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.post<DailySavingsPackage>('/packages/daily-savings', params),
+        2,
+        1000
+      );
       return response.data;
     } catch (error) {
-      // If self endpoint doesn't exist, return empty array
-      console.warn('SB packages self endpoint not available, returning empty array');
-      return [];
+      console.error('Failed to create daily savings package:', error);
+      throw error;
     }
-  },
+  }
 
   /**
-   * Get Interest-Based packages for the authenticated user
+   * Create SB Package
    */
-  async getIBPackages(): Promise<IBPackage[]> {
+  async createSBPackage(params: CreateSBPackageParams): Promise<SBPackage> {
     try {
-      const response = await apiClient.get<IBPackage[]>('/interest-savings/package');
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.post<SBPackage>('/packages/sb', params),
+        2,
+        1000
+      );
       return response.data;
     } catch (error) {
-      console.warn('IB packages endpoint not available, returning empty array');
-      return [];
+      console.error('Failed to create SB package:', error);
+      throw error;
     }
-  },
+  }
 
   /**
-   * Get all package types for the authenticated user
+   * Initiate IB Package (returns payment details)
    */
-  async getAllPackages(): Promise<AllPackagesResponse> {
+  async initiateIBPackage(params: InitiateIBPackageParams): Promise<InitiateIBPackageResponse> {
     try {
-      const [dsResponse, sbResponse, ibResponse] = await Promise.allSettled([
-        packagesApi.getDailySavings(),
-        packagesApi.getSBPackages(),
-        packagesApi.getIBPackages(),
-      ]);
-
-      return {
-        dailySavings: dsResponse.status === 'fulfilled' ? dsResponse.value : [],
-        sbPackages: sbResponse.status === 'fulfilled' ? sbResponse.value : [],
-        ibPackages: ibResponse.status === 'fulfilled' ? ibResponse.value : [],
-      };
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.post<InitiateIBPackageResponse>('/packages/ib/initiate', params),
+        2,
+        1000
+      );
+      return response.data;
     } catch (error) {
-      console.error('Error fetching packages:', error);
-      return {
-        dailySavings: [],
-        sbPackages: [],
-        ibPackages: [],
-      };
+      console.error('Failed to initiate IB package:', error);
+      throw error;
     }
-  },
+  }
 
   /**
-   * Create a new daily savings package
+   * Create IB Package (after payment)
    */
-  async createDailySavingsPackage(
-    data: CreateDailySavingsPackageParams
-  ): Promise<DailySavingsPackage> {
-    const response = await apiClient.post<DailySavingsPackage>(
-      '/daily-savings/self-package',
-      data
-    );
-    return response.data;
-  },
+  async createIBPackage(params: CreateIBPackageParams): Promise<IBPackage> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.post<IBPackage>('/packages/ib', params),
+        2,
+        1000
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create IB package:', error);
+      throw error;
+    }
+  }
 
   /**
-   * Create a new Savings-Buying (SB) package
+   * Initialize contribution/deposit
    */
-  async createSBPackage(data: CreateSBPackageParams): Promise<SBPackage> {
-    const response = await apiClient.post<SBPackage>('/daily-savings/sb/self-package', data);
-    return response.data;
-  },
+  async initializeContribution(params: InitializeContributionParams): Promise<InitializeContributionResponse> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.post<InitializeContributionResponse>('/contributions/initialize', params),
+        2,
+        1000
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to initialize contribution:', error);
+      throw error;
+    }
+  }
 
   /**
-   * Get SB package by ID
+   * Get package details by ID and type
    */
-  async getSBPackageById(packageId: string): Promise<SBPackage> {
-    const response = await apiClient.get<SBPackage>(`/daily-savings/sb/package/${packageId}`);
-    return response.data;
-  },
+  async getPackageDetails(packageId: string, type: 'ds' | 'sb' | 'ib'): Promise<DailySavingsPackage | SBPackage | IBPackage> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.get(`/packages/${type}/${packageId}`),
+        2,
+        1000
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get package details:', error);
+      throw error;
+    }
+  }
 
   /**
-   * Edit daily savings package
+   * Transform API packages to UI format
    */
-  async editDailySavingsPackage(
-    packageId: string,
-    data: { target: string; amountPerDay: number }
-  ): Promise<DailySavingsPackage> {
-    const response = await apiClient.patch<DailySavingsPackage>(
-      `/daily-savings/package/${packageId}`,
-      data
-    );
-    return response.data;
-  },
+  transformToUIPackages(apiData: GetAllPackagesResponse): UIPackage[] {
+    const packages: UIPackage[] = [];
 
-  /**
-   * Get package statistics
-   */
-  async getPackageStats(): Promise<{
-    totalPackages: number;
-    activePackages: number;
-    totalContributions: number;
-    totalTarget: number;
-  }> {
-    const packages = await packagesApi.getAllPackages();
+    // Transform Daily Savings packages
+    apiData.dailySavings.forEach(pkg => {
+      packages.push({
+        id: pkg.id,
+        title: pkg.target,
+        type: 'DS',
+        typeLabel: 'Daily Savings',
+        icon: 'calendar-outline',
+        progress: pkg.targetAmount > 0 ? (pkg.totalContribution / pkg.targetAmount) * 100 : 0,
+        current: pkg.totalContribution,
+        target: pkg.targetAmount,
+        color: '#0066A1',
+        statusColor: pkg.status === 'active' ? '#10b981' : pkg.status === 'closed' ? '#6b7280' : '#f59e0b',
+        status: pkg.status,
+        accountNumber: pkg.accountNumber,
+        startDate: pkg.startDate,
+        endDate: pkg.endDate,
+        amountPerDay: pkg.amountPerDay,
+        totalCount: pkg.totalCount,
+      });
+    });
 
-    const allPackages = [
-      ...packages.dailySavings,
-      ...packages.sbPackages,
-      ...packages.ibPackages,
-    ];
+    // Transform SB packages
+    apiData.sbPackages.forEach(pkg => {
+      packages.push({
+        id: pkg._id,
+        title: pkg.product?.name || 'SB Package',
+        type: 'SB',
+        typeLabel: 'SB Package',
+        icon: 'bag-outline',
+        progress: pkg.targetAmount > 0 ? (pkg.totalContribution / pkg.targetAmount) * 100 : 0,
+        current: pkg.totalContribution,
+        target: pkg.targetAmount,
+        color: '#7952B3',
+        statusColor: pkg.status === 'active' ? '#10b981' : pkg.status === 'closed' ? '#6b7280' : '#f59e0b',
+        status: pkg.status,
+        accountNumber: pkg.accountNumber,
+        startDate: pkg.startDate,
+        endDate: pkg.endDate,
+        productImage: pkg.product?.images?.[0],
+      });
+    });
 
-    const activePackages = allPackages.filter(
-      (pkg) => pkg.status === 'active' || pkg.status === 'Active'
-    );
+    // Transform IB packages
+    apiData.ibPackages.forEach(pkg => {
+      packages.push({
+        id: pkg._id || pkg.id!,
+        title: pkg.name,
+        type: 'IBS',
+        typeLabel: 'Interest-Based',
+        icon: 'trending-up-outline',
+        progress: 100, // IB packages are fully funded upfront
+        current: pkg.currentBalance || pkg.principalAmount,
+        target: pkg.principalAmount,
+        color: '#28A745',
+        statusColor: pkg.status === 'active' ? '#10b981' : pkg.status === 'matured' ? '#0066A1' : '#f59e0b',
+        status: pkg.status,
+        accountNumber: pkg.accountNumber || 'N/A',
+        startDate: pkg.startDate || pkg.createdAt,
+        maturityDate: pkg.maturityDate,
+        interestRate: `${pkg.interestRate}%`,
+      });
+    });
 
-    const totalContributions = packages.dailySavings.reduce(
-      (sum, pkg) => sum + (pkg.totalContribution || 0),
-      0
-    ) + packages.sbPackages.reduce(
-      (sum, pkg) => sum + (pkg.totalContribution || 0),
-      0
-    ) + packages.ibPackages.reduce(
-      (sum, pkg) => sum + (pkg.principalAmount || 0),
-      0
-    );
+    return packages.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+  }
+}
 
-    const totalTarget = packages.dailySavings.reduce(
-      (sum, pkg) => sum + (pkg.targetAmount || 0),
-      0
-    ) + packages.sbPackages.reduce(
-      (sum, pkg) => sum + (pkg.targetAmount || 0),
-      0
-    );
-
-    return {
-      totalPackages: allPackages.length,
-      activePackages: activePackages.length,
-      totalContributions,
-      totalTarget,
-    };
-  },
-};
-
-export default packagesApi;
+// Export singleton instance
+const packagesService = new PackagesService();
+export default packagesService;

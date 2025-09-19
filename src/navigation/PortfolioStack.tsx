@@ -6,6 +6,11 @@ import type { PortfolioStackParamList } from './types';
 
 // Import portfolio screens (placeholder components for now)
 import PortfolioHomeScreen from '@/screens/Portfolio/PortfolioHomeScreen';
+import NewPackageScreen from '@/screens/Portfolio/NewPackageScreen';
+import PackageDetailScreen from '@/screens/Portfolio/PackageDetailScreen';
+import CreateDailySavingsScreen from '@/screens/Portfolio/CreateDailySavingsScreen';
+import CreateIBSPackageScreen from '@/screens/Portfolio/CreateIBSPackageScreen';
+import CreateSBPackageScreen from '@/screens/Portfolio/CreateSBPackageScreen';
 import AssetsScreen from '@/screens/Portfolio/AssetsScreen';
 import PerformanceScreen from '@/screens/Portfolio/PerformanceScreen';
 import PositionsScreen from '@/screens/Portfolio/PositionsScreen';
@@ -25,6 +30,46 @@ export default function PortfolioStack() {
         options={{
           ...mainScreenOptions,
           title: 'Portfolio'
+        }}
+      />
+      <Stack.Screen
+        name="NewPackage"
+        component={NewPackageScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'New Package'
+        }}
+      />
+      <Stack.Screen
+        name="PackageDetail"
+        component={PackageDetailScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Package Details'
+        }}
+      />
+      <Stack.Screen
+        name="CreateDailySavings"
+        component={CreateDailySavingsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Daily Savings'
+        }}
+      />
+      <Stack.Screen
+        name="CreateIBSPackage"
+        component={CreateIBSPackageScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Interest-Based'
+        }}
+      />
+      <Stack.Screen
+        name="CreateSBPackage"
+        component={CreateSBPackageScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'SB Package'
         }}
       />
       <Stack.Screen

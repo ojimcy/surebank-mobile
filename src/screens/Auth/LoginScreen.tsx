@@ -79,17 +79,10 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
     } catch (err: any) {
       console.error('Login error:', err);
 
-      let errorMessage = 'Invalid email/phone or password. Please try again.';
+      // Use the actual error message from the API
+      const errorMessage = err?.message || 'Login failed. Please try again.';
 
-      if (err?.message?.includes('timeout')) {
-        errorMessage = 'Login request timed out. Please check your connection and try again.';
-      } else if (err?.message?.includes('Network')) {
-        errorMessage = 'Network error. Please check your internet connection.';
-      } else if (err?.code === 'NETWORK_UNAVAILABLE') {
-        errorMessage = 'No internet connection. Please check your network.';
-      }
-
-      // Show error toast
+      // Show error toast with the actual error message
       Toast.show({
         type: 'error',
         text1: 'Login Failed',

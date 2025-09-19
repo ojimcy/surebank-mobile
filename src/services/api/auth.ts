@@ -56,16 +56,11 @@ export class AuthService {
       console.log('[AuthService] Starting login process...');
       console.log('[AuthService] API Base URL:', apiClient.defaults.baseURL);
       console.log('[AuthService] Making API request to /auth/login');
-      const response = await Promise.race([
-        apiUtils.requestWithRetry(
-          () => apiClient.post<LoginResponse>('/auth/login', payload),
-          2, // Max 2 retries for login
-          1000 // 1 second delay
-        ),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Login timeout after 15 seconds')), 15000)
-        )
-      ]);
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.post<LoginResponse>('/auth/login', payload),
+        2, // Max 2 retries for login
+        1000 // 1 second delay
+      );
 
       const { user, tokens } = response.data;
 
@@ -90,61 +85,22 @@ export class AuthService {
       console.log('Last login timestamp stored');
 
       return user;
-    } catch (error) {
-      console.log('Auth error debug', error);
+    } catch (error: any) {
+      console.log('Auth error debug:', error);
 
-      if (error instanceof ApiNetworkError) {
-        // Map API errors to authentication errors
-        switch (error.status) {
-          case 401:
-            throw new AuthenticationError(
-              'Invalid email/phone or password',
-              'INVALID_CREDENTIALS',
-              'INVALID_LOGIN',
-              undefined,
-              error.response
-            );
-          case 423:
-            throw new AuthenticationError(
-              'Account temporarily locked due to multiple failed attempts',
-              'ACCOUNT_LOCKED',
-              'ACCOUNT_LOCKED',
-              error.response?.lockoutUntil,
-              error.response
-            );
-          case 429:
-            throw new AuthenticationError(
-              'Too many login attempts. Please try again later',
-              'ACCOUNT_LOCKED',
-              'RATE_LIMITED',
-              error.response?.retryAfter || 300,
-              error.response
-            );
-          default:
-            if (!apiUtils.isOnline()) {
-              throw new AuthenticationError(
-                'Please check your internet connection and try again',
-                'NETWORK_ERROR',
-                'NO_CONNECTION'
-              );
-            }
-            throw new AuthenticationError(
-              error.message || 'Login failed. Please try again',
-              'UNKNOWN',
-              'LOGIN_FAILED',
-              undefined,
-              error.response
-            );
-        }
+      // Check for no internet connection first
+      if (!apiUtils.isOnline()) {
+        throw new Error('No internet connection. Please check your connection and try again.');
       }
 
-      throw new AuthenticationError(
-        'An unexpected error occurred during login',
-        'UNKNOWN',
-        'UNEXPECTED_ERROR',
-        undefined,
-        error
-      );
+      // Get the actual error message from the API response
+      const errorMessage = error?.response?.data?.message ||
+                          error?.response?.data?.error ||
+                          error?.message ||
+                          'Login failed. Please try again.';
+
+      // Just throw a simple error with the actual API message
+      throw new Error(errorMessage);
     }
   }
 
@@ -160,50 +116,19 @@ export class AuthService {
       );
 
       return response.data;
-    } catch (error) {
-      if (error instanceof ApiNetworkError) {
-        switch (error.status) {
-          case 409:
-            throw new AuthenticationError(
-              'An account with this email or phone number already exists',
-              'INVALID_CREDENTIALS',
-              'ACCOUNT_EXISTS',
-              undefined,
-              error.response
-            );
-          case 422:
-            throw new AuthenticationError(
-              error.response?.message || 'Please check your information and try again',
-              'INVALID_CREDENTIALS',
-              'VALIDATION_ERROR',
-              undefined,
-              error.response
-            );
-          default:
-            if (!apiUtils.isOnline()) {
-              throw new AuthenticationError(
-                'Please check your internet connection and try again',
-                'NETWORK_ERROR',
-                'NO_CONNECTION'
-              );
-            }
-            throw new AuthenticationError(
-              error.message || 'Registration failed. Please try again',
-              'UNKNOWN',
-              'REGISTRATION_FAILED',
-              undefined,
-              error.response
-            );
-        }
+    } catch (error: any) {
+      // Check for no internet connection first
+      if (!apiUtils.isOnline()) {
+        throw new Error('No internet connection. Please check your connection and try again.');
       }
 
-      throw new AuthenticationError(
-        'An unexpected error occurred during registration',
-        'UNKNOWN',
-        'UNEXPECTED_ERROR',
-        undefined,
-        error
-      );
+      // Get the actual error message from the API response
+      const errorMessage = error?.response?.data?.message ||
+                          error?.response?.data?.error ||
+                          error?.message ||
+                          'Registration failed. Please try again.';
+
+      throw new Error(errorMessage);
     }
   }
 
@@ -231,51 +156,17 @@ export class AuthService {
       }
 
       return user;
-    } catch (error) {
-      if (error instanceof ApiNetworkError) {
-        switch (error.status) {
-          case 400:
-          case 401:
-            throw new AuthenticationError(
-              'Invalid or expired verification code',
-              'INVALID_CREDENTIALS',
-              'INVALID_CODE',
-              undefined,
-              error.response
-            );
-          case 429:
-            throw new AuthenticationError(
-              'Too many verification attempts. Please try again later',
-              'ACCOUNT_LOCKED',
-              'RATE_LIMITED',
-              error.response?.retryAfter || 300,
-              error.response
-            );
-          default:
-            if (!apiUtils.isOnline()) {
-              throw new AuthenticationError(
-                'Please check your internet connection and try again',
-                'NETWORK_ERROR',
-                'NO_CONNECTION'
-              );
-            }
-            throw new AuthenticationError(
-              error.message || 'Verification failed. Please try again',
-              'UNKNOWN',
-              'VERIFICATION_FAILED',
-              undefined,
-              error.response
-            );
-        }
+    } catch (error: any) {
+      if (!apiUtils.isOnline()) {
+        throw new Error('No internet connection. Please check your connection and try again.');
       }
 
-      throw new AuthenticationError(
-        'An unexpected error occurred during verification',
-        'UNKNOWN',
-        'UNEXPECTED_ERROR',
-        undefined,
-        error
-      );
+      const errorMessage = error?.response?.data?.message ||
+                          error?.response?.data?.error ||
+                          error?.message ||
+                          'Verification failed. Please try again.';
+
+      throw new Error(errorMessage);
     }
   }
 
@@ -294,25 +185,17 @@ export class AuthService {
       );
 
       return response.data;
-    } catch (error) {
-      if (error instanceof ApiNetworkError) {
-        if (error.status === 429) {
-          throw new AuthenticationError(
-            'Please wait before requesting another verification code',
-            'ACCOUNT_LOCKED',
-            'RATE_LIMITED',
-            error.response?.retryAfter || 60
-          );
-        }
+    } catch (error: any) {
+      if (!apiUtils.isOnline()) {
+        throw new Error('No internet connection. Please check your connection and try again.');
       }
 
-      throw new AuthenticationError(
-        'Failed to resend verification code. Please try again',
-        'UNKNOWN',
-        'RESEND_FAILED',
-        undefined,
-        error
-      );
+      const errorMessage = error?.response?.data?.message ||
+                          error?.response?.data?.error ||
+                          error?.message ||
+                          'Failed to resend verification code.';
+
+      throw new Error(errorMessage);
     }
   }
 
@@ -328,25 +211,19 @@ export class AuthService {
       );
 
       return response.data;
-    } catch (error) {
-      if (error instanceof ApiNetworkError && error.status === 401) {
+    } catch (error: any) {
+      if (error?.response?.status === 401) {
         // Token expired or invalid - clear stored tokens
         await storageUtils.clearAuthData();
-
-        throw new AuthenticationError(
-          'Session expired. Please log in again',
-          'TOKEN_EXPIRED',
-          'SESSION_EXPIRED'
-        );
+        throw new Error('Session expired. Please log in again.');
       }
 
-      throw new AuthenticationError(
-        'Failed to get user information',
-        'UNKNOWN',
-        'USER_FETCH_FAILED',
-        undefined,
-        error
-      );
+      const errorMessage = error?.response?.data?.message ||
+                          error?.response?.data?.error ||
+                          error?.message ||
+                          'Failed to get user information.';
+
+      throw new Error(errorMessage);
     }
   }
 

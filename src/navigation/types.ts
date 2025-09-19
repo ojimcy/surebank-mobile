@@ -49,6 +49,11 @@ export type TradingStackParamList = {
 // Portfolio Stack
 export type PortfolioStackParamList = {
   PortfolioHome: undefined;
+  NewPackage: undefined;
+  PackageDetail: { packageId: string; packageType: 'DS' | 'IBS' | 'SB' };
+  CreateDailySavings: undefined;
+  CreateIBSPackage: undefined;
+  CreateSBPackage: undefined;
   Assets: undefined;
   Performance: undefined;
   Positions: undefined;

@@ -274,7 +274,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(error);
 
       // If refresh fails due to auth, clear everything
-      if (error instanceof AuthenticationError && error.type === 'TOKEN_EXPIRED') {
+      if (error instanceof Error && error.message.includes('Session expired')) {
         await logout();
       }
     }
