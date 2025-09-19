@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MainHeader } from '@/components/navigation';
@@ -19,109 +19,62 @@ import type {
   Announcement,
 } from '@/components/dashboard/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAccountsQuery } from '@/hooks/queries/useAccountsQuery';
+import { usePackagesQuery } from '@/hooks/queries/usePackagesQuery';
+import { useRecentTransactions } from '@/hooks/queries/useTransactionsQuery';
 
 export default function DashboardScreen({ navigation }: DashboardScreenProps<'Dashboard'>) {
   const { user } = useAuth();
   const [showBalance, setShowBalance] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Mock data - replace with actual API calls
-  const [isLoading, setIsLoading] = useState({
-    accounts: false,
-    packages: false,
-    transactions: false,
-    balance: false,
-  });
+  // Fetch real data from API
+  const {
+    accounts,
+    totalBalance,
+    hasAccounts,
+    isLoading: isAccountsLoading,
+    refetchAccounts,
+    createAccount,
+    isCreatingAccount,
+  } = useAccountsQuery();
 
-  // Mock accounts data
-  const mockAccounts: Account[] = [
-    {
-      id: '1',
-      accountType: 'ds',
-      balance: 150000,
-      status: 'active',
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '2024-01-20T15:30:00Z',
-    },
-    {
-      id: '2',
-      accountType: 'ibs',
-      balance: 500000,
-      status: 'active',
-      createdAt: '2024-01-10T08:00:00Z',
-      updatedAt: '2024-01-20T12:00:00Z',
-    },
-  ];
+  const {
+    packages,
+    isLoading: isPackagesLoading,
+    hasPackages,
+    refetchPackages,
+  } = usePackagesQuery();
 
-  // Mock packages data
-  const mockPackages: SavingsPackage[] = [
-    {
-      id: '1',
-      title: 'Emergency Fund',
-      type: 'ds',
-      icon: 'home',
-      progress: 65,
-      current: 325000,
-      target: 500000,
-      amountPerDay: 5000,
-      totalContribution: 325000,
-      color: '#0066A1',
-      status: 'active',
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '2024-01-20T15:30:00Z',
-    },
-    {
-      id: '2',
-      title: 'Laptop Fund',
-      type: 'sb',
-      icon: 'laptop',
-      progress: 40,
-      current: 200000,
-      target: 500000,
-      totalContribution: 200000,
-      color: '#7952B3',
-      status: 'active',
-      createdAt: '2024-01-10T08:00:00Z',
-      updatedAt: '2024-01-18T14:20:00Z',
-    },
-  ];
+  const {
+    transactions: recentTransactions,
+    isLoading: isTransactionsLoading,
+    refetch: refetchTransactions,
+  } = useRecentTransactions();
 
-  // Mock transactions data
-  const mockTransactions: Transaction[] = [
-    {
-      id: '1',
-      type: 'deposit',
-      category: 'Emergency Fund',
-      amount: 5000,
-      date: '2024-01-20',
-      time: '15:30',
-      status: 'completed',
-      description: 'Daily savings deposit',
-    },
-    {
-      id: '2',
-      type: 'deposit',
-      category: 'Laptop Fund',
-      amount: 10000,
-      date: '2024-01-18',
-      time: '14:20',
-      status: 'completed',
-      description: 'Weekly contribution',
-    },
-    {
-      id: '3',
-      type: 'withdrawal',
-      category: 'Emergency Fund',
-      amount: 2000,
-      date: '2024-01-17',
-      time: '10:15',
-      status: 'completed',
-      description: 'Emergency withdrawal',
-    },
-  ];
+  // Loading states
+  const isLoading = {
+    accounts: isAccountsLoading,
+    packages: isPackagesLoading,
+    transactions: isTransactionsLoading,
+    balance: isAccountsLoading,
+  };
 
-  // Mock announcements data
-  const mockAnnouncements: Announcement[] = useMemo(() => {
+  // Transform accounts for UI display
+  const displayAccounts: Account[] = accounts.map(account => ({
+    id: account._id,
+    accountType: account.accountType,
+    balance: account.availableBalance,
+    status: account.status,
+    createdAt: account.createdAt,
+    updatedAt: account.updatedAt,
+  }));
+
+  // Active packages for display
+  const activePackages = packages.filter(pkg => pkg.status === 'active');
+
+  // Announcements based on real user data
+  const announcements: Announcement[] = useMemo(() => {
     if (!user) return [];
 
     const announcements: Announcement[] = [];
@@ -217,10 +170,6 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
     []
   );
 
-  // Calculate total balance
-  const totalBalance = mockAccounts.reduce((sum, account) => sum + account.balance, 0);
-  const hasAccounts = mockAccounts.length > 0;
-  const activePackages = mockPackages.filter(pkg => pkg.status === 'active');
 
   // Event handlers
   const handleNotificationPress = () => {
@@ -232,23 +181,27 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
     console.log('Avatar pressed');
   };
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    // TODO: Implement actual data refresh
-    setTimeout(() => {
+    try {
+      // Refresh all data
+      await Promise.all([
+        refetchAccounts(),
+        refetchPackages(),
+        refetchTransactions(),
+      ]);
+    } finally {
       setRefreshing(false);
-    }, 1000);
-  };
+    }
+  }, [refetchAccounts, refetchPackages, refetchTransactions]);
 
-  const handleCreateAccount = (type: 'ds' | 'sb' | 'ibs') => {
-    // TODO: Implement account creation
-    console.log('Create account:', type);
-  };
+  const handleCreateAccount = useCallback((type: 'ds' | 'sb' | 'ibs') => {
+    createAccount(type);
+  }, [createAccount]);
 
-  const handleRefreshBalance = () => {
-    // TODO: Implement balance refresh
-    console.log('Refresh balance');
-  };
+  const handleRefreshBalance = useCallback(() => {
+    refetchAccounts();
+  }, [refetchAccounts]);
 
   // Quick Actions handlers
   const handleNewPackage = () => {
@@ -349,16 +302,16 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
           showBalance={showBalance}
           setShowBalance={setShowBalance}
           hasAccounts={hasAccounts}
-          isAccountsLoading={isLoading.accounts}
-          accounts={mockAccounts}
+          isAccountsLoading={isLoading.accounts || isCreatingAccount}
+          accounts={displayAccounts}
           onCreateAccount={handleCreateAccount}
           onRefreshBalance={handleRefreshBalance}
         />
 
         {/* Announcements */}
-        {mockAnnouncements.length > 0 && (
+        {announcements.length > 0 && (
           <Announcements
-            announcements={mockAnnouncements}
+            announcements={announcements}
             onDismiss={handleAnnouncementDismiss}
             onAnnouncementPress={handleAnnouncementPress}
           />
@@ -400,7 +353,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
 
         {/* Recent Transactions */}
         <RecentTransactions
-          transactions={mockTransactions}
+          transactions={recentTransactions}
           isLoading={isLoading.transactions}
           onViewAll={handleViewAllTransactions}
           onTransactionPress={handleTransactionPress}

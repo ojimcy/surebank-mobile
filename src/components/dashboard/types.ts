@@ -49,7 +49,7 @@ export interface PackageType {
 
 export interface Transaction {
     id: string;
-    type: 'deposit' | 'withdrawal';
+    type: 'deposit' | 'withdrawal' | 'other';
     category: string;
     amount: number;
     date: string;
