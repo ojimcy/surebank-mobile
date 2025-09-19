@@ -156,16 +156,34 @@ export interface GetAllPackagesResponse {
 // Package API Service
 export class PackagesService {
   /**
-   * Get all packages for a user
+   * Get all packages for authenticated user
    */
-  async getAllPackages(userId: string): Promise<GetAllPackagesResponse> {
+  async getAllPackages(): Promise<GetAllPackagesResponse> {
     try {
-      const response = await apiUtils.requestWithRetry(
-        () => apiClient.get<GetAllPackagesResponse>(`/packages/user/${userId}`),
-        2,
-        1000
-      );
-      return response.data;
+      // Fetch all package types in parallel
+      const [dailySavingsResponse, sbResponse, ibResponse] = await Promise.all([
+        apiUtils.requestWithRetry(
+          () => apiClient.get<DailySavingsPackage[]>('/daily-savings/package'),
+          2,
+          1000
+        ).catch(() => ({ data: [] })), // Return empty array on error
+        apiUtils.requestWithRetry(
+          () => apiClient.get<SBPackage[]>('/daily-savings/sb/package'),
+          2,
+          1000
+        ).catch(() => ({ data: [] })),
+        apiUtils.requestWithRetry(
+          () => apiClient.get<IBPackage[]>('/interest-savings/package'),
+          2,
+          1000
+        ).catch(() => ({ data: [] }))
+      ]);
+
+      return {
+        dailySavings: dailySavingsResponse.data,
+        sbPackages: sbResponse.data,
+        ibPackages: ibResponse.data
+      };
     } catch (error) {
       console.error('Failed to fetch packages:', error);
       throw error;
@@ -195,7 +213,7 @@ export class PackagesService {
   async createDailySavingsPackage(params: CreateDailySavingsPackageParams): Promise<DailySavingsPackage> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<DailySavingsPackage>('/packages/daily-savings', params),
+        () => apiClient.post<DailySavingsPackage>('/daily-savings/self-package', params),
         2,
         1000
       );
@@ -212,7 +230,7 @@ export class PackagesService {
   async createSBPackage(params: CreateSBPackageParams): Promise<SBPackage> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<SBPackage>('/packages/sb', params),
+        () => apiClient.post<SBPackage>('/daily-savings/sb/self-package', params),
         2,
         1000
       );
@@ -224,29 +242,29 @@ export class PackagesService {
   }
 
   /**
-   * Initiate IB Package (returns payment details)
+   * Initiate IB Package Payment (returns payment details)
    */
-  async initiateIBPackage(params: InitiateIBPackageParams): Promise<InitiateIBPackageResponse> {
+  async initiateIBPackagePayment(params: InitiateIBPackageParams): Promise<InitiateIBPackageResponse> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<InitiateIBPackageResponse>('/packages/ib/initiate', params),
+        () => apiClient.post<InitiateIBPackageResponse>('/interest-savings/initiate-payment', params),
         2,
         1000
       );
       return response.data;
     } catch (error) {
-      console.error('Failed to initiate IB package:', error);
+      console.error('Failed to initiate IB package payment:', error);
       throw error;
     }
   }
 
   /**
-   * Create IB Package (after payment)
+   * Create IB Package (after successful payment)
    */
   async createIBPackage(params: CreateIBPackageParams): Promise<IBPackage> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<IBPackage>('/packages/ib', params),
+        () => apiClient.post<IBPackage>('/interest-savings/self-package', params),
         2,
         1000
       );

@@ -55,6 +55,9 @@ const tokenFetcher = axios.create({
 // Main API client instance
 const apiClient: AxiosInstance = axios.create(API_CONFIG);
 
+// Track if we're currently refreshing to prevent multiple simultaneous refreshes
+let isRefreshing = false;
+
 // Network connectivity state
 let isConnected = true;
 
@@ -78,24 +81,43 @@ apiClient.interceptors.request.use(
     }
 
     try {
-      // Get valid authentication token (with automatic refresh)
-      const authToken = await tokenManager.getValidAccessToken();
-      if (authToken) {
-        config.headers.Authorization = `Bearer ${authToken}`;
+      // Skip token management for auth endpoints
+      const isAuthEndpoint = config.url?.includes('/auth/');
+      const isRefreshEndpoint = config.url?.includes('/auth/refresh');
+      let authToken: string | null = null;
+
+      // Only add auth token for non-auth endpoints, but exclude refresh endpoint completely
+      if (!isAuthEndpoint || (isAuthEndpoint && !isRefreshEndpoint)) {
+        // For refresh endpoint, we handle auth differently (it uses refresh token in body)
+        if (!isRefreshEndpoint && !isRefreshing) {
+          // Mark that we're refreshing if this triggers a refresh
+          if (config.url !== '/auth/refresh') {
+            // Get valid authentication token (with automatic refresh) only for protected endpoints
+            authToken = await tokenManager.getValidAccessToken();
+            if (authToken) {
+              config.headers.Authorization = `Bearer ${authToken}`;
+            }
+          }
+        }
       }
 
-      // For protected methods, ensure we have CSRF tokens
+      // Set refreshing flag for refresh endpoint
+      if (isRefreshEndpoint) {
+        isRefreshing = true;
+      }
+
+      // For protected methods, ensure we have CSRF tokens (skip for auth endpoints)
       const protectedMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-      if (protectedMethods.includes(config.method?.toUpperCase() || '')) {
+      if (protectedMethods.includes(config.method?.toUpperCase() || '') && !isAuthEndpoint) {
         let csrfToken = await storage.getItem(STORAGE_KEYS.CSRF_TOKEN);
         let csrfSecret = await storage.getItem(STORAGE_KEYS.CSRF_SECRET);
 
-        // If we don't have CSRF tokens, fetch them
-        if (!csrfToken || !csrfSecret) {
+        // If we don't have CSRF tokens and we have auth, try to fetch them
+        if ((!csrfToken || !csrfSecret) && authToken) {
           try {
             const tokenResponse = await tokenFetcher.get('/users/me', {
               headers: {
-                Authorization: authToken ? `Bearer ${authToken}` : undefined
+                Authorization: `Bearer ${authToken}`
               }
             });
 
@@ -141,6 +163,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   async (response: AxiosResponse) => {
     try {
+      // Clear refreshing flag if this was a refresh request
+      if (response.config.url?.includes('/auth/refresh')) {
+        isRefreshing = false;
+      }
+
       // Extract and store CSRF tokens from response headers
       const csrfToken = response.headers['x-csrf-token'];
       const csrfSecret = response.headers['x-csrf-secret'];
@@ -160,6 +187,11 @@ apiClient.interceptors.response.use(
   },
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
+
+    // Clear refreshing flag if this was a refresh request that failed
+    if (originalRequest?.url?.includes('/auth/refresh')) {
+      isRefreshing = false;
+    }
 
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {

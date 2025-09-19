@@ -319,12 +319,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     const handleRefreshFailed = (error: any) => {
-      console.error('Token refresh failed:', error);
+      console.error('Token refresh failed in AuthContext:', error);
+
+      // Extract error details for better debugging
+      const errorDetails = error?.error || error;
+      const errorMessage = errorDetails?.message || 'Session expired. Please log in again.';
+      const errorStatus = errorDetails?.status || 'unknown';
+
+      console.error('Refresh failed details:', {
+        message: errorMessage,
+        status: errorStatus,
+        fullError: errorDetails,
+      });
+
       setError(new AuthenticationError(
-        'Session expired. Please log in again.',
+        errorMessage,
         'TOKEN_EXPIRED',
         'REFRESH_FAILED'
       ));
+
+      // Clear auth state to prevent infinite retry loops
+      dispatch({ type: 'RESET_AUTH' });
     };
 
     // Subscribe to token manager events

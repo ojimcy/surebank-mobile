@@ -256,11 +256,25 @@ export class TokenManager {
       }
 
       // Make refresh request
-      const response = await apiClient.post<TokenResponse>('/auth/refresh', {
-        refreshToken,
-      });
+      console.log('Attempting to refresh token...');
+
+      // Try different payload formats that the API might expect
+      let response;
+      try {
+        // First try with refresh_token (common format)
+        response = await apiClient.post<TokenResponse>('/auth/refresh', {
+          refresh_token: refreshToken,
+        });
+      } catch (firstError) {
+        console.log('First format failed, trying refreshToken format...');
+        // If that fails, try with refreshToken
+        response = await apiClient.post<TokenResponse>('/auth/refresh', {
+          refreshToken: refreshToken,
+        });
+      }
 
       const newTokens = response.data;
+      console.log('Token refresh response received');
 
       // Store new tokens
       await this.storeTokens(newTokens);
@@ -277,11 +291,20 @@ export class TokenManager {
     } catch (error) {
       console.error('Token refresh failed:', error);
 
+      // Log more details about the error
       if (error instanceof ApiNetworkError) {
+        console.error('API Error Details:', {
+          status: error.status,
+          code: error.code,
+          message: error.message,
+          response: error.response,
+        });
+
         switch (error.status) {
           case 401:
           case 403:
             // Refresh token invalid or expired
+            console.log('Refresh token is invalid or expired, clearing tokens');
             await this.clearTokens();
             this.emit('loginRequired');
             return {
@@ -292,6 +315,7 @@ export class TokenManager {
 
           case 429:
             // Rate limited
+            console.warn('Rate limited during token refresh');
             this.emit('refreshFailed', { retryAfter: error.response?.retryAfter });
             return {
               success: false,
@@ -300,13 +324,21 @@ export class TokenManager {
 
           default:
             // Network or server error
+            console.error(`Network/server error during refresh: ${error.status}`);
             this.emit('refreshFailed', { error });
             return {
               success: false,
-              error: 'Network error during token refresh',
+              error: `Network error during token refresh (${error.status})`,
             };
         }
       }
+
+      // Log raw error for debugging
+      console.error('Unknown error during token refresh:', {
+        name: (error as any)?.name,
+        message: (error as any)?.message,
+        stack: (error as any)?.stack,
+      });
 
       this.emit('refreshFailed', { error });
       return {
