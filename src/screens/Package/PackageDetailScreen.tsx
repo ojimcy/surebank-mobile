@@ -16,9 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { NestedHeader } from '@/components/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import Svg, { Circle } from 'react-native-svg';
 import packagesService, { type UIPackage, type DailySavingsPackage, type SBPackage, type IBPackage } from '@/services/api/packages';
 import transactionsApi, { type Transaction } from '@/services/api/transactions';
 import type { PackageScreenProps } from '@/navigation/types';
@@ -89,22 +87,37 @@ interface CircularProgressProps {
 }
 
 const CircularProgress: React.FC<CircularProgressProps> = ({ progress, color }) => {
+    const size = 100;
+    const strokeWidth = 8;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const strokeDashoffset = circumference - (progress / 100) * circumference;
+
     return (
         <View style={styles.progressCircle}>
-            {/* Background Circle */}
-            <View style={styles.progressCircleBackground} />
-
-            {/* Progress Indicator - Simple approach using border segments */}
-            <View style={[
-                styles.progressCircleIndicator,
-                {
-                    borderColor: color,
-                    transform: [
-                        { rotate: `${-90 + (progress / 100) * 360}deg` }
-                    ]
-                }
-            ]} />
-
+            <Svg height={size} width={size} style={{ transform: [{ rotate: '-90deg' }] }}>
+                {/* Background Circle */}
+                <Circle
+                    stroke="#e5e7eb"
+                    fill="none"
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    strokeWidth={strokeWidth}
+                />
+                {/* Progress Circle */}
+                <Circle
+                    stroke={color}
+                    fill="none"
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    strokeWidth={strokeWidth}
+                    strokeDasharray={`${circumference} ${circumference}`}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                />
+            </Svg>
             {/* Center Content */}
             <View style={styles.progressCircleCenter}>
                 <Text style={[styles.progressText, { color }]}>
@@ -115,9 +128,8 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ progress, color }) 
     );
 };
 
-export default function PackageDetailScreen({ navigation, route }: PackageScreenProps<'PackageDetail'>) {
-    const { packageId, packageType } = route.params;
-    const { user } = useAuth();
+export default function PackageDetailScreen({ route }: PackageScreenProps<'PackageDetail'>) {
+    const { packageId } = route.params;
 
     const [packageData, setPackageData] = useState<UIPackage | null>(null);
     const [rawPackageData, setRawPackageData] = useState<DailySavingsPackage | SBPackage | IBPackage | null>(null);
@@ -859,40 +871,22 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     progressCircle: {
-        width: 80,
-        height: 80,
+        width: 100,
+        height: 100,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
         position: 'relative',
     },
-    progressCircleBackground: {
-        position: 'absolute',
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        borderWidth: 8,
-        borderColor: '#e5e7eb',
-    },
-    progressCircleIndicator: {
-        position: 'absolute',
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        borderWidth: 8,
-        borderColor: 'transparent',
-        borderTopColor: '#0066A1',
-    },
     progressCircleCenter: {
         position: 'absolute',
-        width: 80,
-        height: 80,
+        width: 100,
+        height: 100,
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 1,
     },
     progressText: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: 'bold',
     },
     progressDetails: {
