@@ -323,7 +323,7 @@ export class PackagesService {
         type: 'DS',
         typeLabel: 'Daily Savings',
         icon: 'calendar-outline',
-        progress: pkg.targetAmount > 0 ? (pkg.totalContribution / pkg.targetAmount) * 100 : 0,
+        progress: Math.min(Math.floor((pkg.totalCount / 30) * 100), 100), // Based on 30 days of saving
         current: pkg.totalContribution,
         target: pkg.targetAmount,
         color: '#0066A1',
@@ -360,13 +360,26 @@ export class PackagesService {
 
     // Transform IB packages
     apiData.ibPackages.forEach(pkg => {
+      // Calculate progress based on time elapsed towards maturity
+      const today = new Date();
+      const startDate = new Date(Number(pkg.startDate || pkg.createdAt));
+      const maturityDate = new Date(Number(pkg.maturityDate));
+
+      const totalDuration = maturityDate.getTime() - startDate.getTime();
+      const elapsedTime = today.getTime() - startDate.getTime();
+
+      let progress = 0;
+      if (totalDuration > 0) {
+        progress = Math.min(Math.floor((elapsedTime / totalDuration) * 100), 100);
+      }
+
       packages.push({
         id: pkg._id || pkg.id!,
         title: pkg.name,
         type: 'IBS',
         typeLabel: 'Interest-Based',
         icon: 'trending-up-outline',
-        progress: 100, // IB packages are fully funded upfront
+        progress: progress, // Based on time elapsed towards maturity
         current: pkg.currentBalance || pkg.principalAmount,
         target: pkg.principalAmount,
         color: '#28A745',

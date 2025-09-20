@@ -2,34 +2,34 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { stackScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
 
-import type { PortfolioStackParamList } from './types';
+import type { PackageStackParamList } from './types';
 
-// Import portfolio screens (placeholder components for now)
-import PortfolioHomeScreen from '@/screens/Portfolio/PortfolioHomeScreen';
-import NewPackageScreen from '@/screens/Portfolio/NewPackageScreen';
-import PackageDetailScreen from '@/screens/Portfolio/PackageDetailScreen';
-import CreateDailySavingsScreen from '@/screens/Portfolio/CreateDailySavingsScreen';
-import CreateIBSPackageScreen from '@/screens/Portfolio/CreateIBSPackageScreen';
-import CreateSBPackageScreen from '@/screens/Portfolio/CreateSBPackageScreen';
-import AssetsScreen from '@/screens/Portfolio/AssetsScreen';
-import PerformanceScreen from '@/screens/Portfolio/PerformanceScreen';
-import PositionsScreen from '@/screens/Portfolio/PositionsScreen';
-import AssetDetailsScreen from '@/screens/Portfolio/AssetDetailsScreen';
+// Import package screens (placeholder components for now)
+import PackagesHomeScreen from '@/screens/Package/PackagesHomeScreen';
+import NewPackageScreen from '@/screens/Package/NewPackageScreen';
+import PackageDetailScreen from '@/screens/Package/PackageDetailScreen';
+import CreateDailySavingsScreen from '@/screens/Package/CreateDailySavingsScreen';
+import CreateIBSPackageScreen from '@/screens/Package/CreateIBSPackageScreen';
+import CreateSBPackageScreen from '@/screens/Package/CreateSBPackageScreen';
+import AssetsScreen from '@/screens/Package/AssetsScreen';
+import PerformanceScreen from '@/screens/Package/PerformanceScreen';
+import PositionsScreen from '@/screens/Package/PositionsScreen';
+import AssetDetailsScreen from '@/screens/Package/AssetDetailsScreen';
 
-const Stack = createStackNavigator<PortfolioStackParamList>();
+const Stack = createStackNavigator<PackageStackParamList>();
 
-export default function PortfolioStack() {
+export default function PackageStack() {
   return (
     <Stack.Navigator
-      initialRouteName="PortfolioHome"
+      initialRouteName="PackageHome"
       screenOptions={stackScreenOptions}
     >
       <Stack.Screen
-        name="PortfolioHome"
-        component={PortfolioHomeScreen}
+        name="PackageHome"
+        component={PackagesHomeScreen}
         options={{
           ...mainScreenOptions,
-          title: 'Portfolio'
+          title: 'Packages'
         }}
       />
       <Stack.Screen

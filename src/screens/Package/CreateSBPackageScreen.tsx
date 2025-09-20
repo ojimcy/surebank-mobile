@@ -1,6 +1,6 @@
 /**
- * Create Daily Savings Package Screen
- * Professional form for creating daily savings packages
+ * Create SB Package Screen
+ * Professional form for creating SB packages
  */
 
 import React from 'react';
@@ -11,20 +11,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NestedHeader } from '@/components/navigation';
-import type { PortfolioScreenProps } from '@/navigation/types';
+import type { PackageScreenProps } from '@/navigation/types';
 
-export default function CreateDailySavingsScreen({ navigation }: PortfolioScreenProps<'CreateDailySavings'>) {
+export default function CreateSBPackageScreen({ navigation }: PackageScreenProps<'CreateSBPackage'>) {
     return (
         <SafeAreaView style={styles.container}>
             <NestedHeader
-                title="Create Daily Savings"
+                title="Create SB Package"
                 onBackPress={() => navigation.goBack()}
             />
 
             <View style={styles.content}>
-                <Text style={styles.title}>Daily Savings Package</Text>
+                <Text style={styles.title}>SB Package</Text>
                 <Text style={styles.subtitle}>
-                    This screen will contain the form to create a daily savings package.
+                    This screen will contain the form to create an SB package for specific products.
                     Coming in the next implementation phase.
                 </Text>
             </View>

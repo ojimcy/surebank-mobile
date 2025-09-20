@@ -88,6 +88,41 @@ const transactionsApi = {
   },
 
   /**
+   * Get package transactions
+   * Fetches all transactions and filters those related to a specific package
+   * Note: Since the API doesn't support packageId filtering, we fetch all and filter client-side
+   */
+  async getPackageTransactions(packageId: string, page = 1, limit = 100): Promise<TransactionResponse> {
+    // Fetch more transactions to ensure we get package-specific ones
+    const response = await transactionsApi.getUserTransactions({ page, limit });
+
+    // Filter transactions that belong to this package
+    // Check both packageId field and narration for package references
+    const packageTransactions = response.transactions.filter(transaction => {
+      // First check if packageId matches
+      if (transaction.packageId === packageId) {
+        return true;
+      }
+
+      // Also check narration for package reference (fallback)
+      const narration = transaction.narration.toLowerCase();
+
+      // Check for account number in narration (packages often have account numbers)
+      if (transaction.accountNumber) {
+        return narration.includes(transaction.accountNumber.toLowerCase());
+      }
+
+      return false;
+    });
+
+    return {
+      ...response,
+      transactions: packageTransactions,
+      totalResults: packageTransactions.length
+    };
+  },
+
+  /**
    * Get transaction by ID
    */
   async getTransactionById(transactionId: string): Promise<Transaction> {

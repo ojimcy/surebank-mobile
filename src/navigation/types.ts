@@ -23,7 +23,7 @@ export type AuthStackParamList = {
 export type MainTabParamList = {
   DashboardTab: NavigatorScreenParams<DashboardStackParamList>;
   TradingTab: NavigatorScreenParams<TradingStackParamList>;
-  PortfolioTab: NavigatorScreenParams<PortfolioStackParamList>;
+  PackageTab: NavigatorScreenParams<PackageStackParamList>;
   HistoryTab: NavigatorScreenParams<HistoryStackParamList>;
   SettingsTab: NavigatorScreenParams<SettingsStackParamList>;
 };
@@ -46,9 +46,9 @@ export type TradingStackParamList = {
   BotDetails: { botId: string };
 };
 
-// Portfolio Stack
-export type PortfolioStackParamList = {
-  PortfolioHome: undefined;
+// Package Stack
+export type PackageStackParamList = {
+  PackageHome: undefined;
   NewPackage: undefined;
   PackageDetail: { packageId: string; packageType: 'DS' | 'IBS' | 'SB' };
   CreateDailySavings: undefined;
@@ -116,8 +116,8 @@ export type TradingScreenProps<Screen extends keyof TradingStackParamList> = Sta
   Screen
 >;
 
-export type PortfolioScreenProps<Screen extends keyof PortfolioStackParamList> = StackScreenProps<
-  PortfolioStackParamList,
+export type PackageScreenProps<Screen extends keyof PackageStackParamList> = StackScreenProps<
+  PackageStackParamList,
   Screen
 >;
 

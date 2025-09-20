@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   Platform,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,15 +16,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { MainHeader } from '@/components/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import packagesService, { type UIPackage } from '@/services/api/packages';
-import { PACKAGE_TYPES } from '@/constants/packages';
-import type { PortfolioScreenProps } from '@/navigation/types';
+import type { PackageScreenProps } from '@/navigation/types';
 
-export default function PortfolioHomeScreen({ navigation }: PortfolioScreenProps<'PortfolioHome'>) {
+type FilterType = 'all' | 'DS' | 'IBS' | 'SB';
+
+export default function PackagesHomeScreen({ navigation }: PackageScreenProps<'PackageHome'>) {
   const { user } = useAuth();
   const [packages, setPackages] = useState<UIPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleNotificationPress = () => {
     console.log('Notifications pressed');
@@ -43,7 +47,7 @@ export default function PortfolioHomeScreen({ navigation }: PortfolioScreenProps
       setError(null);
 
       if (user?.id) {
-        const apiData = await packagesService.getAllPackages(user.id);
+        const apiData = await packagesService.getAllPackages();
         const uiPackages = packagesService.transformToUIPackages(apiData);
         setPackages(uiPackages);
       }
@@ -87,6 +91,34 @@ export default function PortfolioHomeScreen({ navigation }: PortfolioScreenProps
     return Math.min(Math.max(progress, 0), 100);
   };
 
+  const filteredPackages = useMemo(() => {
+    let filtered = packages;
+
+    // Apply type filter
+    if (selectedFilter !== 'all') {
+      filtered = filtered.filter(pkg => pkg.type === selectedFilter);
+    }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(pkg =>
+        pkg.title.toLowerCase().includes(query) ||
+        pkg.accountNumber.toLowerCase().includes(query) ||
+        pkg.typeLabel.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [packages, selectedFilter, searchQuery]);
+
+  const filterOptions = [
+    { key: 'all' as FilterType, label: 'All', count: packages.length },
+    { key: 'DS' as FilterType, label: 'Daily Savings', count: packages.filter(p => p.type === 'DS').length },
+    { key: 'IBS' as FilterType, label: 'Interest-Based', count: packages.filter(p => p.type === 'IBS').length },
+    { key: 'SB' as FilterType, label: 'SB Package', count: packages.filter(p => p.type === 'SB').length },
+  ];
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -128,6 +160,66 @@ export default function PortfolioHomeScreen({ navigation }: PortfolioScreenProps
           <Text style={styles.headerSubtitle}>
             Manage your savings and investment packages
           </Text>
+
+          {/* Search Bar */}
+          <View style={styles.searchContainer}>
+            <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search packages..."
+              placeholderTextColor="#9ca3af"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setSearchQuery('')}
+                style={styles.clearButton}
+              >
+                <Ionicons name="close-circle" size={20} color="#6b7280" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Filter Tabs */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterContainer}
+            contentContainerStyle={styles.filterContent}
+          >
+            {filterOptions.map(filter => (
+              <TouchableOpacity
+                key={filter.key}
+                style={[
+                  styles.filterButton,
+                  selectedFilter === filter.key && styles.filterButtonActive
+                ]}
+                onPress={() => setSelectedFilter(filter.key)}
+                activeOpacity={0.7}
+              >
+                <Text style={[
+                  styles.filterButtonText,
+                  selectedFilter === filter.key && styles.filterButtonTextActive
+                ]}>
+                  {filter.label}
+                </Text>
+                {filter.count > 0 && (
+                  <View style={[
+                    styles.filterBadge,
+                    selectedFilter === filter.key && styles.filterBadgeActive
+                  ]}>
+                    <Text style={[
+                      styles.filterBadgeText,
+                      selectedFilter === filter.key && styles.filterBadgeTextActive
+                    ]}>
+                      {filter.count}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
         {/* Error State */}
@@ -142,9 +234,9 @@ export default function PortfolioHomeScreen({ navigation }: PortfolioScreenProps
         )}
 
         {/* Packages List */}
-        {!error && packages.length > 0 && (
+        {!error && filteredPackages.length > 0 && (
           <View style={styles.packagesSection}>
-            {packages.map((pkg) => (
+            {filteredPackages.map((pkg) => (
               <TouchableOpacity
                 key={pkg.id}
                 style={styles.packageCard}
@@ -239,26 +331,25 @@ export default function PortfolioHomeScreen({ navigation }: PortfolioScreenProps
           </View>
         )}
 
-        {/* Package Types Section */}
-        {packages.length > 0 && (
-          <View style={styles.packageTypesSection}>
-            <Text style={styles.sectionTitle}>Available Package Types</Text>
-            <View style={styles.packageTypesGrid}>
-              {PACKAGE_TYPES.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={styles.packageTypeCard}
-                  onPress={handleNewPackage}
-                  activeOpacity={0.7}
-                >
-                  <View style={[styles.packageTypeIcon, { backgroundColor: `${type.color}20` }]}>
-                    <Ionicons name={type.icon as any} size={24} color={type.color} />
-                  </View>
-                  <Text style={styles.packageTypeTitle}>{type.title}</Text>
-                  <Text style={styles.packageTypeDescription}>{type.description}</Text>
-                </TouchableOpacity>
-              ))}
+        {/* Empty Search Results */}
+        {!error && packages.length > 0 && filteredPackages.length === 0 && (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyStateIcon}>
+              <Ionicons name="search" size={64} color="#9ca3af" />
             </View>
+            <Text style={styles.emptyStateTitle}>No Packages Found</Text>
+            <Text style={styles.emptyStateDescription}>
+              {searchQuery ? `No packages matching "${searchQuery}"` : `No ${selectedFilter === 'all' ? '' : selectedFilter} packages found`}
+            </Text>
+            <TouchableOpacity
+              style={styles.clearFiltersButton}
+              onPress={() => {
+                setSearchQuery('');
+                setSelectedFilter('all');
+              }}
+            >
+              <Text style={styles.clearFiltersButtonText}>Clear Filters</Text>
+            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
@@ -304,7 +395,7 @@ const styles = StyleSheet.create({
   },
   headerSection: {
     padding: 24,
-    paddingBottom: 16,
+    paddingBottom: 8,
   },
   headerTitle: {
     fontSize: 28,
@@ -315,6 +406,76 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: '#6b7280',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#111827',
+  },
+  clearButton: {
+    padding: 4,
+  },
+  filterContainer: {
+    marginTop: 12,
+    marginHorizontal: -24,
+  },
+  filterContent: {
+    paddingHorizontal: 24,
+    gap: 8,
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    marginRight: 8,
+  },
+  filterButtonActive: {
+    backgroundColor: '#0066A1',
+    borderColor: '#0066A1',
+  },
+  filterButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  filterButtonTextActive: {
+    color: '#ffffff',
+  },
+  filterBadge: {
+    marginLeft: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 10,
+  },
+  filterBadgeActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  filterBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  filterBadgeTextActive: {
+    color: '#ffffff',
   },
   errorContainer: {
     margin: 24,
@@ -486,53 +647,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#ffffff',
   },
-  packageTypesSection: {
-    padding: 24,
-    paddingTop: 32,
+  clearFiltersButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+    marginTop: 16,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 16,
-  },
-  packageTypesGrid: {
-    gap: 16,
-  },
-  packageTypeCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  packageTypeIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  packageTypeTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  packageTypeDescription: {
-    fontSize: 14,
+  clearFiltersButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
     color: '#6b7280',
-    lineHeight: 20,
   },
   fab: {
     position: 'absolute',

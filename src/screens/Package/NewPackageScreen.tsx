@@ -17,9 +17,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { NestedHeader } from '@/components/navigation';
 import { PACKAGE_TYPES } from '@/constants/packages';
-import type { PortfolioScreenProps } from '@/navigation/types';
+import type { PackageScreenProps } from '@/navigation/types';
 
-export default function NewPackageScreen({ navigation }: PortfolioScreenProps<'NewPackage'>) {
+export default function NewPackageScreen({ navigation }: PackageScreenProps<'NewPackage'>) {
     const handlePackageTypeSelect = (packageType: typeof PACKAGE_TYPES[0]) => {
         switch (packageType.id) {
             case 'ds':

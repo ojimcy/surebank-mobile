@@ -9,7 +9,7 @@ import type { MainTabParamList } from './types';
 // Import stack navigators
 import DashboardStack from './DashboardStack';
 import TradingStack from './TradingStack';
-import PortfolioStack from './PortfolioStack';
+import PackageStack from './PackageStack';
 import HistoryStack from './HistoryStack';
 import SettingsStack from './SettingsStack';
 
@@ -75,8 +75,8 @@ export default function MainTabs() {
           }}
         />
         <Tab.Screen
-          name="PortfolioTab"
-          component={PortfolioStack}
+          name="PackageTab"
+          component={PackageStack}
           options={{
             title: 'Packages',
             tabBarIcon: ({ color, size }) => (

@@ -1,6 +1,6 @@
 /**
- * Create Interest-Based Savings Package Screen
- * Professional form for creating IBS packages
+ * Create Daily Savings Package Screen
+ * Professional form for creating daily savings packages
  */
 
 import React from 'react';
@@ -11,20 +11,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NestedHeader } from '@/components/navigation';
-import type { PortfolioScreenProps } from '@/navigation/types';
+import type { PackageScreenProps } from '@/navigation/types';
 
-export default function CreateIBSPackageScreen({ navigation }: PortfolioScreenProps<'CreateIBSPackage'>) {
+export default function CreateDailySavingsScreen({ navigation }: PackageScreenProps<'CreateDailySavings'>) {
     return (
         <SafeAreaView style={styles.container}>
             <NestedHeader
-                title="Create IBS Package"
+                title="Create Daily Savings"
                 onBackPress={() => navigation.goBack()}
             />
 
             <View style={styles.content}>
-                <Text style={styles.title}>Interest-Based Savings</Text>
+                <Text style={styles.title}>Daily Savings Package</Text>
                 <Text style={styles.subtitle}>
-                    This screen will contain the form to create an interest-based savings package.
+                    This screen will contain the form to create a daily savings package.
                     Coming in the next implementation phase.
                 </Text>
             </View>
