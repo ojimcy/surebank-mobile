@@ -12,14 +12,13 @@ export const PACKAGE_TYPES: PackageType[] = [
     {
         id: 'ds',
         title: 'Daily Savings',
-        description: 'Save regularly with flexible daily, weekly, or monthly deposits towards your financial goals',
+        description: 'Save regularly with flexible daily contributions towards your financial goals',
         icon: 'calendar-outline',
         color: '#0066A1',
         cta: 'Start Saving',
         features: [
             'Flexible deposit amounts',
-            'Daily, weekly, or monthly savings',
-            'Withdraw anytime',
+            'Daily contributions',
             'Track progress towards goals',
             'No minimum balance',
         ],
@@ -34,7 +33,6 @@ export const PACKAGE_TYPES: PackageType[] = [
         features: [
             'Competitive interest rates',
             'Fixed lock periods',
-            'Compound interest',
             'Guaranteed returns',
             'Secure investments',
         ],

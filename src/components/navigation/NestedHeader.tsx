@@ -18,9 +18,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 interface NestedHeaderProps {
     title: string;
     onBack?: () => void;
+    rightComponent?: React.ReactNode;
 }
 
-export default function NestedHeader({ title, onBack }: NestedHeaderProps) {
+export default function NestedHeader({ title, onBack, rightComponent }: NestedHeaderProps) {
     const insets = useSafeAreaInsets();
 
     const handleBack = () => {
@@ -50,8 +51,14 @@ export default function NestedHeader({ title, onBack }: NestedHeaderProps) {
                         <Text style={styles.title}>{title}</Text>
                     </View>
 
-                    {/* Right spacer to balance the layout */}
-                    <View style={styles.rightSpacer} />
+                    {/* Right component or spacer */}
+                    {rightComponent ? (
+                        <View style={styles.rightSpacer}>
+                            {rightComponent}
+                        </View>
+                    ) : (
+                        <View style={styles.rightSpacer} />
+                    )}
                 </View>
             </View>
         </>

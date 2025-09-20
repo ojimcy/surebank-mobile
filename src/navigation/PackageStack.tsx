@@ -1,4 +1,6 @@
 import React from 'react';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { stackScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
 
@@ -35,10 +37,26 @@ export default function PackageStack() {
       <Stack.Screen
         name="NewPackage"
         component={NewPackageScreen}
-        options={{
+        options={({ navigation }) => ({
           ...secondaryScreenOptions,
-          title: 'New Package'
-        }}
+          title: 'New Package',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => {
+                // If we can go back in the stack, do that
+                if (navigation.canGoBack()) {
+                  navigation.goBack();
+                } else {
+                  // Otherwise navigate to PackageHome
+                  navigation.navigate('PackageHome' as never);
+                }
+              }}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#0066A1" />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="PackageDetail"
@@ -51,26 +69,50 @@ export default function PackageStack() {
       <Stack.Screen
         name="CreateDailySavings"
         component={CreateDailySavingsScreen}
-        options={{
+        options={({ navigation }) => ({
           ...secondaryScreenOptions,
-          title: 'Daily Savings'
-        }}
+          title: 'Daily Savings',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#0066A1" />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="CreateIBSPackage"
         component={CreateIBSPackageScreen}
-        options={{
+        options={({ navigation }) => ({
           ...secondaryScreenOptions,
-          title: 'Interest-Based'
-        }}
+          title: 'Interest-Based',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#0066A1" />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="CreateSBPackage"
         component={CreateSBPackageScreen}
-        options={{
+        options={({ navigation }) => ({
           ...secondaryScreenOptions,
-          title: 'SB Package'
-        }}
+          title: 'SB Package',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#0066A1" />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="Assets"

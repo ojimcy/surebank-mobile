@@ -266,7 +266,7 @@ export default function NotificationSettingsScreen({
         <SafeAreaView style={styles.container}>
             <NestedHeader
                 title="Notification Settings"
-                onBackPress={handleBack}
+                onBack={handleBack}
                 rightComponent={
                     <TouchableOpacity onPress={resetToDefaults} style={styles.resetButton}>
                         <Text style={styles.resetButtonText}>Reset</Text>

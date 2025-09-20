@@ -109,7 +109,7 @@ export default function PersonalInformationScreen({
         <SafeAreaView style={styles.container}>
             <NestedHeader
                 title="Personal Information"
-                onBackPress={handleBack}
+                onBack={handleBack}
                 rightComponent={
                     !isEditing ? (
                         <TouchableOpacity onPress={handleEdit} style={styles.editButton}>

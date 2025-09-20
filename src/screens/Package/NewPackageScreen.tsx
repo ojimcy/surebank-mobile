@@ -12,10 +12,8 @@ import {
     StyleSheet,
     Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { NestedHeader } from '@/components/navigation';
 import { PACKAGE_TYPES } from '@/constants/packages';
 import type { PackageScreenProps } from '@/navigation/types';
 
@@ -37,17 +35,11 @@ export default function NewPackageScreen({ navigation }: PackageScreenProps<'New
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <NestedHeader
-                title="New Package"
-                onBackPress={() => navigation.goBack()}
-            />
-
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
+        <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+        >
                 {/* Header Section */}
                 <View style={styles.headerSection}>
                     <Text style={styles.headerTitle}>Choose Package Type</Text>
@@ -124,16 +116,11 @@ export default function NewPackageScreen({ navigation }: PackageScreenProps<'New
                         </View>
                     </View>
                 </View>
-            </ScrollView>
-        </SafeAreaView>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
     scrollView: {
         flex: 1,
         backgroundColor: '#f9fafb',

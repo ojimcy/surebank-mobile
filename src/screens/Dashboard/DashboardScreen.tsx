@@ -10,7 +10,7 @@ import {
   SavingsPackages,
   PackageTypes,
 } from '@/components/dashboard';
-import type { DashboardScreenProps } from '@/navigation/types';
+import type { DashboardScreenProps, PackageStackParamList } from '@/navigation/types';
 import type {
   Account,
   SavingsPackage,
@@ -205,70 +205,94 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
 
   // Quick Actions handlers
   const handleNewPackage = () => {
-    // TODO: Navigate to package creation
-    console.log('Navigate to new package');
+    // Navigate to Package tab, then to NewPackage screen
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: 'NewPackage'
+    });
   };
 
   const handleDeposit = () => {
-    // TODO: Navigate to deposit screen
+    // TODO: Navigate to deposit screen when available
     console.log('Navigate to deposit');
   };
 
   const handleWithdraw = () => {
-    // TODO: Navigate to withdraw screen
+    // TODO: Navigate to withdraw screen when available
     console.log('Navigate to withdraw');
   };
 
   const handleMyCards = () => {
-    // TODO: Navigate to cards screen
+    // TODO: Navigate to cards screen when available
     console.log('Navigate to cards');
   };
 
   const handleSchedules = () => {
-    // TODO: Navigate to schedules screen
+    // TODO: Navigate to schedules screen when available
     console.log('Navigate to schedules');
   };
 
   // Savings handlers
   const handleViewAllPackages = () => {
-    // TODO: Navigate to packages screen when available
-    console.log('Navigate to all packages');
+    // Navigate to Package tab home
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: 'PackageHome'
+    });
   };
 
   const handleCreateNewPackage = () => {
-    // TODO: Navigate to package creation
-    console.log('Navigate to create new package');
+    // Navigate to Package tab, then to NewPackage screen
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: 'NewPackage'
+    });
   };
 
   const handlePackagePress = (packageId: string) => {
-    // TODO: Navigate to package details
-    console.log('Navigate to package:', packageId);
+    // Navigate to Package tab, then to PackageDetail screen
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: 'PackageDetail',
+      params: { packageId, packageType: 'DS' } // Default to DS, will be determined by actual package
+    });
   };
 
   const handlePackageDeposit = (packageId: string) => {
-    // TODO: Navigate to deposit for specific package
+    // TODO: Navigate to deposit screen when available
     console.log('Deposit to package:', packageId);
   };
 
   const handlePackageTypePress = (type: PackageType) => {
-    // TODO: Navigate to package creation with pre-selected type
-    console.log('Create package of type:', type.id);
+    // Navigate directly to specific package creation based on type
+    const screenMap: { [key: string]: keyof PackageStackParamList } = {
+      'ds': 'CreateDailySavings',
+      'ibs': 'CreateIBSPackage',
+      'sb': 'CreateSBPackage'
+    };
+
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: screenMap[type.id] || 'NewPackage'
+    });
   };
 
   const handleViewAllSavingsPlans = () => {
-    // TODO: Navigate to all savings plans when available
-    console.log('Navigate to all savings plans');
+    // Navigate to Package tab, then to NewPackage screen
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: 'NewPackage'
+    });
   };
 
   // Transactions handlers
   const handleViewAllTransactions = () => {
-    // TODO: Navigate to transaction history
-    console.log('Navigate to transaction history');
+    // Navigate to History tab
+    navigation.getParent()?.navigate('HistoryTab', {
+      screen: 'HistoryHome'
+    });
   };
 
   const handleTransactionPress = (transactionId: string) => {
-    // TODO: Navigate to transaction details
-    console.log('Navigate to transaction:', transactionId);
+    // Navigate to History tab for transaction details
+    navigation.getParent()?.navigate('HistoryTab', {
+      screen: 'HistoryHome'
+    });
+    // TODO: Add transaction detail screen
   };
 
   // Announcements handlers
