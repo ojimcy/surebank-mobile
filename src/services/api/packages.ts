@@ -196,12 +196,16 @@ export class PackagesService {
   async checkAccountType(accountType: 'ds' | 'sb' | 'ibs'): Promise<boolean> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.get<{ hasAccount: boolean }>(`/accounts/check/${accountType}`),
+        () => apiClient.get(`/self-accounts?accountType=${accountType}`),
         2,
         1000
       );
-      return response.data.hasAccount;
-    } catch (error) {
+      return response.status === 200;
+    } catch (error: any) {
+      // Return false if 404 (user has no account of this type)
+      if (error?.response?.status === 404) {
+        return false;
+      }
       console.error('Failed to check account type:', error);
       return false;
     }
