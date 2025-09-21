@@ -87,7 +87,7 @@ export const IB_PACKAGE_OPTIONS = {
         { value: 'quarterly', label: 'Quarterly' },
         { value: 'annually', label: 'Annually' },
     ],
-    minAmount: 50000, // Minimum ₦50,000
+    minAmount: 1000, // Minimum ₦1,000
     maxAmount: 10000000, // Maximum ₦10,000,000
 };
 
@@ -118,7 +118,7 @@ export const PACKAGE_LIMITS = {
         max: 50000,
     },
     interestBased: {
-        min: 50000,
+        min: 1000,
         max: 10000000,
     },
     savingsBuying: {

@@ -247,15 +247,37 @@ export class PackagesService {
 
   /**
    * Initiate IB Package Payment (returns payment details)
+   * Uses the generic contribution endpoint with interest_package type
    */
   async initiateIBPackagePayment(params: InitiateIBPackageParams): Promise<InitiateIBPackageResponse> {
     try {
+      // Convert to contribution format used by the API
+      // Note: compoundingFrequency is not sent during payment initiation
+      const contributionParams = {
+        contributionType: 'interest_package' as const,
+        amount: params.principalAmount,
+        name: params.name,
+        principalAmount: params.principalAmount,
+        interestRate: params.interestRate,
+        lockPeriod: params.lockPeriod,
+      };
+
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<InitiateIBPackageResponse>('/interest-savings/initiate-payment', params),
+        () => apiClient.post<any>('/payments/init-contribution', contributionParams),
         2,
         1000
       );
-      return response.data;
+
+      // Map response to expected format
+      const data = response.data?.data || response.data;
+      return {
+        reference: data.reference,
+        authorization_url: data.authorization_url || data.authorizationUrl,
+        access_code: data.access_code || data.accessCode,
+        principalAmount: params.principalAmount,
+        interestRate: params.interestRate,
+        lockPeriod: params.lockPeriod,
+      };
     } catch (error) {
       console.error('Failed to initiate IB package payment:', error);
       throw error;
@@ -268,7 +290,7 @@ export class PackagesService {
   async createIBPackage(params: CreateIBPackageParams): Promise<IBPackage> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<IBPackage>('/interest-savings/self-package', params),
+        () => apiClient.post<IBPackage>('/interest-package/package', params),
         2,
         1000
       );
