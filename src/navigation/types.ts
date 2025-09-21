@@ -24,6 +24,7 @@ export type MainTabParamList = {
   DashboardTab: NavigatorScreenParams<DashboardStackParamList>;
   TradingTab: NavigatorScreenParams<TradingStackParamList>;
   PackageTab: NavigatorScreenParams<PackageStackParamList>;
+  ProductsTab: NavigatorScreenParams<ProductsStackParamList>;
   HistoryTab: NavigatorScreenParams<HistoryStackParamList>;
   SettingsTab: NavigatorScreenParams<SettingsStackParamList>;
 };
@@ -53,7 +54,7 @@ export type PackageStackParamList = {
   PackageDetail: { packageId: string; packageType: 'DS' | 'IBS' | 'SB' };
   CreateDailySavings: undefined;
   CreateIBSPackage: undefined;
-  CreateSBPackage: undefined;
+  CreateSBPackage: { productId?: string } | undefined;
   Assets: undefined;
   Performance: undefined;
   Positions: undefined;
@@ -67,6 +68,12 @@ export type HistoryStackParamList = {
   Trades: undefined;
   Orders: undefined;
   Reports: undefined;
+};
+
+// Products Stack
+export type ProductsStackParamList = {
+  ProductsHome: undefined;
+  CreateSBPackage: { productId?: string } | undefined;
 };
 
 // Settings Stack
@@ -126,6 +133,11 @@ export type HistoryScreenProps<Screen extends keyof HistoryStackParamList> = Sta
   Screen
 >;
 
+export type ProductsScreenProps<Screen extends keyof ProductsStackParamList> = StackScreenProps<
+  ProductsStackParamList,
+  Screen
+>;
+
 export type SettingsScreenProps<Screen extends keyof SettingsStackParamList> = StackScreenProps<
   SettingsStackParamList,
   Screen
@@ -135,6 +147,42 @@ export type RootScreenProps<Screen extends keyof RootStackParamList> = StackScre
   RootStackParamList,
   Screen
 >;
+
+// Navigation props types
+export type AuthStackNavigationProp<Screen extends keyof AuthStackParamList> = StackScreenProps<
+  AuthStackParamList,
+  Screen
+>['navigation'];
+
+export type DashboardStackNavigationProp<Screen extends keyof DashboardStackParamList> = StackScreenProps<
+  DashboardStackParamList,
+  Screen
+>['navigation'];
+
+export type TradingStackNavigationProp<Screen extends keyof TradingStackParamList> = StackScreenProps<
+  TradingStackParamList,
+  Screen
+>['navigation'];
+
+export type PackageStackNavigationProp<Screen extends keyof PackageStackParamList> = StackScreenProps<
+  PackageStackParamList,
+  Screen
+>['navigation'];
+
+export type ProductsStackNavigationProp<Screen extends keyof ProductsStackParamList> = StackScreenProps<
+  ProductsStackParamList,
+  Screen
+>['navigation'];
+
+export type HistoryStackNavigationProp<Screen extends keyof HistoryStackParamList> = StackScreenProps<
+  HistoryStackParamList,
+  Screen
+>['navigation'];
+
+export type SettingsStackNavigationProp<Screen extends keyof SettingsStackParamList> = StackScreenProps<
+  SettingsStackParamList,
+  Screen
+>['navigation'];
 
 declare global {
   namespace ReactNavigation {
