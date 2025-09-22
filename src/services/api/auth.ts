@@ -68,23 +68,26 @@ export class AuthService {
 
       // Store authentication tokens securely
       if (tokens.access.token) {
-        console.log('Storing auth tokens...');
+        console.log('[AuthService] Storing auth tokens...');
         try {
           await storage.multiSet([
             [STORAGE_KEYS.AUTH_TOKEN, tokens.access.token],
             [STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh.token],
           ]);
-          console.log('Auth tokens stored successfully');
+          console.log('[AuthService] Auth tokens stored successfully');
+
+          // Small delay to ensure tokens are properly persisted before any validation attempts
+          await new Promise(resolve => setTimeout(resolve, 100));
         } catch (storageError) {
-          console.error('Failed to store auth tokens:', storageError);
+          console.error('[AuthService] Failed to store auth tokens:', storageError);
           throw storageError;
         }
       }
 
       // Store last login timestamp
-      console.log('Storing last login timestamp...');
+      console.log('[AuthService] Storing last login timestamp...');
       await storage.setItem(STORAGE_KEYS.LAST_LOGIN, new Date().toISOString());
-      console.log('Last login timestamp stored');
+      console.log('[AuthService] Last login timestamp stored');
 
       return user;
     } catch (error: any) {
@@ -215,9 +218,15 @@ export class AuthService {
       return response.data;
     } catch (error: any) {
       if (error?.response?.status === 401) {
-        // Token expired or invalid - clear stored tokens
-        await storageUtils.clearAuthData();
-        throw new Error('Session expired. Please log in again.');
+        // Don't clear tokens here - let the API client interceptor handle it
+        // This prevents clearing tokens during the login flow
+        throw new AuthenticationError(
+          'Session expired. Please log in again.',
+          'TOKEN_EXPIRED',
+          'AUTH_EXPIRED',
+          undefined,
+          error.response
+        );
       }
 
       const errorMessage = error?.response?.data?.message ||

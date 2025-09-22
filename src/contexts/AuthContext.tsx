@@ -186,11 +186,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
           dispatch({ type: 'SET_LAST_LOGIN', payload: lastLoginResult[1] });
           dispatch({ type: 'SET_REMEMBER_ME', payload: rememberMeResult[1] === 'true' });
 
-        } catch (userError) {
-          console.error('Failed to get user info on startup:', userError);
-          // Clear tokens if user fetch fails
-          await tokenManager.clearTokens();
-          dispatch({ type: 'RESET_AUTH' });
+        } catch (userError: any) {
+          console.error('[AuthContext] Failed to get user info on startup:', userError);
+          // Only clear tokens if it's an authentication error (401)
+          if (userError?.code === 'AUTH_EXPIRED' || userError?.status === 401) {
+            await tokenManager.clearTokens();
+            dispatch({ type: 'RESET_AUTH' });
+          } else {
+            // For other errors, keep the tokens but don't fetch user
+            console.warn('[AuthContext] Keeping tokens but could not fetch user info');
+          }
         }
       }
     } catch (error) {

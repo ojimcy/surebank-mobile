@@ -256,7 +256,7 @@ export class TokenManager {
       }
 
       // Make refresh request
-      console.log('Attempting to refresh token...');
+      console.log('[TokenManager] Attempting to refresh token...');
 
       // Try different payload formats that the API might expect
       let response;
@@ -265,9 +265,15 @@ export class TokenManager {
         response = await apiClient.post<TokenResponse>('/auth/refresh', {
           refresh_token: refreshToken,
         });
-      } catch (firstError) {
-        console.log('First format failed, trying refreshToken format...');
-        // If that fails, try with refreshToken
+      } catch (firstError: any) {
+        // Check if it's a 401 which means refresh token is invalid
+        if (firstError?.response?.status === 401) {
+          console.log('[TokenManager] Refresh token is invalid (401)');
+          throw firstError;
+        }
+
+        console.log('[TokenManager] First format failed, trying refreshToken format...');
+        // If that fails for other reasons, try with refreshToken
         response = await apiClient.post<TokenResponse>('/auth/refresh', {
           refreshToken: refreshToken,
         });
@@ -364,17 +370,20 @@ export class TokenManager {
       }
 
       // Token needs refresh
+      console.log('[TokenManager] Token needs refresh, attempting to refresh...');
       const refreshResult = await this.refreshTokens();
 
       if (refreshResult.success && refreshResult.tokens) {
         return refreshResult.tokens.access.token;
       }
 
-      // Refresh failed
+      // Refresh failed - don't immediately clear tokens, let the error propagate
+      console.log('[TokenManager] Token refresh failed, returning null');
       return null;
 
     } catch (error) {
-      console.error('Failed to get valid access token:', error);
+      console.error('[TokenManager] Failed to get valid access token:', error);
+      // Don't clear tokens here, let the caller handle the error
       return null;
     }
   }

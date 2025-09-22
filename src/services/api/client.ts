@@ -57,6 +57,8 @@ const apiClient: AxiosInstance = axios.create(API_CONFIG);
 
 // Track if we're currently refreshing to prevent multiple simultaneous refreshes
 let isRefreshing = false;
+// Track if we're in the middle of a login request
+let isLoggingIn = false;
 
 // Network connectivity state
 let isConnected = true;
@@ -83,20 +85,23 @@ apiClient.interceptors.request.use(
     try {
       // Skip token management for auth endpoints
       const isAuthEndpoint = config.url?.includes('/auth/');
+      const isLoginEndpoint = config.url?.includes('/auth/login');
       const isRefreshEndpoint = config.url?.includes('/auth/refresh');
       let authToken: string | null = null;
 
-      // Only add auth token for non-auth endpoints, but exclude refresh endpoint completely
-      if (!isAuthEndpoint || (isAuthEndpoint && !isRefreshEndpoint)) {
-        // For refresh endpoint, we handle auth differently (it uses refresh token in body)
-        if (!isRefreshEndpoint && !isRefreshing) {
-          // Mark that we're refreshing if this triggers a refresh
-          if (config.url !== '/auth/refresh') {
-            // Get valid authentication token (with automatic refresh) only for protected endpoints
-            authToken = await tokenManager.getValidAccessToken();
-            if (authToken) {
-              config.headers.Authorization = `Bearer ${authToken}`;
-            }
+      // Track login state
+      if (isLoginEndpoint) {
+        isLoggingIn = true;
+      }
+
+      // Skip token management for login and refresh endpoints
+      if (!isLoginEndpoint && !isRefreshEndpoint) {
+        // For other auth endpoints and all non-auth endpoints
+        if (!isRefreshing) {
+          // Get valid authentication token (with automatic refresh) only for protected endpoints
+          authToken = await tokenManager.getValidAccessToken();
+          if (authToken) {
+            config.headers.Authorization = `Bearer ${authToken}`;
           }
         }
       }
@@ -163,9 +168,12 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   async (response: AxiosResponse) => {
     try {
-      // Clear refreshing flag if this was a refresh request
+      // Clear flags based on the endpoint
       if (response.config.url?.includes('/auth/refresh')) {
         isRefreshing = false;
+      }
+      if (response.config.url?.includes('/auth/login')) {
+        isLoggingIn = false;
       }
 
       // Extract and store CSRF tokens from response headers
@@ -188,33 +196,40 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
 
-    // Clear refreshing flag if this was a refresh request that failed
+    // Clear flags based on the endpoint
     if (originalRequest?.url?.includes('/auth/refresh')) {
       isRefreshing = false;
+    }
+    if (originalRequest?.url?.includes('/auth/login')) {
+      isLoggingIn = false;
     }
 
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      originalRequest._retry = true;
+      // Don't clear tokens if we're in the middle of logging in
+      // or if this is a login/refresh request itself
+      const isAuthRequest = originalRequest.url?.includes('/auth/login') ||
+                           originalRequest.url?.includes('/auth/refresh');
 
-      try {
-        // Let the token manager handle 401 errors
-        await tokenManager.clearTokens();
+      if (!isLoggingIn && !isAuthRequest) {
+        originalRequest._retry = true;
 
-        // Emit token expired event for auth context to handle
-        console.log('Authentication expired - tokens cleared');
+        try {
+          // Only clear tokens for non-auth endpoints getting 401
+          await tokenManager.clearTokens();
+          console.log('Authentication expired - tokens cleared');
+        } catch (storageError) {
+          console.error('Failed to clear tokens on 401:', storageError);
+        }
 
-      } catch (storageError) {
-        console.error('Failed to clear tokens on 401:', storageError);
+        return Promise.reject(new ApiNetworkError(
+          'Authentication expired',
+          'AUTH_EXPIRED',
+          401,
+          error.response?.data,
+          false
+        ));
       }
-
-      return Promise.reject(new ApiNetworkError(
-        'Authentication expired',
-        'AUTH_EXPIRED',
-        401,
-        error.response?.data,
-        false
-      ));
     }
 
     // Handle different types of errors
