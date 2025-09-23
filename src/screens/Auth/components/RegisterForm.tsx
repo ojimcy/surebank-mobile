@@ -45,11 +45,11 @@ const registerSchema = yup.object().shape({
   
   phoneNumber: yup
     .string()
-    .matches(/^\+?[\d\s-()]+$/, 'Please enter a valid phone number')
-    .test('phone-length', 'Phone number must be at least 10 digits', (value) => {
-      if (!value) return true; // Optional field
-      const digits = value.replace(/\D/g, '');
-      return digits.length >= 10;
+    .test('phone-validation', 'Enter 11 digits (e.g., 08057172283) or 10 digits (e.g., 8057172283)', (value) => {
+      if (!value || value === '') return true; // Optional field - allow empty
+      const digits = value.replace(/\D/g, ''); // Remove all non-digits
+      // Allow Nigerian phone numbers: 10 digits (without 0) or 11 digits (with 0)
+      return digits.length === 10 || digits.length === 11;
     }),
   
   password: yup

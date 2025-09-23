@@ -11,13 +11,13 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     TextInput,
-    Alert,
     Modal,
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import Toast from 'react-native-toast-message';
 import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -25,9 +25,12 @@ import * as WebBrowser from 'expo-web-browser';
 import type { PackageScreenProps } from '@/navigation/types';
 import packagesService from '@/services/api/packages';
 import accountsApi from '@/services/api/accounts';
+import kycApi from '@/services/api/kyc';
+import { KYCRequiredModal } from '@/components/modals/KYCRequiredModal';
 import { IB_PACKAGE_OPTIONS } from '@/constants/packages';
 import { formatCurrency } from '@/utils/format';
 import { addDays, format } from 'date-fns';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface FormData {
     name: string;
@@ -60,9 +63,12 @@ const validationSchema = yup.object({
 });
 
 export default function CreateIBSPackageScreen({ navigation }: PackageScreenProps<'CreateIBSPackage'>) {
+    const { user } = useAuth();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showAccountModal, setShowAccountModal] = useState(false);
+    const [showKYCModal, setShowKYCModal] = useState(false);
     const [hasIBSAccount, setHasIBSAccount] = useState<boolean | null>(null);
+    const [kycVerified, setKycVerified] = useState<boolean | null>(null);
 
     const {
         control,
@@ -104,6 +110,15 @@ export default function CreateIBSPackageScreen({ navigation }: PackageScreenProp
         };
     }, [principalAmount, lockPeriod]);
 
+    // Check KYC status
+    const { data: kycStatus, isLoading: isCheckingKYC } = useQuery({
+        queryKey: ['kyc-status'],
+        queryFn: async () => {
+            const status = await kycApi.getVerificationStatus();
+            return status;
+        },
+    });
+
     // Check if user has IBS account
     const { data: accountStatus, isLoading: isCheckingAccount } = useQuery({
         queryKey: ['account-status', 'ibs'],
@@ -115,24 +130,68 @@ export default function CreateIBSPackageScreen({ navigation }: PackageScreenProp
     });
 
     useEffect(() => {
+        if (kycStatus) {
+            setKycVerified(kycStatus.status === 'approved');
+        }
+    }, [kycStatus]);
+
+    useEffect(() => {
         if (accountStatus) {
             setHasIBSAccount(accountStatus.hasAccount);
             if (!accountStatus.hasAccount) {
-                setShowAccountModal(true);
+                // Check if KYC is verified before showing account modal
+                if (kycVerified === false) {
+                    setShowKYCModal(true);
+                } else if (kycVerified === true) {
+                    setShowAccountModal(true);
+                }
             }
         }
-    }, [accountStatus]);
+    }, [accountStatus, kycVerified]);
 
     // Create IBS account mutation
     const createAccountMutation = useMutation({
-        mutationFn: () => accountsApi.createAccount('ibs'),
+        mutationFn: async () => {
+            // Check KYC status before creating account
+            const isVerified = await kycApi.isKycVerified();
+            if (!isVerified) {
+                throw new Error('KYC verification required');
+            }
+            return accountsApi.createAccount('ibs');
+        },
         onSuccess: () => {
             setHasIBSAccount(true);
             setShowAccountModal(false);
-            Alert.alert('Success', 'IBS account created successfully!');
+            Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'IBS account created successfully!',
+            });
         },
         onError: (error: any) => {
-            Alert.alert('Error', error.response?.data?.message || 'Failed to create account');
+            console.error('Create IBS Account Error:', {
+                fullError: error,
+                response: error.response,
+                responseData: error.response?.data,
+                responseStatus: error.response?.status,
+                message: error.message,
+            });
+
+            const errorMessage = error.response?.data?.message ||
+                                error.response?.data?.error ||
+                                error.message ||
+                                'Failed to create account';
+
+            // Check if it's a KYC error
+            if (error.message === 'KYC verification required') {
+                setShowKYCModal(true);
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: errorMessage,
+                });
+            }
         },
     });
 
@@ -150,7 +209,11 @@ export default function CreateIBSPackageScreen({ navigation }: PackageScreenProp
             const paymentUrl = response.authorization_url;
 
             if (!paymentUrl) {
-                Alert.alert('Error', 'Failed to get payment URL. Please try again.');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: 'Failed to get payment URL. Please try again.',
+                });
                 return;
             }
 
@@ -163,24 +226,30 @@ export default function CreateIBSPackageScreen({ navigation }: PackageScreenProp
 
                 // If browser was closed by user
                 if (result.type === 'dismiss' || result.type === 'cancel') {
-                    Alert.alert(
-                        'Payment Incomplete',
-                        'You closed the payment window. Your package creation has been cancelled.',
-                        [
-                            {
-                                text: 'OK',
-                                onPress: () => navigation.goBack(),
-                            },
-                        ]
-                    );
+                    Toast.show({
+                        type: 'info',
+                        text1: 'Payment Incomplete',
+                        text2: 'You closed the payment window. Your package creation has been cancelled.',
+                    });
+                    setTimeout(() => {
+                        navigation.goBack();
+                    }, 2000);
                 }
             } catch (error) {
                 console.error('Failed to open payment URL:', error);
-                Alert.alert('Error', 'Failed to open payment page. Please try again.');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: 'Failed to open payment page. Please try again.',
+                });
             }
         },
         onError: (error: any) => {
-            Alert.alert('Error', error.response?.data?.message || 'Failed to initiate payment');
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: error.response?.data?.message || 'Failed to initiate payment',
+            });
         },
     });
 
@@ -518,6 +587,17 @@ export default function CreateIBSPackageScreen({ navigation }: PackageScreenProp
                     </View>
                 </View>
             </Modal>
+
+            {/* KYC Required Modal */}
+            <KYCRequiredModal
+                visible={showKYCModal}
+                onClose={() => setShowKYCModal(false)}
+                feature="create an IBS account"
+                onStartVerification={() => {
+                    setShowKYCModal(false);
+                    // Navigation to KYC screen will be handled by the modal
+                }}
+            />
         </KeyboardAvoidingView>
     );
 }

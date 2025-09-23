@@ -14,7 +14,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { SelectAccountTypeModal } from '@/components/accounts';
 import type { BalanceCardProps } from './types';
+import type { AccountType } from '@/services/api/accounts';
 
 const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-NG', {
@@ -44,8 +46,26 @@ export default function BalanceCard({
     onCreateAccount,
     onRefreshBalance,
     isCreateAccountLoading = false,
+    userKycStatus,
 }: BalanceCardProps) {
     const [showAccountLinks, setShowAccountLinks] = useState(false);
+    const [showAccountTypeModal, setShowAccountTypeModal] = useState(false);
+
+    const handleCreateAccountClick = () => {
+        // If KYC is not verified, the parent will handle navigation to KYC screen
+        // Otherwise, show the account type selection modal
+        if (userKycStatus !== 'verified') {
+            // Call the onCreateAccount with a special flag to trigger KYC navigation
+            onCreateAccount('ds'); // The type doesn't matter here as parent will redirect to KYC
+        } else {
+            setShowAccountTypeModal(true);
+        }
+    };
+
+    const handleCreateAccount = (accountType: AccountType) => {
+        onCreateAccount(accountType);
+        setShowAccountTypeModal(false);
+    };
 
     // Get unique account types from accounts array
     const accountTypes = accounts
@@ -178,9 +198,7 @@ export default function BalanceCard({
                                         </TouchableOpacity>
                                     ))}
                                     <TouchableOpacity
-                                        onPress={() => {
-                                            console.log('Show account type selection');
-                                        }}
+                                        onPress={handleCreateAccountClick}
                                         style={styles.addAccountButton}
                                     >
                                         <Ionicons name="add" size={16} color="#0066A1" />
@@ -197,9 +215,7 @@ export default function BalanceCard({
             {!hasAccounts && !isAccountsLoading && (
                 <View style={styles.createAccountSection}>
                     <TouchableOpacity
-                        onPress={() => {
-                            console.log('Show account type selection for new account');
-                        }}
+                        onPress={handleCreateAccountClick}
                         disabled={isCreateAccountLoading}
                         style={[
                             styles.createAccountButton,
@@ -217,11 +233,19 @@ export default function BalanceCard({
                                     colors={['#0066A1', '#0077B5']}
                                     style={styles.createButtonIcon}
                                 >
-                                    <Ionicons name="add-outline" size={20} color="#ffffff" />
+                                    {userKycStatus !== 'verified' ? (
+                                        <Ionicons name="shield-checkmark-outline" size={20} color="#ffffff" />
+                                    ) : (
+                                        <Ionicons name="add-outline" size={20} color="#ffffff" />
+                                    )}
                                 </LinearGradient>
                                 <View style={styles.createButtonTextContainer}>
-                                    <Text style={styles.createAccountText}>Create Your First Account</Text>
-                                    <Text style={styles.createAccountSubtext}>Start your savings journey today</Text>
+                                    <Text style={styles.createAccountText}>
+                                        {userKycStatus !== 'verified' ? 'KYC Verification Required' : 'Create Your First Account'}
+                                    </Text>
+                                    <Text style={styles.createAccountSubtext}>
+                                        {userKycStatus !== 'verified' ? 'Complete verification to create accounts' : 'Start your savings journey today'}
+                                    </Text>
                                 </View>
                                 <Ionicons name="chevron-forward-outline" size={20} color="#0066A1" />
                             </>
@@ -229,6 +253,14 @@ export default function BalanceCard({
                     </TouchableOpacity>
                 </View>
             )}
+
+            {/* Account Type Selection Modal */}
+            <SelectAccountTypeModal
+                visible={showAccountTypeModal}
+                onClose={() => setShowAccountTypeModal(false)}
+                onSelect={handleCreateAccount}
+                isLoading={isCreateAccountLoading}
+            />
         </View>
     );
 }

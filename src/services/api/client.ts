@@ -102,6 +102,9 @@ apiClient.interceptors.request.use(
           authToken = await tokenManager.getValidAccessToken();
           if (authToken) {
             config.headers.Authorization = `Bearer ${authToken}`;
+            console.log('[API Client] Added auth header to request:', config.url);
+          } else {
+            console.warn('[API Client] No auth token available for request:', config.url);
           }
         }
       }
@@ -146,6 +149,15 @@ apiClient.interceptors.request.use(
           config.headers['X-CSRF-Secret'] = csrfSecret;
         }
       }
+
+      // Log the final request details (for debugging)
+      console.log('[API Client] Final request:', {
+        url: config.url,
+        method: config.method,
+        hasAuth: !!config.headers.Authorization,
+        hasCsrf: !!config.headers['X-CSRF-Token'],
+        data: config.data
+      });
 
       return config;
     } catch (error) {

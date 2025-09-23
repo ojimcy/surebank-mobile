@@ -85,6 +85,7 @@ export interface BalanceCardProps {
     onCreateAccount: (type: 'ds' | 'sb' | 'ibs') => void;
     onRefreshBalance: () => void;
     isCreateAccountLoading?: boolean;
+    userKycStatus?: string;
 }
 
 export interface QuickActionsProps {

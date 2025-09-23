@@ -215,7 +215,7 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps<'Sett
                     title: 'KYC & Verification',
                     description: 'Complete identity verification',
                     icon: 'shield-checkmark-outline',
-                    onPress: () => navigation.navigate('KycVerification'),
+                    onPress: () => navigation.navigate('KYCVerification'),
                     badge: user?.kycStatus !== 'verified' ? {
                         text: 'Required',
                         color: '#f59e0b',

@@ -15,6 +15,7 @@ import PINSetupScreen from '@/screens/Auth/PINSetupScreen';
 import LoginScreen from '@/screens/Auth/LoginScreen';
 import RegisterScreen from '@/screens/Auth/RegisterScreen';
 import ForgotPasswordScreen from '@/screens/Auth/ForgotPasswordScreen';
+import VerifyResetCodeScreen from '@/screens/Auth/VerifyResetCodeScreen';
 import ResetPasswordScreen from '@/screens/Auth/ResetPasswordScreen';
 import WelcomeScreen from '@/screens/Auth/WelcomeScreen';
 
@@ -66,6 +67,7 @@ export default function AuthStack() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="VerifyResetCode" component={VerifyResetCodeScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
     </Stack.Navigator>
   );

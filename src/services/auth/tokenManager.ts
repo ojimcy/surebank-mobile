@@ -359,13 +359,23 @@ export class TokenManager {
    */
   async getValidAccessToken(): Promise<string | null> {
     try {
+      console.log('[TokenManager] Getting valid access token...');
       const { accessToken, isAccessTokenValid, needsRefresh } = await this.getTokens();
 
+      console.log('[TokenManager] Token status:', {
+        hasToken: !!accessToken,
+        isValid: isAccessTokenValid,
+        needsRefresh,
+        tokenPreview: accessToken ? `${accessToken.substring(0, 20)}...` : null
+      });
+
       if (!accessToken) {
+        console.log('[TokenManager] No access token found');
         return null;
       }
 
       if (isAccessTokenValid && !needsRefresh) {
+        console.log('[TokenManager] Returning valid access token');
         return accessToken;
       }
 
@@ -374,6 +384,7 @@ export class TokenManager {
       const refreshResult = await this.refreshTokens();
 
       if (refreshResult.success && refreshResult.tokens) {
+        console.log('[TokenManager] Token refresh successful, returning new token');
         return refreshResult.tokens.access.token;
       }
 

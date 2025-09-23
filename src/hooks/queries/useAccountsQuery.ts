@@ -5,7 +5,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
+import Toast from 'react-native-toast-message';
 import accountsApi, { Account, AccountType } from '@/services/api/accounts';
 
 export function useAccountsQuery() {
@@ -34,13 +34,29 @@ export function useAccountsQuery() {
       queryClient.setQueryData(['accounts'], (old: Account[] = []) => [...old, newAccount]);
 
       // Show success message
-      Alert.alert('Success', 'Account created successfully');
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Account created successfully',
+      });
     },
     onError: (error: any) => {
-      Alert.alert(
-        'Error',
-        error?.response?.data?.message || 'Failed to create account. Please try again.'
-      );
+      console.error('Create Account Error:', {
+        fullError: error,
+        response: error.response,
+        responseData: error.response?.data,
+        responseStatus: error.response?.status,
+        message: error.message,
+      });
+
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error?.response?.data?.message ||
+               error?.response?.data?.error ||
+               error?.message ||
+               'Failed to create account. Please try again.',
+      });
     },
   });
 

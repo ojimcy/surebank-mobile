@@ -10,6 +10,9 @@ import {
   PersonalInformationScreen,
   NotificationSettingsScreen
 } from '@/screens/Settings';
+import KYCVerificationScreen from '@/screens/Settings/KYCVerificationScreen';
+import KYCIdVerificationScreen from '@/screens/Settings/KYCIdVerificationScreen';
+import KYCSuccessScreen from '@/screens/Settings/KYCSuccessScreen';
 
 // Placeholder screens for future implementation
 const PlaceholderScreen = () => null;
@@ -95,11 +98,27 @@ export default function SettingsStack() {
         }}
       />
       <Stack.Screen
-        name="KycVerification"
-        component={PlaceholderScreen}
+        name="KYCVerification"
+        component={KYCVerificationScreen}
         options={{
           ...secondaryScreenOptions,
           title: 'KYC Verification'
+        }}
+      />
+      <Stack.Screen
+        name="KYCIdVerification"
+        component={KYCIdVerificationScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'ID Verification'
+        }}
+      />
+      <Stack.Screen
+        name="KYCSuccess"
+        component={KYCSuccessScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Verification Success'
         }}
       />
       <Stack.Screen

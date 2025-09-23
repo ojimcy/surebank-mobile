@@ -15,7 +15,8 @@ export type AuthStackParamList = {
   } | undefined;
   Register: undefined;
   ForgotPassword: undefined;
-  ResetPassword: { token: string };
+  VerifyResetCode: { email: string };
+  ResetPassword: { email: string; code: string };
   Welcome: undefined;
 };
 
@@ -87,7 +88,9 @@ export type SettingsStackParamList = {
   TransactionHistory: undefined;
   PaymentMethods: undefined;
   Statements: undefined;
-  KycVerification: undefined;
+  KYCVerification: undefined;
+  KYCIdVerification: undefined;
+  KYCSuccess: undefined;
   Help: undefined;
   About: undefined;
 };

@@ -221,11 +221,15 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
     } catch (err: any) {
       console.error('Registration error:', err);
 
-      let errorMessage = 'Registration failed. Please try again.';
+      // Use the actual error message from the server, or fall back to a generic one
+      let errorMessage = err?.message || 'Registration failed. Please try again.';
 
-      if (err?.message?.includes('email already exists') || err?.message?.includes('ACCOUNT_EXISTS')) {
+      // Check for specific error patterns and provide user-friendly messages
+      if (err?.message?.toLowerCase().includes('email already') ||
+          err?.message?.includes('ACCOUNT_EXISTS') ||
+          err?.message?.toLowerCase().includes('email is already taken')) {
         errorMessage = 'This email is already registered. Please use a different email or try logging in.';
-      } else if (err?.message?.includes('phone already exists')) {
+      } else if (err?.message?.toLowerCase().includes('phone already')) {
         errorMessage = 'This phone number is already registered. Please use a different number or try logging in.';
       } else if (err?.message?.includes('timeout')) {
         errorMessage = 'Registration request timed out. Please check your connection and try again.';

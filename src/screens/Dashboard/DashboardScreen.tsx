@@ -196,8 +196,18 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   }, [refetchAccounts, refetchPackages, refetchTransactions]);
 
   const handleCreateAccount = useCallback((type: 'ds' | 'sb' | 'ibs') => {
+    // Check if user has completed KYC
+    if (user?.kycStatus !== 'verified') {
+      // Navigate to KYC verification screen via the Settings tab
+      navigation.getParent()?.navigate('SettingsTab', {
+        screen: 'KYCVerification',
+      });
+      return;
+    }
+
+    // If KYC is verified, create the account
     createAccount(type);
-  }, [createAccount]);
+  }, [createAccount, user?.kycStatus, navigation]);
 
   const handleRefreshBalance = useCallback(() => {
     refetchAccounts();
@@ -330,6 +340,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
           accounts={displayAccounts}
           onCreateAccount={handleCreateAccount}
           onRefreshBalance={handleRefreshBalance}
+          userKycStatus={user?.kycStatus}
         />
 
         {/* Announcements */}

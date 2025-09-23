@@ -53,11 +53,6 @@ export class AuthService {
    */
   async login(payload: LoginPayload): Promise<User> {
     try {
-      console.log('[AuthService] Starting login process...');
-      console.log('[AuthService] API Base URL:', apiClient.defaults.baseURL);
-      console.log('[AuthService] Payload:', { identifier: payload.identifier, password: '***' });
-      console.log('[AuthService] Making API request to /auth/login');
-
       const response = await apiUtils.requestWithRetry(
         () => apiClient.post<LoginResponse>('/auth/login', payload),
         2, // Max 2 retries for login
