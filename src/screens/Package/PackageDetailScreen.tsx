@@ -128,7 +128,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ progress, color }) 
     );
 };
 
-export default function PackageDetailScreen({ route }: PackageScreenProps<'PackageDetail'>) {
+export default function PackageDetailScreen({ route, navigation }: PackageScreenProps<'PackageDetail'>) {
     const { packageId } = route.params;
 
     const [packageData, setPackageData] = useState<UIPackage | null>(null);
@@ -223,11 +223,8 @@ export default function PackageDetailScreen({ route }: PackageScreenProps<'Packa
 
 
     const handleAddContribution = () => {
-        Alert.alert(
-            'Add Contribution',
-            'This feature will be available soon.',
-            [{ text: 'OK' }]
-        );
+        // Navigate to Deposit screen
+        navigation.navigate('Deposit');
     };
 
     const handleWithdraw = () => {

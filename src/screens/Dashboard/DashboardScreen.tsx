@@ -222,8 +222,10 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handleDeposit = () => {
-    // TODO: Navigate to deposit screen when available
-    console.log('Navigate to deposit');
+    // Navigate to Package tab, then to Deposit screen
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: 'Deposit'
+    });
   };
 
   const handleWithdraw = () => {

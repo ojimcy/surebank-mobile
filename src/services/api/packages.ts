@@ -144,7 +144,9 @@ export interface InitializeContributionParams {
 export interface InitializeContributionResponse {
   reference: string;
   authorization_url: string;
+  authorizationUrl?: string; // Alternative naming
   access_code: string;
+  accessCode?: string; // Alternative naming
 }
 
 export interface GetAllPackagesResponse {
@@ -307,14 +309,57 @@ export class PackagesService {
   async initializeContribution(params: InitializeContributionParams): Promise<InitializeContributionResponse> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<InitializeContributionResponse>('/contributions/initialize', params),
+        () => apiClient.post<any>('/payments/init-contribution', params),
+        2,
+        1000
+      );
+
+      // Handle response format variations
+      const data = response.data?.data || response.data;
+      return {
+        reference: data.reference,
+        authorization_url: data.authorization_url || data.authorizationUrl,
+        authorizationUrl: data.authorization_url || data.authorizationUrl,
+        access_code: data.access_code || data.accessCode,
+        accessCode: data.access_code || data.accessCode,
+      };
+    } catch (error) {
+      console.error('Failed to initialize contribution:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get Daily Savings packages for a user
+   */
+  async getDailySavings(userId?: string): Promise<DailySavingsPackage[]> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.get<DailySavingsPackage[]>('/daily-savings/package'),
         2,
         1000
       );
       return response.data;
     } catch (error) {
-      console.error('Failed to initialize contribution:', error);
-      throw error;
+      console.error('Failed to fetch daily savings packages:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get SB packages for a user
+   */
+  async getSBPackages(userId?: string): Promise<SBPackage[]> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.get<SBPackage[]>('/daily-savings/sb/package'),
+        2,
+        1000
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch SB packages:', error);
+      return [];
     }
   }
 

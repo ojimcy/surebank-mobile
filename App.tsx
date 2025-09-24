@@ -25,14 +25,13 @@ import { RootNavigator } from '@/navigation';
 import { navigationRef } from '@/navigation/NavigationService';
 
 export default function App() {
-  console.log('[App] App component rendering...');
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'white' }}>
       <SafeAreaProvider>
         <NavigationContainer
           ref={navigationRef}
-          onReady={() => console.log('[App] Navigation ready')}
+          onReady={() => {}}
           theme={{
             dark: false,
             colors: {

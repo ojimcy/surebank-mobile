@@ -13,6 +13,7 @@ import PackageDetailScreen from '@/screens/Package/PackageDetailScreen';
 import CreateDailySavingsScreen from '@/screens/Package/CreateDailySavingsScreen';
 import CreateIBSPackageScreen from '@/screens/Package/CreateIBSPackageScreen';
 import CreateSBPackageScreen from '@/screens/Package/CreateSBPackageScreen';
+import DepositScreen from '@/screens/Package/DepositScreen';
 import AssetsScreen from '@/screens/Package/AssetsScreen';
 import PerformanceScreen from '@/screens/Package/PerformanceScreen';
 import PositionsScreen from '@/screens/Package/PositionsScreen';
@@ -104,6 +105,22 @@ export default function PackageStack() {
         options={({ navigation }) => ({
           ...secondaryScreenOptions,
           title: 'SB Package',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#0066A1" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="Deposit"
+        component={DepositScreen}
+        options={({ navigation }) => ({
+          ...secondaryScreenOptions,
+          title: 'Deposit',
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => navigation.goBack()}

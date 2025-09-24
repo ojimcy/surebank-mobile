@@ -56,6 +56,7 @@ export type PackageStackParamList = {
   CreateDailySavings: undefined;
   CreateIBSPackage: undefined;
   CreateSBPackage: { productId?: string } | undefined;
+  Deposit: undefined;
   Assets: undefined;
   Performance: undefined;
   Positions: undefined;

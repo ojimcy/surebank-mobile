@@ -150,15 +150,6 @@ apiClient.interceptors.request.use(
         }
       }
 
-      // Log the final request details (for debugging)
-      console.log('[API Client] Final request:', {
-        url: config.url,
-        method: config.method,
-        hasAuth: !!config.headers.Authorization,
-        hasCsrf: !!config.headers['X-CSRF-Token'],
-        data: config.data
-      });
-
       return config;
     } catch (error) {
       console.error('Request interceptor error:', error);
