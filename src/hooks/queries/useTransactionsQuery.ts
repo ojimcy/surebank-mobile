@@ -96,3 +96,31 @@ export function useRecentTransactions() {
     refetch,
   };
 }
+
+/**
+ * Hook for fetching a single transaction by ID
+ */
+export function useSingleTransactionQuery(transactionId: string) {
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['transaction', transactionId],
+    queryFn: () => transactionsApi.getTransactionById(transactionId),
+    enabled: !!transactionId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: 2,
+  });
+
+  return {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  };
+}

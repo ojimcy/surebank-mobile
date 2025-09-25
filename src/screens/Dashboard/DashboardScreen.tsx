@@ -229,8 +229,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handleWithdraw = () => {
-    // TODO: Navigate to withdraw screen when available
-    console.log('Navigate to withdraw');
+    navigation.navigate('Withdraw');
   };
 
   const handleMyCards = () => {
@@ -293,18 +292,13 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
 
   // Transactions handlers
   const handleViewAllTransactions = () => {
-    // Navigate to History tab
-    navigation.getParent()?.navigate('HistoryTab', {
-      screen: 'HistoryHome'
-    });
+    // Navigate to TransactionHistory screen within Dashboard stack
+    navigation.navigate('TransactionHistory');
   };
 
   const handleTransactionPress = (transactionId: string) => {
-    // Navigate to History tab for transaction details
-    navigation.getParent()?.navigate('HistoryTab', {
-      screen: 'HistoryHome'
-    });
-    // TODO: Add transaction detail screen
+    // Navigate to TransactionDetail screen within Dashboard stack
+    navigation.navigate('TransactionDetail', { transactionId });
   };
 
   // Announcements handlers

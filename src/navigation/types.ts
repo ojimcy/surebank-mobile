@@ -37,6 +37,10 @@ export type DashboardStackParamList = {
   Analytics: undefined;
   Notifications: undefined;
   MarketOverview: undefined;
+  Withdraw: undefined;
+  Deposit: undefined;
+  TransactionHistory: undefined;
+  TransactionDetail: { transactionId: string };
 };
 
 // Trading Stack
@@ -48,6 +52,14 @@ export type TradingStackParamList = {
   BotDetails: { botId: string };
 };
 
+// Payments Stack (used within Dashboard)
+export type PaymentsStackParamList = {
+  Withdraw: undefined;
+  Deposit: undefined;
+  TransferFunds: undefined;
+  PaymentMethods: undefined;
+};
+
 // Package Stack
 export type PackageStackParamList = {
   PackageHome: undefined;
@@ -56,7 +68,6 @@ export type PackageStackParamList = {
   CreateDailySavings: undefined;
   CreateIBSPackage: undefined;
   CreateSBPackage: { productId?: string } | undefined;
-  Deposit: undefined;
   Assets: undefined;
   Performance: undefined;
   Positions: undefined;
@@ -67,6 +78,8 @@ export type PackageStackParamList = {
 export type HistoryStackParamList = {
   HistoryHome: undefined;
   Transactions: undefined;
+  TransactionHistory: undefined;
+  TransactionDetail: { transactionId: string };
   Trades: undefined;
   Orders: undefined;
   Reports: undefined;

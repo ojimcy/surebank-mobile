@@ -9,11 +9,13 @@ import apiClient from './client';
 
 // Types
 export interface Transaction {
-  id: string;
+  id?: string;
+  _id?: string;  // MongoDB ID field
   userId: string;
   accountNumber: string;
   amount: number;
   bankAccountNumber?: number;
+  bankAccountName?: string;
   bankName?: string;
   bankCode?: string;
   status?: string;
@@ -24,6 +26,8 @@ export interface Transaction {
   date: number;
   penaltyAmount: number;
   packageId?: string;
+  reference?: string;
+  transactionType?: string;
   createdBy?: string;
   createdAt: string;
   updatedAt: string;
@@ -134,7 +138,8 @@ const transactionsApi = {
    * Format transaction for UI display
    */
   formatTransaction(transaction: Transaction): FormattedTransaction {
-    const transactionDate = new Date(transaction.date);
+    // Handle date properly - it's a number (Unix timestamp in milliseconds)
+    const transactionDate = new Date(transaction.date || transaction.createdAt);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -167,7 +172,7 @@ const transactionsApi = {
     const type = transactionsApi.getTransactionType(transaction);
 
     return {
-      id: transaction.id,
+      id: transaction.id || transaction._id || '',
       type,
       category,
       amount: transaction.amount,

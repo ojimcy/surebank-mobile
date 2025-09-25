@@ -23,33 +23,53 @@ const formatCurrency = (amount: number): string => {
     }).format(amount);
 };
 
-const formatDate = (dateString: string): string => {
+const formatDate = (dateString: string | Date): string => {
     try {
-        const date = new Date(dateString);
+        if (!dateString) return '';
+
+        const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            // If it's already a formatted string like "Dec 25", return as is
+            if (typeof dateString === 'string' && /^[A-Za-z]{3}\s\d{1,2}/.test(dateString)) {
+                return dateString;
+            }
+            return '';
+        }
+
         return date.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
         });
     } catch {
-        return dateString;
+        return typeof dateString === 'string' ? dateString : '';
     }
 };
 
-const formatTime = (timeString: string): string => {
+const formatTime = (timeString: string | Date): string => {
     try {
-        // If timeString is already formatted, return as is
-        if (timeString.includes(':')) {
+        if (!timeString) return '';
+
+        // If timeString is already formatted time like "2:30 PM", return as is
+        if (typeof timeString === 'string' && timeString.includes(':')) {
             return timeString;
         }
-        // Otherwise, try to parse as date and format time
-        const date = new Date(timeString);
+
+        const date = typeof timeString === 'string' ? new Date(timeString) : timeString;
+
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            return '';
+        }
+
         return date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true,
         });
     } catch {
-        return timeString;
+        return typeof timeString === 'string' ? timeString : '';
     }
 };
 

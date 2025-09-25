@@ -10,6 +10,9 @@ import OverviewScreen from '@/screens/Dashboard/OverviewScreen';
 import AnalyticsScreen from '@/screens/Dashboard/AnalyticsScreen';
 import NotificationsScreen from '@/screens/Dashboard/NotificationsScreen';
 import MarketOverviewScreen from '@/screens/Dashboard/MarketOverviewScreen';
+import WithdrawScreen from '@/screens/Payments/WithdrawScreen';
+import TransactionHistoryScreen from '@/screens/History/TransactionHistoryScreen';
+import TransactionDetailScreen from '@/screens/History/TransactionDetailScreen';
 
 const Stack = createStackNavigator<DashboardStackParamList>();
 
@@ -57,6 +60,30 @@ export default function DashboardStack() {
         options={{
           ...secondaryScreenOptions,
           title: 'Market Overview'
+        }}
+      />
+      <Stack.Screen
+        name="Withdraw"
+        component={WithdrawScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Withdraw Funds'
+        }}
+      />
+      <Stack.Screen
+        name="TransactionHistory"
+        component={TransactionHistoryScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Transaction History'
+        }}
+      />
+      <Stack.Screen
+        name="TransactionDetail"
+        component={TransactionDetailScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Transaction Details'
         }}
       />
     </Stack.Navigator>

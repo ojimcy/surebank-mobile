@@ -10,16 +10,27 @@ import { View, Text, Linking } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { 
-  Form, 
-  FormField, 
-  PrimaryButton, 
+import {
+  Form,
+  FormField,
+  PrimaryButton,
   GhostButton,
-  Checkbox 
+  Checkbox
 } from '@/components/forms';
 import { useRegisterMutation } from '@/hooks/auth';
 import { useActivityTracking } from '@/components/security/ActivityTracker';
-import { RegisterFormData } from '@/services/api/types';
+
+// Define the form data interface locally
+interface RegisterFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: string;
+  password: string;
+  confirmPassword: string;
+  address?: string;
+  agreeToTerms: boolean;
+}
 
 // Registration form validation schema
 const registerSchema = yup.object().shape({
@@ -90,10 +101,9 @@ export default function RegisterForm({
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
-    watch,
+    formState: { isSubmitting },
   } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerSchema),
+    resolver: yupResolver(registerSchema) as any,
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -106,7 +116,6 @@ export default function RegisterForm({
     },
   });
 
-  const watchEmail = watch('email');
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -179,7 +188,7 @@ export default function RegisterForm({
           {/* Name Fields */}
           <View className="flex-row space-x-3">
             <View className="flex-1">
-              <FormField
+              <FormField<RegisterFormData>
                 control={control}
                 name="firstName"
                 label="First Name"
@@ -192,7 +201,7 @@ export default function RegisterForm({
               />
             </View>
             <View className="flex-1">
-              <FormField
+              <FormField<RegisterFormData>
                 control={control}
                 name="lastName"
                 label="Last Name"
@@ -207,7 +216,7 @@ export default function RegisterForm({
           </View>
 
           {/* Email */}
-          <FormField
+          <FormField<RegisterFormData>
             control={control}
             name="email"
             label="Email Address"
@@ -222,7 +231,7 @@ export default function RegisterForm({
           />
 
           {/* Phone Number (Optional) */}
-          <FormField
+          <FormField<RegisterFormData>
             control={control}
             name="phoneNumber"
             label="Phone Number (Optional)"
@@ -235,7 +244,7 @@ export default function RegisterForm({
           />
 
           {/* Address (Optional) */}
-          <FormField
+          <FormField<RegisterFormData>
             control={control}
             name="address"
             label="Address (Optional)"
@@ -249,7 +258,7 @@ export default function RegisterForm({
           />
 
           {/* Password */}
-          <FormField
+          <FormField<RegisterFormData>
             control={control}
             name="password"
             label="Password"
@@ -263,7 +272,7 @@ export default function RegisterForm({
           />
 
           {/* Confirm Password */}
-          <FormField
+          <FormField<RegisterFormData>
             control={control}
             name="confirmPassword"
             label="Confirm Password"
@@ -280,32 +289,32 @@ export default function RegisterForm({
             control={control}
             name="agreeToTerms"
             render={({ field: { value, onChange }, fieldState: { error } }) => (
-              <Checkbox
-                label={
-                  <Text className="text-gray-700 font-body-md">
-                    I agree to the{' '}
-                    <Text 
-                      className="text-primary-600 font-medium"
-                      onPress={handleTermsPress}
-                    >
-                      Terms of Service
-                    </Text>
-                    {' '}and{' '}
-                    <Text 
-                      className="text-primary-600 font-medium"
-                      onPress={handlePrivacyPress}
-                    >
-                      Privacy Policy
-                    </Text>
+              <View>
+                <Checkbox
+                  label="I agree to the Terms of Service and Privacy Policy"
+                  checked={value}
+                  onValueChange={onChange}
+                  required
+                  errorText={error?.message}
+                  accessibilityLabel="Agree to terms and privacy policy"
+                  accessibilityHint="You must agree to continue"
+                />
+                <View className="flex-row mt-1 ml-7">
+                  <Text
+                    className="text-primary-600 text-sm underline"
+                    onPress={handleTermsPress}
+                  >
+                    Terms of Service
                   </Text>
-                }
-                checked={value}
-                onValueChange={onChange}
-                required
-                errorText={error?.message}
-                accessibilityLabel="Agree to terms and privacy policy"
-                accessibilityHint="You must agree to continue"
-              />
+                  <Text className="text-gray-600 text-sm mx-1">and</Text>
+                  <Text
+                    className="text-primary-600 text-sm underline"
+                    onPress={handlePrivacyPress}
+                  >
+                    Privacy Policy
+                  </Text>
+                </View>
+              </View>
             )}
           />
         </View>

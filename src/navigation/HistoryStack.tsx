@@ -6,6 +6,8 @@ import type { HistoryStackParamList } from './types';
 
 // Import history screens (placeholder components for now)
 import HistoryHomeScreen from '@/screens/History/HistoryHomeScreen';
+import TransactionHistoryScreen from '@/screens/History/TransactionHistoryScreen';
+import TransactionDetailScreen from '@/screens/History/TransactionDetailScreen';
 import TransactionsScreen from '@/screens/History/TransactionsScreen';
 import TradesScreen from '@/screens/History/TradesScreen';
 import OrdersScreen from '@/screens/History/OrdersScreen';
@@ -33,6 +35,22 @@ export default function HistoryStack() {
         options={{
           ...secondaryScreenOptions,
           title: 'Transactions'
+        }}
+      />
+      <Stack.Screen
+        name="TransactionHistory"
+        component={TransactionHistoryScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Transaction History'
+        }}
+      />
+      <Stack.Screen
+        name="TransactionDetail"
+        component={TransactionDetailScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Transaction Details'
         }}
       />
       <Stack.Screen

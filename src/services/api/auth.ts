@@ -352,6 +352,21 @@ export class AuthService {
   }
 
   /**
+   * Verify user PIN
+   */
+  async verifyPin(pin: string): Promise<{ isValid: boolean }> {
+    try {
+      const response = await apiClient.post<{ isValid: boolean }>('/auth/verify-pin', { pin });
+      return response.data;
+    } catch (error: any) {
+      console.error('PIN verification failed:', error);
+
+      // Return invalid for any error
+      return { isValid: false };
+    }
+  }
+
+  /**
    * Logout and clear all authentication data
    */
   async logout(): Promise<void> {
