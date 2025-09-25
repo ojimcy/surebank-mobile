@@ -37,8 +37,8 @@ const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
-const formatDate = (dateString: string | Date): string => {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+const formatDate = (dateString: string | Date | number): string => {
+  const date = typeof dateString === 'string' || typeof dateString === 'number' ? new Date(dateString) : dateString;
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -46,8 +46,8 @@ const formatDate = (dateString: string | Date): string => {
   });
 };
 
-const formatTime = (dateString: string | Date): string => {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+const formatTime = (dateString: string | Date | number): string => {
+  const date = typeof dateString === 'string' || typeof dateString === 'number' ? new Date(dateString) : dateString;
   return date.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
@@ -164,14 +164,14 @@ export default function TransactionHistoryScreen() {
 
   // Fetch transactions
   const {
-    data: transactionsData,
+    transactions,
+    pagination,
     isLoading,
-    refetch,
-    isRefetching,
+    refetchTransactions: refetch,
+    isError,
   } = useTransactionsQuery(appliedFilters);
 
-  const transactions = transactionsData?.transactions || [];
-  const pagination = transactionsData?.pagination;
+  const isRefetching = false; // Hook doesn't provide this directly
 
   // Handle transaction press
   const handleTransactionPress = useCallback((transactionId: string) => {
@@ -186,51 +186,56 @@ export default function TransactionHistoryScreen() {
   }, [isLoading, pagination, currentPage]);
 
   // Render transaction item
-  const renderTransactionItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={styles.transactionItem}
-      onPress={() => handleTransactionPress(item._id || item.id)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.transactionLeft}>
-        <View
-          style={[
-            styles.transactionIcon,
-            item.direction === 'inflow' ? styles.inflowIcon : styles.outflowIcon,
-          ]}
-        >
-          <Ionicons
-            name={item.direction === 'inflow' ? 'arrow-down-outline' : 'arrow-up-outline'}
-            size={20}
-            color={item.direction === 'inflow' ? '#28A745' : '#DC3545'}
-          />
-        </View>
-        <View style={styles.transactionInfo}>
-          <Text style={styles.transactionType}>
-            {item.transactionType || (item.direction === 'inflow' ? 'Deposit' : 'Withdrawal')}
-          </Text>
-          <Text style={styles.transactionCategory} numberOfLines={1}>
-            {item.narration || 'Transaction'}
-          </Text>
-        </View>
-      </View>
+  const renderTransactionItem = ({ item }: { item: any }) => {
+    // Handle date properly - it's a number (Unix timestamp in milliseconds)
+    const transactionDate = new Date(item.date || item.createdAt);
 
-      <View style={styles.transactionRight}>
-        <Text
-          style={[
-            styles.transactionAmount,
-            item.direction === 'inflow' ? styles.positiveAmount : styles.negativeAmount,
-          ]}
-        >
-          {item.direction === 'inflow' ? '+' : '-'}
-          {formatCurrency(item.amount)}
-        </Text>
-        <Text style={styles.transactionDateTime}>
-          {formatDate(item.date)}, {formatTime(item.date)}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+    return (
+      <TouchableOpacity
+        style={styles.transactionItem}
+        onPress={() => handleTransactionPress(item._id || item.id)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.transactionLeft}>
+          <View
+            style={[
+              styles.transactionIcon,
+              item.direction === 'inflow' ? styles.inflowIcon : styles.outflowIcon,
+            ]}
+          >
+            <Ionicons
+              name={item.direction === 'inflow' ? 'arrow-down-outline' : 'arrow-up-outline'}
+              size={20}
+              color={item.direction === 'inflow' ? '#28A745' : '#DC3545'}
+            />
+          </View>
+          <View style={styles.transactionInfo}>
+            <Text style={styles.transactionType}>
+              {item.transactionType || (item.direction === 'inflow' ? 'Deposit' : 'Withdrawal')}
+            </Text>
+            <Text style={styles.transactionCategory} numberOfLines={1}>
+              {item.narration || 'Transaction'}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.transactionRight}>
+          <Text
+            style={[
+              styles.transactionAmount,
+              item.direction === 'inflow' ? styles.positiveAmount : styles.negativeAmount,
+            ]}
+          >
+            {item.direction === 'inflow' ? '+' : '-'}
+            {formatCurrency(item.amount)}
+          </Text>
+          <Text style={styles.transactionDateTime}>
+            {formatDate(transactionDate)}, {formatTime(transactionDate)}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   // Render empty state
   const renderEmptyState = () => (
@@ -439,7 +444,7 @@ export default function TransactionHistoryScreen() {
         <FlatList
           data={transactions}
           renderItem={renderTransactionItem}
-          keyExtractor={(item) => item._id || item.id || ''}
+          keyExtractor={(item) => item._id || item.id || Math.random().toString()}
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} />

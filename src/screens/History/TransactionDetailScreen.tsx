@@ -34,8 +34,8 @@ const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
-const formatDate = (dateString: string | Date): string => {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+const formatDate = (dateString: string | Date | number): string => {
+  const date = typeof dateString === 'string' || typeof dateString === 'number' ? new Date(dateString) : dateString;
   return date.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -44,8 +44,8 @@ const formatDate = (dateString: string | Date): string => {
   });
 };
 
-const formatTime = (dateString: string | Date): string => {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+const formatTime = (dateString: string | Date | number): string => {
+  const date = typeof dateString === 'string' || typeof dateString === 'number' ? new Date(dateString) : dateString;
   return date.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
