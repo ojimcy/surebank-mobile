@@ -12,6 +12,20 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { enableScreens } from 'react-native-screens';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/components/ui/ToastConfig';
+import { PaystackProvider } from 'react-native-paystack-webview';
+import Config from '@/config/config';
+
+// Create a wrapper component to handle empty publicKey gracefully
+const PaystackWrapper = ({ children, publicKey }: { children: React.ReactNode; publicKey: string }) => {
+  if (!publicKey) {
+    console.warn('PaystackProvider: No public key provided, payments will not work');
+    return <>{children}</>;
+  }
+  return <PaystackProvider publicKey={publicKey}>{children}</PaystackProvider>;
+};
+
+// Set displayName for debugging
+PaystackWrapper.displayName = 'PaystackWrapper';
 
 enableScreens();
 
@@ -31,7 +45,7 @@ export default function App() {
       <SafeAreaProvider>
         <NavigationContainer
           ref={navigationRef}
-          onReady={() => {}}
+          onReady={() => { }}
           theme={{
             dark: false,
             colors: {
@@ -51,13 +65,15 @@ export default function App() {
           }}
         >
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-          <QueryContextProvider>
-            <AuthProvider>
-              <NotificationProvider>
-                <RootNavigator />
-              </NotificationProvider>
-            </AuthProvider>
-          </QueryContextProvider>
+          <PaystackWrapper publicKey={Config.PAYSTACK_PUBLIC_KEY}>
+            <QueryContextProvider>
+              <AuthProvider>
+                <NotificationProvider>
+                  <RootNavigator />
+                </NotificationProvider>
+              </AuthProvider>
+            </QueryContextProvider>
+          </PaystackWrapper>
         </NavigationContainer>
         <Toast config={toastConfig} />
       </SafeAreaProvider>

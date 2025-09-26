@@ -23,7 +23,6 @@ export type AuthStackParamList = {
 // Main Tab Navigator
 export type MainTabParamList = {
   DashboardTab: NavigatorScreenParams<DashboardStackParamList>;
-  TradingTab: NavigatorScreenParams<TradingStackParamList>;
   PackageTab: NavigatorScreenParams<PackageStackParamList>;
   ProductsTab: NavigatorScreenParams<ProductsStackParamList>;
   HistoryTab: NavigatorScreenParams<HistoryStackParamList>;
@@ -41,16 +40,10 @@ export type DashboardStackParamList = {
   Deposit: undefined;
   TransactionHistory: undefined;
   TransactionDetail: { transactionId: string };
+  CardsList: undefined;
+  AddCard: undefined;
 };
 
-// Trading Stack
-export type TradingStackParamList = {
-  TradingHome: undefined;
-  BotManagement: undefined;
-  CreateBot: undefined;
-  EditBot: { botId: string };
-  BotDetails: { botId: string };
-};
 
 // Payments Stack (used within Dashboard)
 export type PaymentsStackParamList = {
@@ -135,11 +128,6 @@ export type DashboardScreenProps<Screen extends keyof DashboardStackParamList> =
   Screen
 >;
 
-export type TradingScreenProps<Screen extends keyof TradingStackParamList> = StackScreenProps<
-  TradingStackParamList,
-  Screen
->;
-
 export type PackageScreenProps<Screen extends keyof PackageStackParamList> = StackScreenProps<
   PackageStackParamList,
   Screen
@@ -160,6 +148,11 @@ export type SettingsScreenProps<Screen extends keyof SettingsStackParamList> = S
   Screen
 >;
 
+export type CardsScreenProps<Screen extends keyof DashboardStackParamList> = StackScreenProps<
+  DashboardStackParamList,
+  Screen
+>;
+
 export type RootScreenProps<Screen extends keyof RootStackParamList> = StackScreenProps<
   RootStackParamList,
   Screen
@@ -173,11 +166,6 @@ export type AuthStackNavigationProp<Screen extends keyof AuthStackParamList> = S
 
 export type DashboardStackNavigationProp<Screen extends keyof DashboardStackParamList> = StackScreenProps<
   DashboardStackParamList,
-  Screen
->['navigation'];
-
-export type TradingStackNavigationProp<Screen extends keyof TradingStackParamList> = StackScreenProps<
-  TradingStackParamList,
   Screen
 >['navigation'];
 

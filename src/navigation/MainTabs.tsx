@@ -8,10 +8,8 @@ import type { MainTabParamList } from './types';
 
 // Import stack navigators
 import DashboardStack from './DashboardStack';
-import TradingStack from './TradingStack';
 import PackageStack from './PackageStack';
 import ProductsStack from './ProductsStack';
-import HistoryStack from './HistoryStack';
 import SettingsStack from './SettingsStack';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -33,8 +31,7 @@ export default function MainTabs() {
   };
 
   const handleMyCards = () => {
-    // TODO: Navigate to cards screen
-    console.log('Navigate to cards');
+    navigation.navigate('DashboardTab', { screen: 'CardsList' });
   };
 
   const handleSchedules = () => {

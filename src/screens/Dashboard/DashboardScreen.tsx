@@ -233,8 +233,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handleMyCards = () => {
-    // TODO: Navigate to cards screen when available
-    console.log('Navigate to cards');
+    navigation.navigate('CardsList');
   };
 
   const handleSchedules = () => {
