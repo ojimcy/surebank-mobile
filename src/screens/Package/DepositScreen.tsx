@@ -15,7 +15,6 @@ import {
   ActivityIndicator,
   Platform,
   Linking,
-  Dimensions,
   KeyboardAvoidingView,
   Animated,
 } from 'react-native';
@@ -23,10 +22,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
-import packagesService, { type UIPackage, type DailySavingsPackage, type SBPackage } from '@/services/api/packages';
+import packagesService, { type DailySavingsPackage, type SBPackage } from '@/services/api/packages';
 import type { PackageScreenProps } from '@/navigation/types';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type PackageType = 'ds' | 'sb';
 
@@ -51,9 +49,11 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
   const [fetchingPackages, setFetchingPackages] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [expandedPackageList, setExpandedPackageList] = useState(false);
+  const [showSuccessTip, setShowSuccessTip] = useState(false);
 
   // Animation values
   const scaleAnim = useState(new Animated.Value(1))[0];
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   const { user } = useAuth();
 
@@ -334,15 +334,28 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
     return null;
   };
 
+  // Show success tip when package is selected
+  useEffect(() => {
+    if (selectedPackage && packages.length > 0) {
+      setShowSuccessTip(true);
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.delay(3000),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setShowSuccessTip(false));
+    }
+  }, [selectedPackage]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Make Deposit</Text>
-        <View style={{ width: 40 }} />
-      </View>
 
       <KeyboardAvoidingView
         style={styles.content}
@@ -357,7 +370,12 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
         >
           {/* Package Type Selector */}
           <View style={styles.typeSection}>
-            <Text style={styles.sectionTitle}>Package Type</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>Package Type</Text>
+              <View style={styles.stepIndicator}>
+                <Text style={styles.stepText}>Step 1 of 3</Text>
+              </View>
+            </View>
             <View style={styles.typeContainer}>
               <TouchableOpacity
                 onPress={() => {
@@ -442,7 +460,12 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
           {/* Package Selector - Enhanced */}
           <View style={styles.packageSection}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Select Package</Text>
+              <View style={styles.sectionTitleContainer}>
+                <Text style={styles.sectionTitle}>Select Package</Text>
+                <View style={styles.stepIndicator}>
+                  <Text style={styles.stepText}>Step 2 of 3</Text>
+                </View>
+              </View>
               {packages.length > 3 && (
                 <TouchableOpacity
                   onPress={() => setExpandedPackageList(!expandedPackageList)}
@@ -536,7 +559,12 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
 
           {/* Amount Input - Enhanced */}
           <View style={styles.amountSection}>
-            <Text style={styles.sectionTitle}>Amount</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>Amount</Text>
+              <View style={styles.stepIndicator}>
+                <Text style={styles.stepText}>Step 3 of 3</Text>
+              </View>
+            </View>
             <View style={[
               styles.amountInputContainer,
               validationError && styles.amountInputError
@@ -557,6 +585,23 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
                 <Ionicons name="alert-circle" size={16} color="#ef4444" />
                 <Text style={styles.errorText}>{validationError}</Text>
               </View>
+            )}
+
+            {/* Success tip animation */}
+            {showSuccessTip && selectedPackage && (
+              <Animated.View
+                style={[
+                  styles.successTip,
+                  { opacity: fadeAnim }
+                ]}
+              >
+                <Ionicons name="information-circle" size={16} color="#0066A1" />
+                <Text style={styles.successTipText}>
+                  {packages.find(p => p.id === selectedPackage)?.type === 'Daily Savings'
+                    ? 'Tip: Use multiples of daily amount for easy tracking'
+                    : 'Enter any amount you wish to contribute'}
+                </Text>
+              </Animated.View>
             )}
 
             {/* Smart Preset Amounts */}
@@ -593,6 +638,40 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
               ))}
             </View>
           </View>
+
+          {/* Summary Section */}
+          {selectedPackage && amount && parseFloat(amount) > 0 && (
+            <View style={styles.summarySection}>
+              <Text style={styles.sectionTitle}>Contribution Summary</Text>
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Package</Text>
+                  <Text style={styles.summaryValue}>
+                    {packages.find(p => p.id === selectedPackage)?.name}
+                  </Text>
+                </View>
+                <View style={styles.summaryDivider} />
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Amount</Text>
+                  <Text style={styles.summaryAmount}>
+                    {formatCurrency(parseFloat(amount))}
+                  </Text>
+                </View>
+                {packages.find(p => p.id === selectedPackage)?.type === 'Daily Savings' &&
+                 packages.find(p => p.id === selectedPackage)?.amountPerDay && (
+                  <>
+                    <View style={styles.summaryDivider} />
+                    <View style={styles.summaryRow}>
+                      <Text style={styles.summaryLabel}>Days Covered</Text>
+                      <Text style={styles.summaryValue}>
+                        {Math.round(parseFloat(amount) / (packages.find(p => p.id === selectedPackage)?.amountPerDay || 1))} days
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </View>
+            </View>
+          )}
 
           {/* Payment Method */}
           <View style={styles.paymentSection}>
@@ -685,13 +764,29 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   typeSection: {
-    marginBottom: 24,
+    marginBottom: 28,
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#374151',
-    marginBottom: 12,
+    color: '#111827',
+  },
+  stepIndicator: {
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  stepText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#0066A1',
   },
   typeContainer: {
     flexDirection: 'row',
@@ -754,12 +849,9 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
   },
   packageSection: {
-    marginBottom: 24,
+    marginBottom: 28,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 12,
   },
   expandButton: {
@@ -781,7 +873,6 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
   packageList: {
-    gap: 12,
   },
   packageListExpanded: {
     maxHeight: undefined,
@@ -792,13 +883,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     backgroundColor: '#f9fafb',
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 2,
     borderColor: '#e5e7eb',
+    marginBottom: 12,
   },
   packageCardActive: {
     backgroundColor: '#eff6ff',
     borderColor: '#0066A1',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0066A1',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   packageCardContent: {
     flexDirection: 'row',
@@ -873,16 +976,17 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   amountSection: {
-    marginBottom: 24,
+    marginBottom: 28,
   },
   amountInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f9fafb',
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 16,
     borderWidth: 2,
     borderColor: '#e5e7eb',
+    minHeight: 64,
   },
   amountInputError: {
     borderColor: '#ef4444',
@@ -923,12 +1027,14 @@ const styles = StyleSheet.create({
   },
   presetButton: {
     flex: 1,
-    padding: 12,
+    padding: 14,
     backgroundColor: '#f9fafb',
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#e5e7eb',
+    minHeight: 60,
+    justifyContent: 'center',
   },
   presetButtonDisabled: {
     opacity: 0.5,
@@ -959,8 +1065,60 @@ const styles = StyleSheet.create({
   presetLabelActive: {
     color: '#0066A1',
   },
+  successTip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#eff6ff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#dbeafe',
+  },
+  successTipText: {
+    marginLeft: 6,
+    fontSize: 12,
+    color: '#0066A1',
+    flex: 1,
+  },
+  summarySection: {
+    marginBottom: 28,
+  },
+  summaryCard: {
+    backgroundColor: '#f0fdf4',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  summaryValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  summaryAmount: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#059669',
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: '#e5e7eb',
+    marginVertical: 4,
+  },
   paymentSection: {
-    marginBottom: 24,
+    marginBottom: 28,
   },
   paymentCard: {
     flexDirection: 'row',

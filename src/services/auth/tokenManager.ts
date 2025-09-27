@@ -359,37 +359,25 @@ export class TokenManager {
    */
   async getValidAccessToken(): Promise<string | null> {
     try {
-      console.log('[TokenManager] Getting valid access token...');
       const { accessToken, isAccessTokenValid, needsRefresh } = await this.getTokens();
 
-      console.log('[TokenManager] Token status:', {
-        hasToken: !!accessToken,
-        isValid: isAccessTokenValid,
-        needsRefresh,
-        tokenPreview: accessToken ? `${accessToken.substring(0, 20)}...` : null
-      });
-
       if (!accessToken) {
-        console.log('[TokenManager] No access token found');
+        console.log('No access token found');
         return null;
       }
 
       if (isAccessTokenValid && !needsRefresh) {
-        console.log('[TokenManager] Returning valid access token');
         return accessToken;
       }
 
       // Token needs refresh
-      console.log('[TokenManager] Token needs refresh, attempting to refresh...');
       const refreshResult = await this.refreshTokens();
 
       if (refreshResult.success && refreshResult.tokens) {
-        console.log('[TokenManager] Token refresh successful, returning new token');
         return refreshResult.tokens.access.token;
       }
 
       // Refresh failed - don't immediately clear tokens, let the error propagate
-      console.log('[TokenManager] Token refresh failed, returning null');
       return null;
 
     } catch (error) {

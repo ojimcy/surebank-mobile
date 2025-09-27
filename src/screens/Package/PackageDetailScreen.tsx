@@ -501,13 +501,6 @@ const PackageActionsCard: React.FC<PackageActionsCardProps> = ({
                 </View>
             )}
 
-            <TouchableOpacity
-                style={styles.actionButtonDanger}
-                onPress={onClosePackage}
-            >
-                <Ionicons name="close-circle-outline" size={20} color="white" />
-                <Text style={styles.actionButtonText}>Close Package</Text>
-            </TouchableOpacity>
         </View>
     );
 };

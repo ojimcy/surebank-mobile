@@ -19,12 +19,6 @@ export default function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  console.log('[RootNavigator] Rendering with state:', {
-    isAuthenticated,
-    isLoading,
-    initialLoadComplete
-  });
-
   // Track when initial auth check is complete
   useEffect(() => {
     // After the first auth check completes, mark initial load as done
@@ -46,8 +40,6 @@ export default function RootNavigator() {
       </View>
     );
   }
-
-  console.log('[RootNavigator] Rendering navigator, isAuthenticated:', isAuthenticated);
 
   try {
     return (

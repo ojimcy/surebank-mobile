@@ -102,7 +102,6 @@ apiClient.interceptors.request.use(
           authToken = await tokenManager.getValidAccessToken();
           if (authToken) {
             config.headers.Authorization = `Bearer ${authToken}`;
-            console.log('[API Client] Added auth header to request:', config.url);
           } else {
             console.warn('[API Client] No auth token available for request:', config.url);
           }

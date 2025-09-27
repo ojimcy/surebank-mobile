@@ -5,41 +5,28 @@
  * Shows current KYC status and options to verify
  */
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
   StyleSheet,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import type { SettingsScreenProps } from '@/navigation/types';
-import kycApi, { KycStatus } from '@/services/api/kyc';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function KYCVerificationScreen({ navigation }: SettingsScreenProps<'KYCVerification'>) {
   const { user } = useAuth();
-  const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch KYC status
-  const { data: kycStatus, isLoading, refetch } = useQuery({
-    queryKey: ['kyc-status'],
-    queryFn: () => kycApi.getVerificationStatus(),
-    staleTime: 60000, // 1 minute
-  });
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
-  };
+  // Use KYC status from user object
+  const kycStatus = user?.kycStatus;
+  const kycType = user?.kycType;
+  const bvnVerified = user?.bvnVerified;
 
   const handleStartVerification = (type: 'id' | 'bvn') => {
     if (type === 'id') {
@@ -56,11 +43,13 @@ export default function KYCVerificationScreen({ navigation }: SettingsScreenProp
 
   const getStatusColor = (status?: string) => {
     switch (status) {
+      case 'verified':
       case 'approved':
         return '#28A745';
       case 'pending':
         return '#FFC107';
       case 'rejected':
+      case 'failed':
         return '#DC3545';
       default:
         return '#6B7280';
@@ -69,11 +58,13 @@ export default function KYCVerificationScreen({ navigation }: SettingsScreenProp
 
   const getStatusIcon = (status?: string) => {
     switch (status) {
+      case 'verified':
       case 'approved':
         return 'checkmark-circle';
       case 'pending':
         return 'time';
       case 'rejected':
+      case 'failed':
         return 'close-circle';
       default:
         return 'alert-circle';
@@ -82,64 +73,49 @@ export default function KYCVerificationScreen({ navigation }: SettingsScreenProp
 
   const getStatusText = (status?: string) => {
     switch (status) {
+      case 'verified':
       case 'approved':
         return 'Verified';
       case 'pending':
         return 'Under Review';
       case 'rejected':
+      case 'failed':
         return 'Verification Failed';
       default:
         return 'Not Verified';
     }
   };
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0066A1" />
-          <Text style={styles.loadingText}>Loading KYC status...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const getVerificationTypeText = () => {
+    if (kycType === 'id') return 'Government ID';
+    if (bvnVerified) return 'BVN';
+    return null;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#212529" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>KYC Verification</Text>
-          <View style={{ width: 40 }} />
-        </View>
-
+      <ScrollView style={styles.scrollView}>
         {/* Status Card */}
         <View style={styles.statusCard}>
-          <View style={[styles.statusIconContainer, { backgroundColor: `${getStatusColor(kycStatus?.status)}20` }]}>
+          <View style={[styles.statusIconContainer, { backgroundColor: `${getStatusColor(kycStatus)}20` }]}>
             <Ionicons
-              name={getStatusIcon(kycStatus?.status) as any}
+              name={getStatusIcon(kycStatus) as any}
               size={48}
-              color={getStatusColor(kycStatus?.status)}
+              color={getStatusColor(kycStatus)}
             />
           </View>
 
           <Text style={styles.statusTitle}>
-            {getStatusText(kycStatus?.status)}
+            {getStatusText(kycStatus)}
           </Text>
 
-          {kycStatus?.message && (
-            <Text style={styles.statusMessage}>{kycStatus.message}</Text>
+          {(kycStatus === 'verified' || kycStatus === 'approved') && getVerificationTypeText() && (
+            <Text style={styles.statusMessage}>
+              Verified with {getVerificationTypeText()}
+            </Text>
           )}
 
-          {kycStatus?.status === 'pending' && (
+          {kycStatus === 'pending' && (
             <View style={styles.infoBox}>
               <Ionicons name="information-circle-outline" size={20} color="#0066A1" />
               <Text style={styles.infoText}>
@@ -148,18 +124,18 @@ export default function KYCVerificationScreen({ navigation }: SettingsScreenProp
             </View>
           )}
 
-          {kycStatus?.status === 'rejected' && kycStatus?.rejectionReason && (
+          {(kycStatus === 'rejected' || kycStatus === 'failed') && (
             <View style={[styles.infoBox, styles.errorBox]}>
               <Ionicons name="alert-circle-outline" size={20} color="#DC3545" />
               <Text style={[styles.infoText, styles.errorText]}>
-                {kycStatus.rejectionReason}
+                Your verification was unsuccessful. Please try again with valid documents.
               </Text>
             </View>
           )}
         </View>
 
-        {/* Verification Options - Only show if not verified or rejected */}
-        {(!kycStatus || kycStatus.status !== 'approved' && kycStatus.status !== 'pending') && (
+        {/* Verification Options - Only show if not verified or pending */}
+        {(!kycStatus || (kycStatus !== 'verified' && kycStatus !== 'approved' && kycStatus !== 'pending')) && (
           <View style={styles.optionsContainer}>
             <Text style={styles.sectionTitle}>Verification Methods</Text>
 
