@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { FloatingActionButton } from '@/components/navigation';
 
 import type { MainTabParamList } from './types';
@@ -15,19 +16,18 @@ import SettingsStack from './SettingsStack';
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function MainTabs() {
+  const navigation = useNavigation<any>();
+
   const handleDeposit = () => {
-    // TODO: Navigate to deposit screen
-    console.log('Navigate to deposit');
+    navigation.navigate('DashboardTab', { screen: 'Deposit' });
   };
 
   const handleNewPackage = () => {
-    // TODO: Navigate to new package screen
-    console.log('Navigate to new package');
+    navigation.navigate('PackageTab', { screen: 'NewPackage' });
   };
 
   const handleWithdraw = () => {
-    // TODO: Navigate to withdraw screen
-    console.log('Navigate to withdraw');
+    navigation.navigate('DashboardTab', { screen: 'Withdraw' });
   };
 
   const handleMyCards = () => {
@@ -35,8 +35,7 @@ export default function MainTabs() {
   };
 
   const handleSchedules = () => {
-    // TODO: Navigate to schedules screen
-    console.log('Navigate to schedules');
+    navigation.navigate('DashboardTab', { screen: 'SchedulesList' });
   };
 
   return (

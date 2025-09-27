@@ -237,8 +237,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handleSchedules = () => {
-    // TODO: Navigate to schedules screen when available
-    console.log('Navigate to schedules');
+    navigation.navigate('SchedulesList');
   };
 
   // Savings handlers

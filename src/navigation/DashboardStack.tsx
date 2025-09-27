@@ -15,6 +15,10 @@ import TransactionHistoryScreen from '@/screens/History/TransactionHistoryScreen
 import TransactionDetailScreen from '@/screens/History/TransactionDetailScreen';
 import CardsListScreen from '@/screens/Cards/CardsListScreen';
 import AddCardScreen from '@/screens/Cards/AddCardScreen';
+import SchedulesListScreen from '@/screens/Schedules/SchedulesListScreen';
+import CreateScheduleScreen from '@/screens/Schedules/CreateScheduleScreen';
+import ScheduleDetailScreen from '@/screens/Schedules/ScheduleDetailScreen';
+import EditScheduleScreen from '@/screens/Schedules/EditScheduleScreen';
 
 const Stack = createStackNavigator<DashboardStackParamList>();
 
@@ -102,6 +106,38 @@ export default function DashboardStack() {
         options={{
           ...secondaryScreenOptions,
           title: 'Add Card'
+        }}
+      />
+      <Stack.Screen
+        name="SchedulesList"
+        component={SchedulesListScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Scheduled Payments'
+        }}
+      />
+      <Stack.Screen
+        name="CreateSchedule"
+        component={CreateScheduleScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Create Schedule'
+        }}
+      />
+      <Stack.Screen
+        name="ScheduleDetail"
+        component={ScheduleDetailScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Schedule Details'
+        }}
+      />
+      <Stack.Screen
+        name="EditSchedule"
+        component={EditScheduleScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Edit Schedule'
         }}
       />
     </Stack.Navigator>

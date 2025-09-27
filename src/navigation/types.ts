@@ -42,6 +42,10 @@ export type DashboardStackParamList = {
   TransactionDetail: { transactionId: string };
   CardsList: undefined;
   AddCard: undefined;
+  SchedulesList: undefined;
+  CreateSchedule: undefined;
+  ScheduleDetail: { scheduleId: string };
+  EditSchedule: { scheduleId: string };
 };
 
 
