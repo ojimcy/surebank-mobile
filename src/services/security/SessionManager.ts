@@ -75,7 +75,6 @@ export class SessionManager {
       this.startTimers();
       this.emit('session_started', { sessionId: this.sessionId, userId });
 
-      console.log('Session started:', this.sessionId);
     } catch (error) {
       console.error('Failed to start session:', error);
       throw new Error('Session initialization failed');
@@ -108,7 +107,6 @@ export class SessionManager {
 
       this.emit('session_terminated', { sessionId, reason });
 
-      console.log('Session ended:', sessionId, 'Reason:', reason);
     } catch (error) {
       console.error('Failed to end session:', error);
     }
@@ -220,7 +218,6 @@ export class SessionManager {
 
       if (isValid) {
         this.startTimers();
-        console.log('Session restored:', sessionId);
         return true;
       } else {
         await this.endSession('invalid_session');

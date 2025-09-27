@@ -146,7 +146,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Load stored authentication data on app start
   const loadStoredAuthData = useCallback(async () => {
-    console.log('[AuthContext] Loading stored auth data...');
 
     // Set a timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
@@ -161,7 +160,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const isAuth = await tokenManager.isAuthenticated();
 
       if (!isAuth) {
-        console.log('[AuthContext] No valid authentication found');
         dispatch({ type: 'RESET_AUTH' });
         clearTimeout(timeoutId);
         return;
@@ -202,7 +200,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('[AuthContext] Failed to load stored auth data:', error);
       dispatch({ type: 'RESET_AUTH' });
     } finally {
-      console.log('[AuthContext] Auth initialization complete');
       clearTimeout(timeoutId);
       dispatch({ type: 'SET_LOADING', payload: false });
     }
@@ -308,18 +305,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Set up token manager event listeners
   useEffect(() => {
     const handleTokenRefreshed = async () => {
-      console.log('Tokens refreshed - updating context state');
       const tokens = await authService.getTokens();
       dispatch({ type: 'SET_TOKENS', payload: tokens });
     };
 
     const handleTokenExpired = () => {
-      console.log('Tokens expired - clearing auth state');
       dispatch({ type: 'RESET_AUTH' });
     };
 
     const handleLoginRequired = () => {
-      console.log('Login required - clearing auth state');
       dispatch({ type: 'RESET_AUTH' });
     };
 

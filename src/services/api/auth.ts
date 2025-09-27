@@ -63,13 +63,11 @@ export class AuthService {
 
       // Store authentication tokens securely
       if (tokens.access.token) {
-        console.log('[AuthService] Storing auth tokens...');
         try {
           await storage.multiSet([
             [STORAGE_KEYS.AUTH_TOKEN, tokens.access.token],
             [STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh.token],
           ]);
-          console.log('[AuthService] Auth tokens stored successfully');
 
           // Small delay to ensure tokens are properly persisted before any validation attempts
           await new Promise(resolve => setTimeout(resolve, 100));
@@ -80,9 +78,7 @@ export class AuthService {
       }
 
       // Store last login timestamp
-      console.log('[AuthService] Storing last login timestamp...');
       await storage.setItem(STORAGE_KEYS.LAST_LOGIN, new Date().toISOString());
-      console.log('[AuthService] Last login timestamp stored');
 
       return user;
     } catch (error: any) {

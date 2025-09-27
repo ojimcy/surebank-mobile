@@ -98,9 +98,7 @@ const accountsApi = {
    */
   async createAccount(accountType: AccountType): Promise<Account> {
     try {
-      console.log('Creating account with type:', accountType);
       const response = await apiClient.post<Account>('/self-accounts', { accountType });
-      console.log('Account creation response:', response.data);
       return response.data;
     } catch (error: any) {
       console.error('Account creation failed:', {

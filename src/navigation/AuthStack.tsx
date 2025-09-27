@@ -38,7 +38,6 @@ export default function AuthStack() {
     checkOnboarding();
   }, []);
 
-  console.log('[AuthStack] Rendering AuthStack...', { hasCompletedOnboarding });
 
   // Don't render until we know the onboarding status
   if (hasCompletedOnboarding === null) {

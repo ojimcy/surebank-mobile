@@ -200,7 +200,6 @@ export class TokenManager {
       // Update last login timestamp
       await storage.setItem(STORAGE_KEYS.LAST_LOGIN, new Date().toISOString());
 
-      console.log('Tokens stored successfully');
     } catch (error) {
       console.error('Failed to store tokens:', error);
       throw new Error('Token storage failed');
@@ -245,7 +244,6 @@ export class TokenManager {
       // Validate refresh token
       const refreshValidation = this.validateToken(refreshToken);
       if (!refreshValidation.isValid) {
-        console.log('Refresh token expired or invalid');
         await this.clearTokens();
         this.emit('loginRequired');
         return {
@@ -256,7 +254,6 @@ export class TokenManager {
       }
 
       // Make refresh request
-      console.log('[TokenManager] Attempting to refresh token...');
 
       // Try different payload formats that the API might expect
       let response;
@@ -268,11 +265,9 @@ export class TokenManager {
       } catch (firstError: any) {
         // Check if it's a 401 which means refresh token is invalid
         if (firstError?.response?.status === 401) {
-          console.log('[TokenManager] Refresh token is invalid (401)');
           throw firstError;
         }
 
-        console.log('[TokenManager] First format failed, trying refreshToken format...');
         // If that fails for other reasons, try with refreshToken
         response = await apiClient.post<TokenResponse>('/auth/refresh', {
           refreshToken: refreshToken,
@@ -280,7 +275,6 @@ export class TokenManager {
       }
 
       const newTokens = response.data;
-      console.log('Token refresh response received');
 
       // Store new tokens
       await this.storeTokens(newTokens);
@@ -288,7 +282,6 @@ export class TokenManager {
       // Emit success event
       this.emit('tokenRefreshed', newTokens);
 
-      console.log('Tokens refreshed successfully');
       return {
         success: true,
         tokens: newTokens,
@@ -310,7 +303,6 @@ export class TokenManager {
           case 401:
           case 403:
             // Refresh token invalid or expired
-            console.log('Refresh token is invalid or expired, clearing tokens');
             await this.clearTokens();
             this.emit('loginRequired');
             return {
@@ -362,7 +354,6 @@ export class TokenManager {
       const { accessToken, isAccessTokenValid, needsRefresh } = await this.getTokens();
 
       if (!accessToken) {
-        console.log('No access token found');
         return null;
       }
 
@@ -399,7 +390,6 @@ export class TokenManager {
         STORAGE_KEYS.CSRF_SECRET,
       ]);
 
-      console.log('All tokens cleared');
     } catch (error) {
       console.error('Failed to clear tokens:', error);
       throw new Error('Token cleanup failed');

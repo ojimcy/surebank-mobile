@@ -92,7 +92,9 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
           text: 'Verify Now',
           action: () => {
             // TODO: Navigate to email verification
-            console.log('Navigate to email verification');
+            navigation.getParent()?.navigate('SettingsTab', {
+              screen: 'EmailVerification',
+            });
           },
         },
         condition: (user: any) => !user.isEmailVerified,
@@ -113,7 +115,9 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
           text: 'Complete KYC',
           action: () => {
             // TODO: Navigate to KYC verification
-            console.log('Navigate to KYC verification');
+            navigation.getParent()?.navigate('SettingsTab', {
+              screen: 'KYCVerification',
+            });
           },
         },
         condition: (user: any) => user.kycStatus !== 'verified',
@@ -178,7 +182,9 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
 
   const handleAvatarPress = () => {
     // TODO: Navigate to profile or show user menu
-    console.log('Avatar pressed');
+    navigation.getParent()?.navigate('SettingsTab', {
+      screen: 'Profile',
+    });
   };
 
   const handleRefresh = useCallback(async () => {
@@ -265,7 +271,10 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
 
   const handlePackageDeposit = (packageId: string) => {
     // TODO: Navigate to deposit screen when available
-    console.log('Deposit to package:', packageId);
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: 'Deposit',
+      params: { packageId },
+    });
   };
 
   const handlePackageTypePress = (type: PackageType) => {

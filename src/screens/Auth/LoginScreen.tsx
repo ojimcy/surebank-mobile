@@ -28,7 +28,6 @@ import type { AuthScreenProps } from '@/navigation/types';
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen({ navigation, route }: AuthScreenProps<'Login'>) {
-  console.log('[LoginScreen] Rendering');
 
   const { message, prefilledIdentifier } = route.params || {};
   const { login, isLoading, error, clearError } = useAuth();

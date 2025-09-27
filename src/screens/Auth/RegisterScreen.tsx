@@ -47,7 +47,6 @@ const countryCodes: CountryCode[] = [
 ];
 
 export default function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
-  console.log('[RegisterScreen] Rendering');
 
   const { register, isLoading, error, clearError } = useAuth();
   const [formData, setFormData] = useState<RegisterFormData>({
