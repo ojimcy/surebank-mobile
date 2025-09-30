@@ -63,11 +63,9 @@ const initialState: AuthStateExtended = {
 function authReducer(state: AuthStateExtended, action: AuthAction): AuthStateExtended {
   switch (action.type) {
     case 'SET_LOADING':
-      console.log('[AuthContext] Setting loading:', action.payload);
       return { ...state, isLoading: action.payload };
 
     case 'SET_USER':
-      console.log('[AuthContext] Setting user:', action.payload ? 'authenticated' : 'unauthenticated');
       return {
         ...state,
         user: action.payload,
@@ -77,11 +75,9 @@ function authReducer(state: AuthStateExtended, action: AuthAction): AuthStateExt
       };
 
     case 'SET_AUTHENTICATED':
-      console.log('[AuthContext] Setting authenticated:', action.payload);
       return { ...state, isAuthenticated: action.payload };
 
     case 'SET_TOKENS':
-      console.log('[AuthContext] Setting tokens:', action.payload ? 'tokens received' : 'tokens cleared');
       return { ...state, tokens: action.payload };
 
     case 'SET_LAST_LOGIN':
@@ -91,7 +87,7 @@ function authReducer(state: AuthStateExtended, action: AuthAction): AuthStateExt
       return { ...state, rememberMe: action.payload };
 
     case 'SET_ERROR':
-      console.log('[AuthContext] Setting error:', action.payload.message, action.payload.code);
+     
       return {
         ...state,
         error: action.payload.message,
@@ -100,11 +96,11 @@ function authReducer(state: AuthStateExtended, action: AuthAction): AuthStateExt
       };
 
     case 'CLEAR_ERROR':
-      console.log('[AuthContext] Clearing error');
+     
       return { ...state, error: null, errorCode: null };
 
     case 'RESET_AUTH':
-      console.log('[AuthContext] Resetting authentication state - user will be logged out');
+     
       return {
         ...initialState,
         isLoading: false,
@@ -156,7 +152,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Set a timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
-      console.warn('[AuthContext] Auth initialization timed out, resetting auth state');
+     
       dispatch({ type: 'RESET_AUTH' });
     }, 5000); // 5 second timeout
 
