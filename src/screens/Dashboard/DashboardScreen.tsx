@@ -45,7 +45,6 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
     hasPackages,
     refetchPackages,
   } = usePackagesQuery();
-
   const {
     transactions: recentTransactions,
     isLoading: isTransactionsLoading,

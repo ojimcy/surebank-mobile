@@ -21,7 +21,7 @@ export interface ScheduledContribution {
     id: string;
   };
   amount: number;
-  frequency: 'daily' | 'weekly' | 'monthly';
+  frequency: 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
   contributionType: 'ds' | 'sb' | 'ibs';
   startDate: string;
   endDate?: string;
@@ -44,14 +44,15 @@ export interface CreateSchedulePayload {
   // Payment details
   storedCardId: string;
   amount: number;
-  frequency: 'daily' | 'weekly' | 'monthly';
+  frequency: 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
   startDate: string;
   endDate?: string;
 }
 
 export interface UpdateSchedulePayload {
   amount?: number;
-  frequency?: 'daily' | 'weekly' | 'monthly';
+  frequency?: 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
+  storedCardId?: string;
   endDate?: string;
 }
 
@@ -258,9 +259,10 @@ const scheduledContributionsApi = {
    */
   getPaymentLogs: async (
     scheduleId: string,
-    page: number = 1,
-    limit: number = 10
+    options?: { page?: number; limit?: number }
   ): Promise<PaymentLogsResponse> => {
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
     const response: AxiosResponse<{
       success: boolean;
       message: string;

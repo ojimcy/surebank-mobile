@@ -113,9 +113,9 @@ const cardsApi = {
   /**
    * Get all user cards
    */
-  async getUserCards(): Promise<StoredCard[]> {
+  async getUserCards(): Promise<{ cards: StoredCard[] }> {
     const response = await apiClient.get<{ data: StoredCardApiResponse[] }>('/stored-cards');
-    return response.data.data.map(transformStoredCard);
+    return { cards: response.data.data.map(transformStoredCard) };
   },
 
   /**

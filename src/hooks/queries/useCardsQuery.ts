@@ -18,7 +18,7 @@ export function useCardsQuery() {
 
   // Get user cards query
   const {
-    data: cards = [] as StoredCard[],
+    data: cardsData,
     isLoading: isCardsLoading,
     isError: isCardsError,
     error: cardsError,
@@ -29,6 +29,9 @@ export function useCardsQuery() {
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Extract cards array from response
+  const cards = cardsData?.cards || [];
 
   // Get default card query
   const {

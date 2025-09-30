@@ -55,7 +55,7 @@ export function usePackagesQuery() {
 
     // Transform Daily Savings packages
     const dsPackages: SavingsPackage[] = dailySavings
-      .filter(pkg => pkg.status === 'active' || pkg.status === 'Active')
+      .filter(pkg => pkg.status === 'active' || pkg.status === 'open')
       .map((pkg: DailySavingsPackage) => ({
         id: pkg.id,
         title: pkg.target || 'Daily Savings',
@@ -71,10 +71,9 @@ export function usePackagesQuery() {
         createdAt: pkg.createdAt,
         updatedAt: pkg.updatedAt,
       }));
-
     // Transform SB packages
     const sbMappedPackages: SavingsPackage[] = sbPackages
-      .filter(pkg => pkg.status === 'active' || pkg.status === 'Active')
+      .filter(pkg => pkg.status === 'active' || pkg.status === 'open')
       .map((pkg: SBPackage) => ({
         id: pkg._id,
         title: pkg.product?.name || 'SureBank Package',
@@ -92,10 +91,9 @@ export function usePackagesQuery() {
         createdAt: pkg.startDate,
         updatedAt: pkg.startDate,
       }));
-
     // Transform Interest-Based packages
     const ibMappedPackages: SavingsPackage[] = ibPackages
-      .filter(pkg => pkg.status === 'active' || pkg.status === 'Active')
+      .filter(pkg => pkg.status === 'active')
       .map((pkg: IBPackage) => {
         // Calculate time-based progress
         const start = new Date(pkg.startDate || pkg.createdAt).getTime();
@@ -126,7 +124,6 @@ export function usePackagesQuery() {
           updatedAt: pkg.updatedAt,
         };
       });
-
     // Combine all packages
     return [...dsPackages, ...sbMappedPackages, ...ibMappedPackages];
   }, [packagesData]);

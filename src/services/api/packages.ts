@@ -17,7 +17,7 @@ export interface DailySavingsPackage {
   totalContribution: number;
   totalCount: number;
   totalCharge?: number;
-  status: 'active' | 'closed' | 'pending';
+  status: 'active' | 'closed' | 'pending' | 'open';
   startDate: string;
   endDate?: string;
   createdAt: string;
@@ -29,7 +29,7 @@ export interface SBPackage {
   accountNumber: string;
   targetAmount: number;
   totalContribution: number;
-  status: 'active' | 'closed' | 'pending';
+  status: 'active' | 'closed' | 'pending' | 'open';
   startDate: string;
   endDate?: string;
   product?: {

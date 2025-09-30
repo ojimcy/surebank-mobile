@@ -103,7 +103,7 @@ export function useScheduleQueries() {
   // Get payment logs for a schedule
   const getPaymentLogs = async (scheduleId: string, page: number = 1, limit: number = 10) => {
     try {
-      const logs = await scheduledContributionsApi.getPaymentLogs(scheduleId, page, limit);
+      const logs = await scheduledContributionsApi.getPaymentLogs(scheduleId, { page, limit });
       return logs;
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -356,4 +356,72 @@ export function useScheduleQueries() {
     isScheduleStatsError,
     isCreateScheduleError,
   };
+}
+
+// Export individual query hooks for specific use cases
+export function useScheduleQuery(scheduleId: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.schedule(scheduleId),
+    queryFn: () => scheduledContributionsApi.getSchedule(scheduleId),
+    enabled: !!scheduleId,
+  });
+}
+
+export function usePaymentLogsQuery(
+  scheduleId: string,
+  options?: { page?: number; limit?: number }
+) {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.paymentLogs(scheduleId), options],
+    queryFn: () => scheduledContributionsApi.getPaymentLogs(scheduleId, options),
+    enabled: !!scheduleId,
+  });
+}
+
+export function usePauseScheduleMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (scheduleId: string) =>
+      scheduledContributionsApi.pauseSchedule(scheduleId),
+    onSuccess: (_, scheduleId) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.schedules });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.schedule(scheduleId) });
+    },
+  });
+}
+
+export function useResumeScheduleMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (scheduleId: string) =>
+      scheduledContributionsApi.resumeSchedule(scheduleId),
+    onSuccess: (_, scheduleId) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.schedules });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.schedule(scheduleId) });
+    },
+  });
+}
+
+export function useCancelScheduleMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (scheduleId: string) =>
+      scheduledContributionsApi.cancelSchedule(scheduleId),
+    onSuccess: (_, scheduleId) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.schedules });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.schedule(scheduleId) });
+    },
+  });
+}
+
+export function useUpdateScheduleMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ scheduleId, data }: { scheduleId: string; data: UpdateSchedulePayload }) =>
+      scheduledContributionsApi.updateSchedule(scheduleId, data),
+    onSuccess: (_, { scheduleId }) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.schedules });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.schedule(scheduleId) });
+    },
+  });
 }
