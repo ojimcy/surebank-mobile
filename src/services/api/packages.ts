@@ -155,6 +155,16 @@ export interface GetAllPackagesResponse {
   ibPackages: IBPackage[];
 }
 
+export interface MergeSavingsPackagesParams {
+  targetPackageId: string;
+  sourcePackageIds: string[];
+}
+
+export interface UpdatePackageProductParams {
+  packageId: string;
+  newProductId: string;
+}
+
 // Package API Service
 export class PackagesService {
   /**
@@ -376,6 +386,46 @@ export class PackagesService {
       return response.data;
     } catch (error) {
       console.error('Failed to get package details:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Merge multiple SB packages into one target package
+   */
+  async mergeSavingsPackages(targetPackageId: string, sourcePackageIds: string[]): Promise<SBPackage> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.post<SBPackage>(
+          `/daily-savings/sb/package/merge/${targetPackageId}`,
+          { sourcePackageIds }
+        ),
+        2,
+        1000
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to merge packages:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update/change the product of an SB package
+   */
+  async updatePackageProduct(packageId: string, newProductId: string): Promise<SBPackage> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.patch<SBPackage>(
+          `/daily-savings/sb/package/${packageId}`,
+          { newProductId }
+        ),
+        2,
+        1000
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update package product:', error);
       throw error;
     }
   }

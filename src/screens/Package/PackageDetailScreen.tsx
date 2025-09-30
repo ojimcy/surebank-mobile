@@ -20,6 +20,8 @@ import Svg, { Circle } from 'react-native-svg';
 import packagesService, { type UIPackage, type DailySavingsPackage, type SBPackage, type IBPackage } from '@/services/api/packages';
 import transactionsApi, { type Transaction } from '@/services/api/transactions';
 import type { PackageScreenProps } from '@/navigation/types';
+import MergePackagesModal from './MergePackagesModal';
+import ChangeProductModal from './ChangeProductModal';
 
 // Utility function for consistent date formatting
 const formatDate = (dateString: string): string => {
@@ -139,6 +141,8 @@ export default function PackageDetailScreen({ route, navigation }: PackageScreen
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [transactionsLoading, setTransactionsLoading] = useState(false);
     const [showAllTransactions, setShowAllTransactions] = useState(false);
+    const [mergeModalVisible, setMergeModalVisible] = useState(false);
+    const [changeProductModalVisible, setChangeProductModalVisible] = useState(false);
 
     const fetchPackageDetails = async (isRefresh = false) => {
         try {
@@ -228,11 +232,7 @@ export default function PackageDetailScreen({ route, navigation }: PackageScreen
     };
 
     const handleWithdraw = () => {
-        Alert.alert(
-            'Withdraw',
-            'This feature will be available soon.',
-            [{ text: 'OK' }]
-        );
+       navigation.navigate('Withdraw');
     };
 
     const handleClosePackage = () => {
@@ -301,6 +301,8 @@ export default function PackageDetailScreen({ route, navigation }: PackageScreen
                     onAddContribution={handleAddContribution}
                     onWithdraw={handleWithdraw}
                     onClosePackage={handleClosePackage}
+                    onMerge={() => setMergeModalVisible(true)}
+                    onChangeProduct={() => setChangeProductModalVisible(true)}
                 />
 
                 {/* Package Details */}
@@ -315,6 +317,27 @@ export default function PackageDetailScreen({ route, navigation }: PackageScreen
                     packageColor={packageData.color}
                 />
             </ScrollView>
+
+            {/* Merge Packages Modal */}
+            <MergePackagesModal
+                visible={mergeModalVisible}
+                onClose={() => setMergeModalVisible(false)}
+                targetPackageId={packageId}
+                onSuccess={() => {
+                    fetchPackageDetails(true);
+                }}
+            />
+
+            {/* Change Product Modal */}
+            <ChangeProductModal
+                visible={changeProductModalVisible}
+                onClose={() => setChangeProductModalVisible(false)}
+                packageId={packageId}
+                currentProduct={rawPackageData && 'product' in rawPackageData ? rawPackageData.product : undefined}
+                onSuccess={() => {
+                    fetchPackageDetails(true);
+                }}
+            />
         </SafeAreaView>
     );
 }
@@ -438,6 +461,8 @@ interface PackageActionsCardProps {
     onAddContribution: () => void;
     onWithdraw: () => void;
     onClosePackage: () => void;
+    onMerge: () => void;
+    onChangeProduct: () => void;
 }
 
 const PackageActionsCard: React.FC<PackageActionsCardProps> = ({
@@ -445,7 +470,9 @@ const PackageActionsCard: React.FC<PackageActionsCardProps> = ({
     color,
     onAddContribution,
     onWithdraw,
-    onClosePackage
+    onClosePackage,
+    onMerge,
+    onChangeProduct
 }) => {
     return (
         <View style={styles.actionsCard}>
@@ -454,29 +481,15 @@ const PackageActionsCard: React.FC<PackageActionsCardProps> = ({
             {packageType === 'SB Package' ? (
                 <View style={styles.actionsGrid}>
                     <TouchableOpacity
-                        style={[styles.actionButton, { backgroundColor: color }]}
-                        onPress={() => Alert.alert('Buy Product', 'This feature will be available soon.')}
-                    >
-                        <Ionicons name="bag-outline" size={20} color="white" />
-                        <Text style={styles.actionButtonText}>Buy Product</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
                         style={styles.actionButtonOutline}
-                        onPress={onWithdraw}
-                    >
-                        <Ionicons name="wallet-outline" size={20} color="#374151" />
-                        <Text style={styles.actionButtonOutlineText}>Withdraw</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.actionButtonOutline}
-                        onPress={() => Alert.alert('Merge', 'This feature will be available soon.')}
+                        onPress={onMerge}
                     >
                         <Ionicons name="git-merge-outline" size={20} color="#374151" />
                         <Text style={styles.actionButtonOutlineText}>Merge</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.actionButtonOutline}
-                        onPress={() => Alert.alert('Change Product', 'This feature will be available soon.')}
+                        onPress={onChangeProduct}
                     >
                         <Ionicons name="swap-horizontal-outline" size={20} color="#374151" />
                         <Text style={styles.actionButtonOutlineText}>Change Product</Text>
