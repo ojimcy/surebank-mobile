@@ -295,84 +295,6 @@ export default function SchedulesListScreen() {
           </View>
         )}
 
-        {/* Recent Activity */}
-        {scheduleStats?.recentActivity && scheduleStats.recentActivity.length > 0 && (
-          <View className="mx-4 mb-4">
-            <View className="bg-white rounded-xl p-4">
-              <View className="flex-row items-center justify-between mb-3">
-                <View className="flex-row items-center">
-                  <Activity size={20} color="#0066A1" />
-                  <Text className="text-lg font-semibold ml-2">Recent Activity</Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('TransactionHistory')}
-                >
-                  <Text className="text-[#0066A1] text-sm">View All</Text>
-                </TouchableOpacity>
-              </View>
-
-              {scheduleStats.recentActivity.slice(0, 3).map((activity: RecentActivity, index) => (
-                <View
-                  key={activity.id || index}
-                  className="flex-row items-center justify-between py-3 border-b border-gray-100 last:border-b-0"
-                >
-                  <View className="flex-row items-center flex-1">
-                    <View
-                      className={`w-2 h-2 rounded-full ${
-                        activity.status === 'success'
-                          ? 'bg-green-500'
-                          : activity.status === 'failed'
-                          ? 'bg-red-500'
-                          : 'bg-yellow-500'
-                      }`}
-                    />
-                    <View className="ml-3 flex-1">
-                      <View className="flex-row items-center">
-                        <Text className="font-medium">{formatCurrency(activity.amount)}</Text>
-                        <View
-                          className={`ml-2 px-2 py-1 rounded-full flex-row items-center ${
-                            activity.status === 'success'
-                              ? 'bg-green-100'
-                              : activity.status === 'failed'
-                              ? 'bg-red-100'
-                              : 'bg-yellow-100'
-                          }`}
-                        >
-                          {activity.status === 'success' ? (
-                            <CheckCircle2 size={12} color="#10B981" />
-                          ) : activity.status === 'failed' ? (
-                            <XCircle size={12} color="#DC2626" />
-                          ) : (
-                            <Clock size={12} color="#F59E0B" />
-                          )}
-                          <Text
-                            className={`text-xs ml-1 ${
-                              activity.status === 'success'
-                                ? 'text-green-800'
-                                : activity.status === 'failed'
-                                ? 'text-red-800'
-                                : 'text-yellow-800'
-                            }`}
-                          >
-                            {activity.status === 'success'
-                              ? 'Success'
-                              : activity.status === 'failed'
-                              ? 'Failed'
-                              : 'Processing'}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text className="text-xs text-gray-500 mt-1">
-                        {activity.contributionType.toUpperCase()} • {formatDate(activity.createdAt)}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
         {/* Filter Pills */}
         <ScrollView
           horizontal
@@ -552,6 +474,81 @@ export default function SchedulesListScreen() {
             </>
           )}
         </View>
+
+        {/* Recent Activity */}
+        {scheduleStats?.recentActivity && scheduleStats.recentActivity.length > 0 && (
+          <View className="mx-4 mb-4">
+            <View className="bg-white rounded-xl p-4">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <Activity size={20} color="#0066A1" />
+                  <Text className="text-lg font-semibold ml-2">Recent Activity</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('TransactionHistory')}
+                >
+                  <Text className="text-[#0066A1] text-sm">View All</Text>
+                </TouchableOpacity>
+              </View>
+
+              {scheduleStats.recentActivity.slice(0, 3).map((activity: RecentActivity, index) => (
+                <View
+                  key={activity.id || index}
+                  className="flex-row items-center justify-between py-3 border-b border-gray-100 last:border-b-0"
+                >
+                  <View className="flex-row items-center flex-1">
+                    <View
+                      className={`w-2 h-2 rounded-full ${activity.status === 'success'
+                          ? 'bg-green-500'
+                          : activity.status === 'failed'
+                            ? 'bg-red-500'
+                            : 'bg-yellow-500'
+                        }`}
+                    />
+                    <View className="ml-3 flex-1">
+                      <View className="flex-row items-center">
+                        <Text className="font-medium">{formatCurrency(activity.amount)}</Text>
+                        <View
+                          className={`ml-2 px-2 py-1 rounded-full flex-row items-center ${activity.status === 'success'
+                              ? 'bg-green-100'
+                              : activity.status === 'failed'
+                                ? 'bg-red-100'
+                                : 'bg-yellow-100'
+                            }`}
+                        >
+                          {activity.status === 'success' ? (
+                            <CheckCircle2 size={12} color="#10B981" />
+                          ) : activity.status === 'failed' ? (
+                            <XCircle size={12} color="#DC2626" />
+                          ) : (
+                            <Clock size={12} color="#F59E0B" />
+                          )}
+                          <Text
+                            className={`text-xs ml-1 ${activity.status === 'success'
+                                ? 'text-green-800'
+                                : activity.status === 'failed'
+                                  ? 'text-red-800'
+                                  : 'text-yellow-800'
+                              }`}
+                          >
+                            {activity.status === 'success'
+                              ? 'Success'
+                              : activity.status === 'failed'
+                                ? 'Failed'
+                                : 'Processing'}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text className="text-xs text-gray-500 mt-1">
+                        {activity.contributionType.toUpperCase()} • {formatDate(activity.createdAt)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

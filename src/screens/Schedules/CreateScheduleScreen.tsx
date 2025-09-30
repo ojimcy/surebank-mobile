@@ -126,6 +126,14 @@ const QUICK_AMOUNTS = [1000, 2500, 5000, 10000, 25000, 50000];
 type PackageType = 'ds' | 'sb';
 type Frequency = 'daily' | 'weekly' | 'monthly';
 
+// Helper function to get tomorrow's date (outside component to avoid recreation)
+const getTomorrowDate = () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  return tomorrow;
+};
+
 export default function CreateScheduleScreen() {
   const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -138,22 +146,36 @@ export default function CreateScheduleScreen() {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [amountInput, setAmountInput] = useState('');
+
   const [formData, setFormData] = useState<CreateSchedulePayload>({
     packageId: '',
     contributionType: 'ds',
     storedCardId: '',
     amount: 0,
     frequency: 'monthly',
-    startDate: new Date().toISOString(),
+    startDate: getTomorrowDate().toISOString(),
     endDate: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof CreateSchedulePayload, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const { createScheduleAsync, isCreateScheduleLoading } = useScheduleQueries();
   const { cards, hasCards, isCardsLoading } = useCardQueries();
   const { packages, hasPackages, isLoading: isPackagesLoading } = usePackagesQuery();
-  console.log('packages list in create schedule screen', packages);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('CreateScheduleScreen - packages:', packages?.length || 0);
+    console.log('CreateScheduleScreen - cards:', cards?.length || 0);
+    console.log('CreateScheduleScreen - isPackagesLoading:', isPackagesLoading);
+    console.log('CreateScheduleScreen - isCardsLoading:', isCardsLoading);
+  }, [packages, cards, isPackagesLoading, isCardsLoading]);
+
+  // Debug formData changes
+  useEffect(() => {
+    console.log('CreateScheduleScreen - formData updated:', formData);
+  }, [formData]);
 
   // Animation on mount
   useEffect(() => {
@@ -188,58 +210,168 @@ export default function CreateScheduleScreen() {
 
   // Filter packages based on selected type
   const getActivePackages = () => {
-    // Add defensive checks
-    if (!packages || !Array.isArray(packages) || packages.length === 0) {
+    try {
+      // Add defensive checks
+      if (!packages || !Array.isArray(packages) || packages.length === 0) {
+        console.log('CreateScheduleScreen - getActivePackages: No packages available');
+        return [];
+      }
+
+      // Filter by selected type (packages are already filtered for active status in the hook)
+      const filtered = packages.filter((pkg: SavingsPackage) => {
+        // Ensure pkg has required properties
+        if (!pkg || !pkg.type || !pkg.id) {
+          return false;
+        }
+
+        // Match selected package type (case-insensitive and explicit)
+        const pkgType = String(pkg.type).toLowerCase();
+        const selectedType = String(selectedPackageType).toLowerCase();
+
+        // Only return DS and SB packages (IBS packages are not supported for scheduled contributions)
+        if (selectedType === 'ds') {
+          return pkgType === 'ds';
+        }
+        if (selectedType === 'sb') {
+          return pkgType === 'sb';
+        }
+
+        return false;
+      });
+
+      console.log('CreateScheduleScreen - getActivePackages: Filtered', filtered.length, 'packages for type', selectedPackageType);
+      return filtered;
+    } catch (error) {
+      console.error('CreateScheduleScreen - getActivePackages error:', error);
       return [];
     }
-
-    // Filter by selected type (packages are already filtered for active status in the hook)
-    return packages.filter((pkg: SavingsPackage) => {
-      // Ensure pkg has required properties
-      if (!pkg || !pkg.type || !pkg.id) {
-        return false;
-      }
-
-      // Match selected package type (case-insensitive and explicit)
-      const pkgType = String(pkg.type).toLowerCase();
-      const selectedType = String(selectedPackageType).toLowerCase();
-
-      // Only return DS and SB packages (IBS packages are not supported for scheduled contributions)
-      if (selectedType === 'ds') {
-        return pkgType === 'ds';
-      }
-      if (selectedType === 'sb') {
-        return pkgType === 'sb';
-      }
-
-      return false;
-    });
   };
 
   const activePackages = getActivePackages();
 
-  // Debug: Log packages info
-  useEffect(() => {
-    console.log('[CreateSchedule] Package State:', {
-      isLoading: isPackagesLoading,
-      hasPackages,
-      totalPackages: packages?.length || 0,
-      selectedType: selectedPackageType,
-      filteredCount: activePackages.length,
-    });
+  // Enhanced validation for DS packages
+  const validateDSContribution = (
+    packageData: SavingsPackage,
+    contributionAmount: number
+  ): { isValid: boolean; error?: string } => {
+    try {
+      if (!packageData || packageData.type !== 'ds' || !packageData.amountPerDay) {
+        return { isValid: true };
+      }
 
-    if (packages && packages.length > 0) {
-      console.log('[CreateSchedule] Available packages:', packages.map(p => ({
-        id: p.id,
-        type: p.type,
-        status: p.status,
-        title: p.title
-      })));
-      console.log('[CreateSchedule] Filtered packages for type', selectedPackageType, ':',
-        activePackages.map(p => ({ id: p.id, title: p.title, type: p.type }))
-      );
+      // Check if amount is a multiple of amountPerDay
+      if (contributionAmount % packageData.amountPerDay !== 0) {
+        return {
+          isValid: false,
+          error: `Amount must be a multiple of ₦${packageData.amountPerDay.toLocaleString()} (daily amount)`
+        };
+      }
+
+      // Calculate contribution days
+      const contributionDays = Math.round(contributionAmount / packageData.amountPerDay);
+
+      if (contributionDays <= 0) {
+        return {
+          isValid: false,
+          error: 'Contribution amount is too small'
+        };
+      }
+
+      // Check contribution circle limit (31 days max cycle)
+      const CONTRIBUTION_CIRCLE = 31;
+      const currentTotalCount = packageData.totalCount || 0;
+      const newTotalCount = currentTotalCount + contributionDays;
+
+      if (newTotalCount > CONTRIBUTION_CIRCLE) {
+        const remainingDays = CONTRIBUTION_CIRCLE - currentTotalCount;
+        const maxAllowedAmount = remainingDays * packageData.amountPerDay;
+        return {
+          isValid: false,
+          error: `Max: ₦${maxAllowedAmount.toLocaleString()} (${remainingDays} days remaining in cycle)`
+        };
+      }
+
+      return { isValid: true };
+    } catch (error) {
+      console.error('CreateScheduleScreen - validateDSContribution error:', error);
+      return { isValid: true }; // Allow on error to not block user
     }
-  }, [packages, selectedPackageType, activePackages, isPackagesLoading, hasPackages]);
+  };
+
+  // Real-time validation when amount changes
+  const handleAmountChange = (value: string) => {
+    // Remove non-numeric characters except decimal point
+    const cleanValue = value.replace(/[^0-9.]/g, '');
+
+    // Prevent multiple decimal points
+    const parts = cleanValue.split('.');
+    const formattedValue = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleanValue;
+
+    setAmountInput(formattedValue);
+    setFormData(prev => ({ ...prev, amount: parseFloat(formattedValue) || 0 }));
+    setValidationError(null);
+
+    if (!formData.packageId || !formattedValue) return;
+
+    const selectedPackageData = activePackages.find(pkg => pkg.id === formData.packageId);
+    if (!selectedPackageData) return;
+
+    const contributionAmount = parseFloat(formattedValue);
+    if (isNaN(contributionAmount) || contributionAmount <= 0) return;
+
+    // Validate DS contribution
+    if (selectedPackageData.type === 'ds') {
+      const validation = validateDSContribution(selectedPackageData, contributionAmount);
+      if (!validation.isValid) {
+        setValidationError(validation.error || null);
+      }
+    }
+  };
+
+  // Clear validation error when package selection changes
+  useEffect(() => {
+    setValidationError(null);
+    setAmountInput('');
+  }, [formData.packageId]);
+
+  // Check if step 1 is complete
+  const isStep1Complete = () => {
+    return !!(formData.packageId && formData.storedCardId);
+  };
+
+  // Check if step 2 is complete
+  const isStep2Complete = () => {
+    if (!formData.amount || formData.amount <= 0) return false;
+    if (!formData.frequency) return false;
+    if (validationError) return false;
+
+    // Additional DS validation
+    const selectedPackageData = activePackages.find(pkg => pkg.id === formData.packageId);
+    if (selectedPackageData?.type === 'ds') {
+      const validation = validateDSContribution(selectedPackageData, formData.amount);
+      if (!validation.isValid) return false;
+    }
+
+    return true;
+  };
+
+  // Check if step 3 is complete
+  const isStep3Complete = () => {
+    if (!formData.startDate) return false;
+
+    // Validate start date is in the future
+    const startDate = new Date(formData.startDate);
+    const tomorrow = getTomorrowDate();
+    if (startDate < tomorrow) return false;
+
+    // Validate end date if provided
+    if (formData.endDate) {
+      const endDate = new Date(formData.endDate);
+      if (endDate <= startDate) return false;
+    }
+
+    return true;
+  };
 
   // Validate current step
   const validateStep = (step: number): boolean => {
@@ -257,6 +389,15 @@ export default function CreateScheduleScreen() {
       case 2:
         if (!formData.amount || formData.amount <= 0) {
           newErrors.amount = 'Please enter a valid amount';
+        } else {
+          // Enhanced validation for DS contribution
+          const selectedPackageData = activePackages.find(pkg => pkg.id === formData.packageId);
+          if (selectedPackageData?.type === 'ds') {
+            const validation = validateDSContribution(selectedPackageData, formData.amount);
+            if (!validation.isValid) {
+              newErrors.amount = validation.error || 'Invalid contribution amount';
+            }
+          }
         }
         if (!formData.frequency) {
           newErrors.frequency = 'Please select a frequency';
@@ -265,6 +406,22 @@ export default function CreateScheduleScreen() {
       case 3:
         if (!formData.startDate) {
           newErrors.startDate = 'Please select a start date';
+        } else {
+          // Validate start date is in the future (at least tomorrow)
+          const startDate = new Date(formData.startDate);
+          const tomorrow = getTomorrowDate();
+          if (startDate < tomorrow) {
+            newErrors.startDate = 'Start date must be at least tomorrow';
+          }
+        }
+
+        // Validate end date if provided
+        if (formData.endDate) {
+          const startDate = new Date(formData.startDate);
+          const endDate = new Date(formData.endDate);
+          if (endDate <= startDate) {
+            newErrors.endDate = 'End date must be after start date';
+          }
         }
         break;
     }
@@ -310,6 +467,16 @@ export default function CreateScheduleScreen() {
   const handleSubmit = async () => {
     if (!validateStep(3)) return;
 
+    // Additional DS validation before submission
+    const selectedPackageData = activePackages.find(pkg => pkg.id === formData.packageId);
+    if (selectedPackageData?.type === 'ds') {
+      const validation = validateDSContribution(selectedPackageData, formData.amount);
+      if (!validation.isValid) {
+        Alert.alert('Invalid Amount', validation.error || 'Invalid contribution amount');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       await createScheduleAsync(formData);
@@ -335,7 +502,7 @@ export default function CreateScheduleScreen() {
   const renderProgressBar = () => (
     <View className="px-6 mb-6">
       <View className="flex-row justify-between mb-4">
-        {STEPS.map((step, index) => (
+        {STEPS.map((step) => (
           <View key={step.id} className="flex-1 items-center">
             <View
               className={`w-12 h-12 rounded-full items-center justify-center mb-2 ${
@@ -471,7 +638,10 @@ export default function CreateScheduleScreen() {
               {activePackages.map((pkg: SavingsPackage) => (
                 <TouchableOpacity
                   key={pkg.id}
-                  onPress={() => setFormData({ ...formData, packageId: pkg.id })}
+                  onPress={() => {
+                    console.log('CreateScheduleScreen - Package selected:', { id: pkg.id, title: pkg.title, type: pkg.type });
+                    setFormData(prev => ({ ...prev, packageId: pkg.id }));
+                  }}
                   className={`mr-3 p-4 rounded-xl border-2 ${
                     formData.packageId === pkg.id
                       ? 'border-primary-600 bg-primary-50'
@@ -534,7 +704,7 @@ export default function CreateScheduleScreen() {
               {cards.map((card: Card) => (
                 <TouchableOpacity
                   key={card._id}
-                  onPress={() => setFormData({ ...formData, storedCardId: card._id })}
+                  onPress={() => setFormData(prev => ({ ...prev, storedCardId: card._id }))}
                   className={`p-4 rounded-xl border-2 ${
                     formData.storedCardId === card._id
                       ? 'border-primary-600 bg-primary-50'
@@ -594,55 +764,68 @@ export default function CreateScheduleScreen() {
           <Text className="text-2xl font-bold text-gray-900 mb-2">
             Set Your Contribution
           </Text>
-          <Text className="text-gray-600">
+          <Text className="text-gray-800">
             Choose how much and how often to save
           </Text>
         </View>
 
         {/* Amount Input */}
         <View className="mb-6">
-          <Text className="text-sm font-semibold text-gray-700 mb-3">Contribution Amount</Text>
+          <Text className="text-sm font-semibold text-gray-900 mb-3">Contribution Amount</Text>
           <View className="bg-gray-50 rounded-2xl p-4 mb-4">
             <View className="flex-row items-center">
-              <Text className="text-3xl font-bold text-gray-400 mr-2">₦</Text>
+              <Text className="text-3xl font-bold text-gray-700 mr-2">₦</Text>
               <TextInput
                 className="flex-1 text-3xl font-bold text-gray-900"
                 placeholder="0"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#64748b"
                 keyboardType="numeric"
                 value={amountInput}
-                onChangeText={(text) => {
-                  setAmountInput(text);
-                  setFormData({ ...formData, amount: parseFloat(text) || 0 });
-                }}
+                onChangeText={handleAmountChange}
               />
             </View>
           </View>
 
-          {/* Quick Amount Buttons */}
+          {/* Validation Error */}
+          {validationError && (
+            <View className="flex-row items-center mt-2 px-3 py-2 bg-red-50 rounded-lg">
+              <Info size={16} color="#ef4444" />
+              <Text className="text-red-600 text-xs ml-2 flex-1">{validationError}</Text>
+            </View>
+          )}
+
+          {/* Quick Amount Buttons - Smart for DS packages */}
           <View className="flex-row flex-wrap -mx-1">
-            {QUICK_AMOUNTS.map((amount) => (
-              <TouchableOpacity
-                key={amount}
-                onPress={() => {
-                  setAmountInput(amount.toString());
-                  setFormData({ ...formData, amount });
-                }}
-                className={`m-1 px-4 py-2 rounded-xl ${
-                  formData.amount === amount
-                    ? 'bg-primary-600'
-                    : 'bg-white border border-gray-200'
-                }`}
-              >
-                <Text
-                  className={`text-sm font-medium ${
-                    formData.amount === amount ? 'text-white' : 'text-gray-700'
+            {(() => {
+              const selectedPkg = activePackages.find(pkg => pkg.id === formData.packageId);
+              let amounts = QUICK_AMOUNTS;
+
+              // For DS packages, use multiples of daily amount
+              if (selectedPkg?.type === 'ds' && selectedPkg.amountPerDay) {
+                const baseAmount = selectedPkg.amountPerDay;
+                amounts = [baseAmount, baseAmount * 7, baseAmount * 30];
+              }
+
+              return amounts.map((amount) => (
+                <TouchableOpacity
+                  key={amount}
+                  onPress={() => handleAmountChange(amount.toString())}
+                  className={`m-1 px-4 py-2 rounded-xl ${
+                    formData.amount === amount
+                      ? 'bg-primary-600'
+                      : 'bg-white border border-gray-200'
                   }`}
                 >
-                  {formatCurrency(amount)}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    className={`text-sm font-medium ${
+                      formData.amount === amount ? 'text-white' : 'text-gray-700'
+                    }`}
+                  >
+                    {formatCurrency(amount)}
+                  </Text>
+                </TouchableOpacity>
+              ));
+            })()}
           </View>
           {errors.amount && (
             <Text className="text-red-500 text-xs mt-2">{errors.amount}</Text>
@@ -651,12 +834,12 @@ export default function CreateScheduleScreen() {
 
         {/* Frequency Selection */}
         <View className="mb-6">
-          <Text className="text-sm font-semibold text-gray-700 mb-3">Payment Frequency</Text>
+          <Text className="text-sm font-semibold text-gray-900 mb-3">Payment Frequency</Text>
           <View className="space-y-3">
             {FREQUENCIES.map((freq) => (
               <TouchableOpacity
                 key={freq.id}
-                onPress={() => setFormData({ ...formData, frequency: freq.id as Frequency })}
+                onPress={() => setFormData(prev => ({ ...prev, frequency: freq.id as Frequency }))}
                 className={`p-4 rounded-xl border-2 ${
                   formData.frequency === freq.id
                     ? 'border-primary-600 bg-primary-50'
@@ -683,7 +866,7 @@ export default function CreateScheduleScreen() {
                         </View>
                       )}
                     </View>
-                    <Text className="text-sm text-gray-600">{freq.description}</Text>
+                    <Text className="text-sm text-gray-700">{freq.description}</Text>
                   </View>
                   {formData.frequency === freq.id && (
                     <View className="w-6 h-6 rounded-full bg-primary-600 items-center justify-center">
@@ -699,30 +882,66 @@ export default function CreateScheduleScreen() {
           )}
         </View>
 
+        {/* Helper Tip for DS packages */}
+        {formData.packageId && (() => {
+          const selectedPkg = activePackages.find(pkg => pkg.id === formData.packageId);
+          if (selectedPkg?.type === 'ds' && selectedPkg.amountPerDay) {
+            return (
+              <View className="bg-blue-50 rounded-xl p-4 flex-row items-start mb-4">
+                <Info size={16} color="#0066A1" className="mt-0.5" />
+                <View className="flex-1 ml-3">
+                  <Text className="text-xs font-medium text-blue-900">
+                    Daily Amount: {formatCurrency(selectedPkg.amountPerDay)}
+                  </Text>
+                  <Text className="text-xs text-blue-700 mt-1">
+                    Enter multiples of the daily amount (e.g., {formatCurrency(selectedPkg.amountPerDay * 7)} for 7 days)
+                  </Text>
+                </View>
+              </View>
+            );
+          }
+          return null;
+        })()}
+
         {/* Summary Card */}
-        <View className="bg-blue-50 rounded-xl p-4 flex-row items-center">
-          <Info size={20} color="#0066A1" />
-          <View className="flex-1 ml-3">
-            <Text className="text-sm font-medium text-blue-900">
-              You'll save {formatCurrency(formData.amount)} {formData.frequency}
-            </Text>
-            <Text className="text-xs text-blue-700 mt-1">
-              That's {formatCurrency(
-                formData.frequency === 'daily' ? formData.amount * 30 :
-                formData.frequency === 'weekly' ? formData.amount * 4 :
-                formData.amount
-              )} per month
-            </Text>
+        {formData.amount > 0 && (
+          <View className="bg-blue-50 rounded-xl p-4 flex-row items-center">
+            <Info size={20} color="#0066A1" />
+            <View className="flex-1 ml-3">
+              <Text className="text-sm font-medium text-blue-900">
+                You'll save {formatCurrency(formData.amount)} {formData.frequency}
+              </Text>
+              <Text className="text-xs text-blue-700 mt-1">
+                That's {formatCurrency(
+                  formData.frequency === 'daily' ? formData.amount * 30 :
+                  formData.frequency === 'weekly' ? formData.amount * 4 :
+                  formData.amount
+                )} per month
+              </Text>
+            </View>
           </View>
-        </View>
+        )}
       </View>
     </Animated.View>
   );
 
   // Render Step 3: Schedule & Review
   const renderStep3 = () => {
-    const selectedPackage = packages?.find(pkg => pkg.id === formData.packageId);
+    // Search in packages array first, fallback to activePackages
+    let selectedPackage = packages?.find(pkg => pkg.id === formData.packageId);
+    if (!selectedPackage) {
+      selectedPackage = activePackages?.find(pkg => pkg.id === formData.packageId);
+    }
+
     const selectedCard = cards?.find(card => card._id === formData.storedCardId);
+
+    // Debug logging
+    console.log('CreateScheduleScreen - Step 3 Review:');
+    console.log('  formData.packageId:', formData.packageId);
+    console.log('  selectedPackage:', selectedPackage);
+    console.log('  selectedPackage?.title:', selectedPackage?.title);
+    console.log('  packages:', packages?.map(p => ({ id: p.id, title: p.title })));
+    console.log('  activePackages:', activePackages?.map(p => ({ id: p.id, title: p.title })));
 
     return (
       <Animated.View
@@ -743,37 +962,55 @@ export default function CreateScheduleScreen() {
 
           {/* Schedule Dates */}
           <View className="mb-6">
-            <Text className="text-sm font-semibold text-gray-700 mb-3">Schedule Dates</Text>
+            <Text className="text-sm font-semibold text-gray-900 mb-3">Schedule Dates</Text>
 
             <TouchableOpacity
               onPress={() => setShowStartDatePicker(true)}
-              className="bg-white border border-gray-200 rounded-xl p-4 mb-3"
+              className={`bg-white border-2 rounded-xl p-4 mb-3 ${
+                errors.startDate ? 'border-red-500' : 'border-gray-200'
+              }`}
             >
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Calendar size={20} color="#6b7280" />
-                  <Text className="ml-3 text-gray-700">Start Date</Text>
+                  <Text className="ml-3 text-gray-800">Start Date</Text>
                 </View>
                 <Text className="font-medium text-gray-900">
                   {formatDate(new Date(formData.startDate))}
                 </Text>
               </View>
             </TouchableOpacity>
+            {errors.startDate && (
+              <Text className="text-red-500 text-xs mb-3 px-2">{errors.startDate}</Text>
+            )}
 
             <TouchableOpacity
               onPress={() => setShowEndDatePicker(true)}
-              className="bg-white border border-gray-200 rounded-xl p-4"
+              className={`bg-white border-2 rounded-xl p-4 ${
+                errors.endDate ? 'border-red-500' : 'border-gray-200'
+              }`}
             >
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Calendar size={20} color="#6b7280" />
-                  <Text className="ml-3 text-gray-700">End Date (Optional)</Text>
+                  <Text className="ml-3 text-gray-800">End Date (Optional)</Text>
                 </View>
                 <Text className="font-medium text-gray-900">
                   {formData.endDate ? formatDate(new Date(formData.endDate)) : 'No end date'}
                 </Text>
               </View>
             </TouchableOpacity>
+            {errors.endDate && (
+              <Text className="text-red-500 text-xs mt-2 px-2">{errors.endDate}</Text>
+            )}
+
+            {/* Info about date requirements */}
+            <View className="flex-row items-start mt-3 px-3 py-2 bg-blue-50 rounded-lg">
+              <Info size={16} color="#0066A1" className="mt-0.5" />
+              <Text className="text-blue-800 text-xs ml-2 flex-1">
+                Start date must be at least tomorrow. End date is optional but must be after the start date.
+              </Text>
+            </View>
           </View>
 
           {/* Review Summary */}
@@ -835,25 +1072,37 @@ export default function CreateScheduleScreen() {
     );
   };
 
+  // Show loading state while data is being fetched
+  if (isPackagesLoading || isCardsLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#0066A1" />
+          <Text className="mt-4 text-gray-600">Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-      >
-        <ScrollView
-          ref={scrollViewRef}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
         >
-          {renderProgressBar()}
+          <ScrollView
+            ref={scrollViewRef}
+            className="flex-1"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+          >
+            {renderProgressBar()}
 
-          {currentStep === 1 && renderStep1()}
-          {currentStep === 2 && renderStep2()}
-          {currentStep === 3 && renderStep3()}
-        </ScrollView>
+            {currentStep === 1 && renderStep1()}
+            {currentStep === 2 && renderStep2()}
+            {currentStep === 3 && renderStep3()}
+          </ScrollView>
 
         {/* Bottom Navigation */}
         <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4">
@@ -869,9 +1118,19 @@ export default function CreateScheduleScreen() {
 
             <TouchableOpacity
               onPress={currentStep === 3 ? handleSubmit : handleNextStep}
-              disabled={isSubmitting || isCreateScheduleLoading}
+              disabled={
+                isSubmitting ||
+                isCreateScheduleLoading ||
+                (currentStep === 1 && !isStep1Complete()) ||
+                (currentStep === 2 && !isStep2Complete()) ||
+                (currentStep === 3 && !isStep3Complete())
+              }
               className={`flex-1 py-4 rounded-xl flex-row items-center justify-center ${
-                isSubmitting || isCreateScheduleLoading
+                isSubmitting ||
+                isCreateScheduleLoading ||
+                (currentStep === 1 && !isStep1Complete()) ||
+                (currentStep === 2 && !isStep2Complete()) ||
+                (currentStep === 3 && !isStep3Complete())
                   ? 'bg-gray-300'
                   : currentStep === 3
                   ? 'bg-green-600'
@@ -882,10 +1141,26 @@ export default function CreateScheduleScreen() {
                 <ActivityIndicator size="small" color="white" />
               ) : (
                 <>
-                  <Text className="text-white font-bold text-base mr-2">
+                  <Text className={`font-bold text-base mr-2 ${
+                    isSubmitting ||
+                    isCreateScheduleLoading ||
+                    (currentStep === 1 && !isStep1Complete()) ||
+                    (currentStep === 2 && !isStep2Complete()) ||
+                    (currentStep === 3 && !isStep3Complete())
+                      ? 'text-gray-500'
+                      : 'text-white'
+                  }`}>
                     {currentStep === 3 ? 'Create Schedule' : 'Continue'}
                   </Text>
-                  <ArrowRight size={20} color="white" />
+                  <ArrowRight size={20} color={
+                    isSubmitting ||
+                    isCreateScheduleLoading ||
+                    (currentStep === 1 && !isStep1Complete()) ||
+                    (currentStep === 2 && !isStep2Complete()) ||
+                    (currentStep === 3 && !isStep3Complete())
+                      ? '#6b7280'
+                      : 'white'
+                  } />
                 </>
               )}
             </TouchableOpacity>
@@ -899,11 +1174,11 @@ export default function CreateScheduleScreen() {
           value={new Date(formData.startDate)}
           mode="date"
           display="default"
-          minimumDate={new Date()}
+          minimumDate={getTomorrowDate()}
           onChange={(event, selectedDate) => {
             setShowStartDatePicker(false);
             if (event.type === 'set' && selectedDate) {
-              setFormData({ ...formData, startDate: selectedDate.toISOString() });
+              setFormData(prev => ({ ...prev, startDate: selectedDate.toISOString() }));
             }
           }}
         />
@@ -911,14 +1186,24 @@ export default function CreateScheduleScreen() {
 
       {showEndDatePicker && (
         <DateTimePicker
-          value={formData.endDate ? new Date(formData.endDate) : new Date()}
+          value={formData.endDate ? new Date(formData.endDate) : (() => {
+            // Default to one month after start date
+            const defaultDate = new Date(formData.startDate);
+            defaultDate.setMonth(defaultDate.getMonth() + 1);
+            return defaultDate;
+          })()}
           mode="date"
           display="default"
-          minimumDate={new Date()}
+          minimumDate={(() => {
+            // Minimum is one day after start date
+            const minDate = new Date(formData.startDate);
+            minDate.setDate(minDate.getDate() + 1);
+            return minDate;
+          })()}
           onChange={(event, selectedDate) => {
             setShowEndDatePicker(false);
             if (event.type === 'set' && selectedDate) {
-              setFormData({ ...formData, endDate: selectedDate.toISOString() });
+              setFormData(prev => ({ ...prev, endDate: selectedDate.toISOString() }));
             }
           }}
         />
