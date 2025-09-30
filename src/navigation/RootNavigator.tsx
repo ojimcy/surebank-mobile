@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useAuth } from '@/contexts/AuthContext';
+import tokenManager from '@/services/auth/tokenManager';
 
 import type { RootStackParamList } from './types';
 
@@ -16,8 +17,9 @@ import ImageViewerScreen from '@/screens/Common/ImageViewerScreen';
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, logout } = useAuth();
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [forceAuthRedirect, setForceAuthRedirect] = useState(false);
 
   // Track when initial auth check is complete
   useEffect(() => {
@@ -30,6 +32,48 @@ export default function RootNavigator() {
       return () => clearTimeout(timer);
     }
   }, [isLoading, initialLoadComplete]);
+
+  // Listen to token manager events for authentication state changes
+  useEffect(() => {
+    const handleLoginRequired = () => {
+      console.log('[RootNavigator] Login required - redirecting to auth screen');
+      setForceAuthRedirect(true);
+      // Trigger logout to clean up auth state
+      logout().catch((error) => {
+        console.error('[RootNavigator] Failed to logout on token expiry:', error);
+      });
+    };
+
+    const handleTokenExpired = () => {
+      console.log('[RootNavigator] Token expired - redirecting to auth screen');
+      setForceAuthRedirect(true);
+      // Trigger logout to clean up auth state
+      logout().catch((error) => {
+        console.error('[RootNavigator] Failed to logout on token expiry:', error);
+      });
+    };
+
+    // Subscribe to token manager events
+    tokenManager.on('loginRequired', handleLoginRequired);
+    tokenManager.on('tokenExpired', handleTokenExpired);
+
+    // Cleanup event listeners
+    return () => {
+      tokenManager.off('loginRequired', handleLoginRequired);
+      tokenManager.off('tokenExpired', handleTokenExpired);
+    };
+  }, [logout]);
+
+  // Reset force redirect flag when authentication state changes
+  useEffect(() => {
+    if (!isAuthenticated && forceAuthRedirect) {
+      // Navigation will happen automatically, reset the flag
+      const timer = setTimeout(() => {
+        setForceAuthRedirect(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, forceAuthRedirect]);
 
   // Only show loading screen during initial app load, not during auth operations
   if (!initialLoadComplete && isLoading) {

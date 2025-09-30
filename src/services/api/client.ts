@@ -216,13 +216,9 @@ apiClient.interceptors.response.use(
       if (!isLoggingIn && !isAuthRequest) {
         originalRequest._retry = true;
 
-        try {
-          // Only clear tokens for non-auth endpoints getting 401
-          await tokenManager.clearTokens();
-          console.log('Authentication expired - tokens cleared');
-        } catch (storageError) {
-          console.error('Failed to clear tokens on 401:', storageError);
-        }
+        // Log authentication error but don't clear tokens immediately
+        // The tokenManager will handle token refresh and clearing if refresh fails
+        console.warn('[API Client] 401 Unauthorized - authentication may have expired');
 
         return Promise.reject(new ApiNetworkError(
           'Authentication expired',

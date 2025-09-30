@@ -45,7 +45,7 @@ type TokenManagerEventHandler = (data?: any) => void;
 export class TokenManager {
   private refreshPromise: Promise<TokenRefreshResult> | null = null;
   private eventHandlers: Map<TokenManagerEvent, Set<TokenManagerEventHandler>> = new Map();
-  private refreshBuffer = 5 * 60 * 1000; // 5 minutes buffer before expiry
+  private refreshBuffer = 10 * 60 * 1000; // 10 minutes buffer before expiry
 
   constructor() {
     // Initialize event handler sets
