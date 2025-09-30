@@ -164,19 +164,6 @@ export default function CreateScheduleScreen() {
   const { cards, hasCards, isCardsLoading } = useCardQueries();
   const { packages, hasPackages, isLoading: isPackagesLoading } = usePackagesQuery();
 
-  // Debug logging
-  useEffect(() => {
-    console.log('CreateScheduleScreen - packages:', packages?.length || 0);
-    console.log('CreateScheduleScreen - cards:', cards?.length || 0);
-    console.log('CreateScheduleScreen - isPackagesLoading:', isPackagesLoading);
-    console.log('CreateScheduleScreen - isCardsLoading:', isCardsLoading);
-  }, [packages, cards, isPackagesLoading, isCardsLoading]);
-
-  // Debug formData changes
-  useEffect(() => {
-    console.log('CreateScheduleScreen - formData updated:', formData);
-  }, [formData]);
-
   // Animation on mount
   useEffect(() => {
     Animated.parallel([
@@ -213,7 +200,6 @@ export default function CreateScheduleScreen() {
     try {
       // Add defensive checks
       if (!packages || !Array.isArray(packages) || packages.length === 0) {
-        console.log('CreateScheduleScreen - getActivePackages: No packages available');
         return [];
       }
 
@@ -239,7 +225,6 @@ export default function CreateScheduleScreen() {
         return false;
       });
 
-      console.log('CreateScheduleScreen - getActivePackages: Filtered', filtered.length, 'packages for type', selectedPackageType);
       return filtered;
     } catch (error) {
       console.error('CreateScheduleScreen - getActivePackages error:', error);
@@ -639,7 +624,6 @@ export default function CreateScheduleScreen() {
                 <TouchableOpacity
                   key={pkg.id}
                   onPress={() => {
-                    console.log('CreateScheduleScreen - Package selected:', { id: pkg.id, title: pkg.title, type: pkg.type });
                     setFormData(prev => ({ ...prev, packageId: pkg.id }));
                   }}
                   className={`mr-3 p-4 rounded-xl border-2 ${
@@ -934,14 +918,6 @@ export default function CreateScheduleScreen() {
     }
 
     const selectedCard = cards?.find(card => card._id === formData.storedCardId);
-
-    // Debug logging
-    console.log('CreateScheduleScreen - Step 3 Review:');
-    console.log('  formData.packageId:', formData.packageId);
-    console.log('  selectedPackage:', selectedPackage);
-    console.log('  selectedPackage?.title:', selectedPackage?.title);
-    console.log('  packages:', packages?.map(p => ({ id: p.id, title: p.title })));
-    console.log('  activePackages:', activePackages?.map(p => ({ id: p.id, title: p.title })));
 
     return (
       <Animated.View
