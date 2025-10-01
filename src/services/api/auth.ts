@@ -278,7 +278,7 @@ export class AuthService {
   async verifyResetCode(payload: VerifyResetCodePayload): Promise<ResetPasswordResponse> {
     try {
       const response = await apiUtils.requestWithRetry(
-        () => apiClient.post<ResetPasswordResponse>('/auth/verify-reset-code', payload),
+        () => apiClient.post<ResetPasswordResponse>('/auth/verify-email', payload),
         2,
         1000
       );

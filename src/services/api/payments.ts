@@ -143,10 +143,18 @@ const paymentsApi = {
    */
   async getBanks(): Promise<Bank[]> {
     try {
+      console.log('[getBanks] Calling API endpoint: /payments/banks');
       const response = await apiClient.get<Bank[]>('/payments/banks');
+      console.log('[getBanks] Success! Banks count:', response.data?.length || 0);
       return response.data;
-    } catch (error) {
-      console.error('Error fetching banks:', error);
+    } catch (error: any) {
+      console.error('[getBanks] Error details:', {
+        message: error.message,
+        status: error.status || error.response?.status,
+        code: error.code,
+        url: error.config?.url,
+        baseURL: error.config?.baseURL,
+      });
       throw error;
     }
   },

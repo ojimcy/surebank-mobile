@@ -26,14 +26,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { DashboardStackParamList } from '@/navigation/types';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import paymentsApi, {
   type AccountWithBalance,
   type Bank,
   type MultiWithdrawalResponse,
   type SavedBankAccount,
 } from '@/services/api/payments';
-import authApi from '@/services/api/auth';
 
 type Props = NativeStackScreenProps<DashboardStackParamList, 'Withdraw'>;
 
@@ -63,8 +61,6 @@ export default function WithdrawScreen({ navigation }: Props) {
   const [savedAccounts, setSavedAccounts] = useState<SavedBankAccount[]>([]);
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const [showBankSelector, setShowBankSelector] = useState(false);
-  const [pinValue, setPinValue] = useState('');
-  const [showPinModal, setShowPinModal] = useState(false);
   const [bankSearchQuery, setBankSearchQuery] = useState('');
   const [currentStep, setCurrentStep] = useState(1); // 1: Select accounts, 2: Enter amounts, 3: Choose bank
 
@@ -298,17 +294,6 @@ export default function WithdrawScreen({ navigation }: Props) {
     }
   };
 
-  // Verify PIN
-  const verifyPin = async (pin: string): Promise<boolean> => {
-    try {
-      const response = await authApi.verifyPin(pin);
-      return response.isValid;
-    } catch (error) {
-      console.error('Error verifying PIN:', error);
-      return false;
-    }
-  };
-
   // Process withdrawal
   const processWithdrawal = async () => {
     if (!selectedBank || !bankAccountNumber || !bankAccountName || !accountVerified) {
@@ -321,25 +306,6 @@ export default function WithdrawScreen({ navigation }: Props) {
       return;
     }
 
-    setShowPinModal(true);
-  };
-
-  // Handle PIN submission
-  const handlePinSubmit = async () => {
-    if (pinValue.length < 4) {
-      Alert.alert('Invalid PIN', 'Please enter a valid PIN');
-      return;
-    }
-
-    const isValid = await verifyPin(pinValue);
-    if (!isValid) {
-      Alert.alert('Invalid PIN', 'Please enter your correct PIN to continue.');
-      setPinValue('');
-      return;
-    }
-
-    setShowPinModal(false);
-    setPinValue('');
     setLoading(true);
 
     try {
@@ -357,6 +323,14 @@ export default function WithdrawScreen({ navigation }: Props) {
         amount: parseFloat(account.amount),
       }));
 
+      console.log('[WithdrawScreen] Submitting withdrawal request:', {
+        withdrawalAccounts,
+        bankName,
+        bankCode,
+        bankAccountNumber,
+        bankAccountName,
+      });
+
       const result = await paymentsApi.createMultiAccountWithdrawalRequest({
         withdrawalAccounts,
         bankName,
@@ -366,11 +340,24 @@ export default function WithdrawScreen({ navigation }: Props) {
         reason: 'Multi-account withdrawal',
       });
 
+      console.log('[WithdrawScreen] Withdrawal success:', result);
       setWithdrawalResult(result);
       setWithdrawalSuccess(true);
-    } catch (error) {
-      console.error('Error processing withdrawal:', error);
-      Alert.alert('Error', 'Failed to process withdrawal. Please try again.');
+    } catch (error: any) {
+      console.error('[WithdrawScreen] Error processing withdrawal:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        response: error.response,
+      });
+
+      // Show more specific error message
+      const errorMessage =
+        error.response?.message ||
+        error.message ||
+        'Failed to process withdrawal. Please try again.';
+
+      Alert.alert('Withdrawal Error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -983,67 +970,6 @@ export default function WithdrawScreen({ navigation }: Props) {
         </View>
       </Modal>
 
-      {/* PIN Modal */}
-      <Modal
-        visible={showPinModal}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setShowPinModal(false)}
-      >
-        <BlurView intensity={100} className="flex-1 justify-center px-6">
-          <Animated.View
-            style={{ transform: [{ scale: scaleAnim }] }}
-            className="bg-white rounded-3xl p-6"
-          >
-            <View className="items-center mb-6">
-              <View className="bg-blue-100 w-16 h-16 rounded-full items-center justify-center mb-4">
-                <Ionicons name="lock-closed" size={32} color="#0066A1" />
-              </View>
-              <Text className="text-xl font-bold text-gray-900">Confirm Withdrawal</Text>
-              <Text className="text-gray-600 mt-2 text-center">
-                Enter your PIN to withdraw ₦{totalWithdrawalAmount.toLocaleString()}
-              </Text>
-            </View>
-
-            <View className="bg-gray-50 rounded-xl px-4 py-3 mb-6">
-              <TextInput
-                value={pinValue}
-                onChangeText={setPinValue}
-                placeholder="Enter PIN"
-                keyboardType="numeric"
-                secureTextEntry
-                maxLength={6}
-                className="text-center text-2xl font-bold text-gray-900 tracking-wider"
-                placeholderTextColor="#9ca3af"
-              />
-            </View>
-
-            <View className="flex-row space-x-3">
-              <TouchableOpacity
-                onPress={() => {
-                  setShowPinModal(false);
-                  setPinValue('');
-                }}
-                className="flex-1 bg-gray-100 py-3 rounded-xl"
-                activeOpacity={0.8}
-              >
-                <Text className="text-gray-700 text-center font-semibold">Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={handlePinSubmit}
-                disabled={pinValue.length < 4}
-                className={`flex-1 py-3 rounded-xl ${
-                  pinValue.length >= 4 ? 'bg-[#0066A1]' : 'bg-gray-300'
-                }`}
-                activeOpacity={0.8}
-              >
-                <Text className="text-white text-center font-semibold">Confirm</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </BlurView>
-      </Modal>
     </KeyboardAvoidingView>
   );
 }

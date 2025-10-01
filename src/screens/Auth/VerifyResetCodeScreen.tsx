@@ -255,14 +255,6 @@ export default function VerifyResetCodeScreen({ navigation, route }: AuthScreenP
               </View>
             </View>
 
-            {/* Info Message */}
-            <View style={styles.infoContainer}>
-              <Ionicons name="information-circle-outline" size={20} color="#6b7280" />
-              <Text style={styles.infoText}>
-                For demo purposes, use code: 123456
-              </Text>
-            </View>
-
             {/* Submit Button */}
             <TouchableOpacity
               style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}

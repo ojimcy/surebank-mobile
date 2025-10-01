@@ -258,9 +258,9 @@ export class TokenManager {
       // Try different payload formats that the API might expect
       let response;
       try {
-        // First try with refresh_token (common format)
-        response = await apiClient.post<TokenResponse>('/auth/refresh', {
-          refresh_token: refreshToken,
+        // First try with refreshToken (backend expects this format)
+        response = await apiClient.post<TokenResponse>('/auth/refresh-tokens', {
+          refreshToken: refreshToken,
         });
       } catch (firstError: any) {
         // Check if it's a 401 which means refresh token is invalid
@@ -268,9 +268,9 @@ export class TokenManager {
           throw firstError;
         }
 
-        // If that fails for other reasons, try with refreshToken
-        response = await apiClient.post<TokenResponse>('/auth/refresh', {
-          refreshToken: refreshToken,
+        // If that fails for other reasons, try with refresh_token
+        response = await apiClient.post<TokenResponse>('/auth/refresh-tokens', {
+          refresh_token: refreshToken,
         });
       }
 

@@ -2,8 +2,6 @@ import React from 'react';
 import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { FloatingActionButton } from '@/components/navigation';
 
 import type { MainTabParamList } from './types';
 
@@ -16,27 +14,7 @@ import SettingsStack from './SettingsStack';
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function MainTabs() {
-  const navigation = useNavigation<any>();
 
-  const handleDeposit = () => {
-    navigation.navigate('DashboardTab', { screen: 'Deposit' });
-  };
-
-  const handleNewPackage = () => {
-    navigation.navigate('PackageTab', { screen: 'NewPackage' });
-  };
-
-  const handleWithdraw = () => {
-    navigation.navigate('DashboardTab', { screen: 'Withdraw' });
-  };
-
-  const handleMyCards = () => {
-    navigation.navigate('DashboardTab', { screen: 'CardsList' });
-  };
-
-  const handleSchedules = () => {
-    navigation.navigate('DashboardTab', { screen: 'SchedulesList' });
-  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -103,14 +81,6 @@ export default function MainTabs() {
         />
       </Tab.Navigator>
 
-      {/* Floating Action Button */}
-      <FloatingActionButton
-        onDeposit={handleDeposit}
-        onNewPackage={handleNewPackage}
-        onWithdraw={handleWithdraw}
-        onMyCards={handleMyCards}
-        onSchedules={handleSchedules}
-      />
     </View>
   );
 }

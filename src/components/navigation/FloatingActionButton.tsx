@@ -52,8 +52,8 @@ export default function FloatingActionButton({
             color: '#2563eb',
             backgroundColor: '#dbeafe',
             onPress: () => {
-                setIsExpanded(false);
                 onDeposit?.();
+                setIsExpanded(false);
             },
         },
         {
@@ -63,8 +63,8 @@ export default function FloatingActionButton({
             color: '#16a34a',
             backgroundColor: '#dcfce7',
             onPress: () => {
-                setIsExpanded(false);
                 onNewPackage?.();
+                setIsExpanded(false);
             },
         },
         {
@@ -74,8 +74,8 @@ export default function FloatingActionButton({
             color: '#9333ea',
             backgroundColor: '#f3e8ff',
             onPress: () => {
-                setIsExpanded(false);
                 onWithdraw?.();
+                setIsExpanded(false);
             },
         },
         {
@@ -85,8 +85,8 @@ export default function FloatingActionButton({
             color: '#eab308',
             backgroundColor: '#fef3c7',
             onPress: () => {
-                setIsExpanded(false);
                 onMyCards?.();
+                setIsExpanded(false);
             },
         },
         {
@@ -96,8 +96,8 @@ export default function FloatingActionButton({
             color: '#6366f1',
             backgroundColor: '#e0e7ff',
             onPress: () => {
-                setIsExpanded(false);
                 onSchedules?.();
+                setIsExpanded(false);
             },
         },
     ];
