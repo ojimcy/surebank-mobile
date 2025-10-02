@@ -8,6 +8,7 @@
 import React, { createContext, useContext, useEffect, useReducer, useCallback, useRef, ReactNode } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as Crypto from 'expo-crypto';
 import { storage, STORAGE_KEYS } from '@/services/storage/index';
 import { BiometricConfig, PinConfig } from '@/services/api/types';
 
@@ -193,12 +194,12 @@ export function PinSecurityProvider({ children }: PinSecurityProviderProps) {
 
   // Hash PIN for secure storage
   const hashPin = useCallback(async (pin: string): Promise<string> => {
-    // Simple hash for demo - in production, use proper cryptographic hashing
-    const encoder = new TextEncoder();
-    const data = encoder.encode(pin);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    // Use expo-crypto for secure hashing
+    const hash = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      pin
+    );
+    return hash;
   }, []);
 
   // Load PIN security configuration on startup

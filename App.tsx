@@ -33,6 +33,8 @@ enableScreens();
 import { QueryContextProvider } from '@/contexts/QueryContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { PinSecurityProvider } from '@/contexts/PinSecurityContext';
+import { PinAuthGuard } from '@/components/security/PinAuthGuard';
 
 // Import navigation
 import { RootNavigator } from '@/navigation';
@@ -68,9 +70,13 @@ export default function App() {
           <PaystackWrapper publicKey={Config.PAYSTACK_PUBLIC_KEY}>
             <QueryContextProvider>
               <AuthProvider>
-                <NotificationProvider>
-                  <RootNavigator />
-                </NotificationProvider>
+                <PinSecurityProvider>
+                  <NotificationProvider>
+                    <PinAuthGuard>
+                      <RootNavigator />
+                    </PinAuthGuard>
+                  </NotificationProvider>
+                </PinSecurityProvider>
               </AuthProvider>
             </QueryContextProvider>
           </PaystackWrapper>

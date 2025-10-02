@@ -87,6 +87,11 @@ export interface NewPasswordPayload {
   email: string;
 }
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 // Authentication response types
 export interface LoginResponse {
   user: User;
@@ -106,6 +111,11 @@ export interface VerifyResponse {
 }
 
 export interface ResetPasswordResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface ChangePasswordResponse {
   success: boolean;
   message?: string;
 }

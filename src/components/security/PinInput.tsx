@@ -63,8 +63,8 @@ export function PinInput({
   showValue = false,
   errorMessage,
   containerStyle,
-  dotSize = 20,
-  spacing = 16,
+  dotSize = 16,
+  spacing = 12,
   accessibilityLabel = 'PIN Input',
   accessibilityHint = 'Enter your PIN',
   testID,
@@ -267,14 +267,22 @@ export function PinInput({
       disabled={disabled || loading}
       className={clsx(
         'w-20 h-20 rounded-full items-center justify-center',
-        'bg-gray-50 active:bg-gray-100',
+        'bg-white border-2 border-gray-200',
+        'active:bg-primary-50 active:border-primary-300',
         (disabled || loading) && 'opacity-50'
       )}
-      android_ripple={{ color: '#e5e7eb' }}
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+      }}
+      android_ripple={{ color: '#e0f2fe' }}
       accessibilityRole="button"
       accessibilityLabel={`Digit ${number}`}
     >
-      <Text className="text-2xl font-semibold text-gray-800">
+      <Text className="text-3xl font-bold text-gray-900">
         {number}
       </Text>
     </Pressable>
@@ -283,13 +291,13 @@ export function PinInput({
   return (
     <View style={containerStyle} testID={testID}>
       {/* PIN Display */}
-      <View 
-        className="flex-row justify-center items-center mb-8"
+      <View
+        className="flex-row justify-center items-center mb-12"
         style={{ gap: spacing }}
         accessibilityRole="none"
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
-        accessibilityValue={{ 
+        accessibilityValue={{
           text: `${pin.length} of ${length} digits entered`
         }}
       >
@@ -298,36 +306,47 @@ export function PinInput({
 
       {/* Error Message */}
       {errorMessage && (
-        <View className="flex-row items-center justify-center mb-6">
-          <Ionicons name="alert-circle-outline" size={16} color="#dc2626" />
-          <Text className="text-red-600 font-medium ml-2">
-            {errorMessage}
-          </Text>
+        <View className="flex-row items-center justify-center mb-8 px-6">
+          <View className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex-row items-center">
+            <Ionicons name="alert-circle" size={18} color="#dc2626" />
+            <Text className="text-red-600 font-medium ml-2 flex-1">
+              {errorMessage}
+            </Text>
+          </View>
         </View>
       )}
 
       {/* Number Pad */}
       <View className="items-center">
         {/* Numbers 1-9 */}
-        <View className="flex-row flex-wrap justify-center" style={{ gap: 24 }}>
+        <View className="flex-row flex-wrap justify-center" style={{ gap: 16, maxWidth: 280 }}>
           {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(renderNumberButton)}
         </View>
-        
+
         {/* Bottom row: Clear, 0, Backspace */}
-        <View className="flex-row items-center justify-center mt-6" style={{ gap: 24 }}>
+        <View className="flex-row items-center justify-center mt-4" style={{ gap: 16 }}>
           {/* Clear button */}
           <Pressable
             onPress={handleClear}
             disabled={disabled || loading || pin.length === 0}
             className={clsx(
               'w-20 h-20 rounded-full items-center justify-center',
-              'active:bg-gray-100',
+              'bg-white border-2 border-gray-200',
+              'active:bg-red-50 active:border-red-300',
               (disabled || loading || pin.length === 0) && 'opacity-30'
             )}
+            style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.05,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
+            android_ripple={{ color: '#fee2e2' }}
             accessibilityRole="button"
             accessibilityLabel="Clear PIN"
           >
-            <Text className="text-primary-600 font-semibold">
+            <Text className="text-sm font-semibold text-red-600">
               Clear
             </Text>
           </Pressable>
@@ -341,16 +360,25 @@ export function PinInput({
             disabled={disabled || loading || pin.length === 0}
             className={clsx(
               'w-20 h-20 rounded-full items-center justify-center',
-              'active:bg-gray-100',
+              'bg-white border-2 border-gray-200',
+              'active:bg-gray-50 active:border-gray-300',
               (disabled || loading || pin.length === 0) && 'opacity-30'
             )}
+            style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.05,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
+            android_ripple={{ color: '#f3f4f6' }}
             accessibilityRole="button"
             accessibilityLabel="Delete last digit"
           >
-            <Ionicons 
-              name="backspace-outline" 
-              size={24} 
-              color={(disabled || loading || pin.length === 0) ? '#9ca3af' : '#374151'} 
+            <Ionicons
+              name="backspace-outline"
+              size={28}
+              color={(disabled || loading || pin.length === 0) ? '#9ca3af' : '#374151'}
             />
           </Pressable>
         </View>

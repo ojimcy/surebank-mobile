@@ -245,18 +245,6 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps<'Sett
                     icon: 'key-outline',
                     onPress: () => navigation.navigate('ChangePassword'),
                 },
-                {
-                    id: 'two-factor',
-                    title: 'Two-Factor Authentication',
-                    description: 'Add an extra layer of security',
-                    icon: 'finger-print-outline',
-                    onPress: () => navigation.navigate('TwoFactorAuth'),
-                    badge: {
-                        text: 'Recommended',
-                        color: '#0066A1',
-                        backgroundColor: '#eff6ff',
-                    },
-                },
             ],
         },
         {

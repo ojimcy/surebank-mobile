@@ -14,10 +14,12 @@ import {
   ResetPasswordPayload,
   VerifyResetCodePayload,
   NewPasswordPayload,
+  ChangePasswordPayload,
   LoginResponse,
   RegisterResponse,
   VerifyResponse,
   ResetPasswordResponse,
+  ChangePasswordResponse,
   User,
   TokenResponse,
   AuthError,
@@ -341,6 +343,48 @@ export class AuthService {
         'Failed to reset password. Please try again',
         'UNKNOWN',
         'PASSWORD_RESET_FAILED',
+        undefined,
+        error
+      );
+    }
+  }
+
+  /**
+   * Change user password
+   */
+  async changePassword(payload: ChangePasswordPayload): Promise<ChangePasswordResponse> {
+    try {
+      const response = await apiUtils.requestWithRetry(
+        () => apiClient.post<ChangePasswordResponse>('/users/change-password', payload),
+        2,
+        1000
+      );
+
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiNetworkError) {
+        if (error.status === 400 || error.status === 401) {
+          throw new AuthenticationError(
+            'Current password is incorrect',
+            'INVALID_CREDENTIALS',
+            'INCORRECT_PASSWORD'
+          );
+        }
+        if (error.status === 422) {
+          throw new AuthenticationError(
+            'New password does not meet security requirements',
+            'INVALID_CREDENTIALS',
+            'WEAK_PASSWORD',
+            undefined,
+            error.response
+          );
+        }
+      }
+
+      throw new AuthenticationError(
+        'Failed to change password. Please try again',
+        'UNKNOWN',
+        'PASSWORD_CHANGE_FAILED',
         undefined,
         error
       );

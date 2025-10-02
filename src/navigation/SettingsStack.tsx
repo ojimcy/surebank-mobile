@@ -19,6 +19,8 @@ import PrivacyPolicyScreen from '@/screens/Settings/PrivacyPolicyScreen';
 import TermsOfServiceScreen from '@/screens/Settings/TermsOfServiceScreen';
 import TransactionHistoryScreen from '@/screens/History/TransactionHistoryScreen';
 import CardsListScreen from '@/screens/Cards/CardsListScreen';
+import SecurityPinScreen from '@/screens/Settings/SecurityPinScreen';
+import ChangePasswordScreen from '@/screens/Settings/ChangePasswordScreen';
 
 // Placeholder screens for future implementation
 const PlaceholderScreen = () => null;
@@ -57,7 +59,7 @@ export default function SettingsStack() {
       />
       <Stack.Screen
         name="SecurityPin"
-        component={PlaceholderScreen}
+        component={SecurityPinScreen}
         options={{
           ...secondaryScreenOptions,
           title: 'Security PIN'
@@ -65,7 +67,7 @@ export default function SettingsStack() {
       />
       <Stack.Screen
         name="ChangePassword"
-        component={PlaceholderScreen}
+        component={ChangePasswordScreen}
         options={{
           ...secondaryScreenOptions,
           title: 'Change Password'
