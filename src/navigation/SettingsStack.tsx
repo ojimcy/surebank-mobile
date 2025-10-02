@@ -13,6 +13,12 @@ import {
 import KYCVerificationScreen from '@/screens/Settings/KYCVerificationScreen';
 import KYCIdVerificationScreen from '@/screens/Settings/KYCIdVerificationScreen';
 import KYCSuccessScreen from '@/screens/Settings/KYCSuccessScreen';
+import ThemeSettingsScreen from '@/screens/Settings/ThemeSettingsScreen';
+import HelpSupportScreen from '@/screens/Settings/HelpSupportScreen';
+import PrivacyPolicyScreen from '@/screens/Settings/PrivacyPolicyScreen';
+import TermsOfServiceScreen from '@/screens/Settings/TermsOfServiceScreen';
+import TransactionHistoryScreen from '@/screens/History/TransactionHistoryScreen';
+import CardsListScreen from '@/screens/Cards/CardsListScreen';
 
 // Placeholder screens for future implementation
 const PlaceholderScreen = () => null;
@@ -75,7 +81,7 @@ export default function SettingsStack() {
       />
       <Stack.Screen
         name="TransactionHistory"
-        component={PlaceholderScreen}
+        component={TransactionHistoryScreen}
         options={{
           ...secondaryScreenOptions,
           title: 'Transaction History'
@@ -83,7 +89,7 @@ export default function SettingsStack() {
       />
       <Stack.Screen
         name="PaymentMethods"
-        component={PlaceholderScreen}
+        component={CardsListScreen}
         options={{
           ...secondaryScreenOptions,
           title: 'Payment Methods'
@@ -122,11 +128,35 @@ export default function SettingsStack() {
         }}
       />
       <Stack.Screen
+        name="Theme"
+        component={ThemeSettingsScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'App Theme'
+        }}
+      />
+      <Stack.Screen
         name="Help"
-        component={PlaceholderScreen}
+        component={HelpSupportScreen}
         options={{
           ...secondaryScreenOptions,
           title: 'Help & Support'
+        }}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Privacy Policy'
+        }}
+      />
+      <Stack.Screen
+        name="TermsOfService"
+        component={TermsOfServiceScreen}
+        options={{
+          ...secondaryScreenOptions,
+          title: 'Terms of Service'
         }}
       />
       <Stack.Screen

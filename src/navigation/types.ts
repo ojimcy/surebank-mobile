@@ -102,7 +102,10 @@ export type SettingsStackParamList = {
   KYCVerification: undefined;
   KYCIdVerification: undefined;
   KYCSuccess: undefined;
+  Theme: undefined;
   Help: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
   About: undefined;
 };
 
