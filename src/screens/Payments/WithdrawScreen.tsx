@@ -625,9 +625,6 @@ export default function WithdrawScreen({ navigation }: Props) {
               {currentStep === 2 && (
                 <View>
                   <View className="flex-row items-center mb-6">
-                    <TouchableOpacity onPress={() => setCurrentStep(1)} className="mr-3">
-                      <Ionicons name="arrow-back" size={24} color="#374151" />
-                    </TouchableOpacity>
                     <View>
                       <Text className="text-2xl font-bold text-gray-900">Enter Amounts</Text>
                       <Text className="text-gray-600">Specify how much to withdraw</Text>
