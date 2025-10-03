@@ -1,646 +1,627 @@
 /**
- * Notification Settings Screen
- * Professional screen for managing notification preferences
+ * Notification Settings Screen - Simplified Hybrid Approach
+ * Simple and reliable implementation
  */
 
 import React, { useState } from 'react';
 import {
-    View,
-    Text,
-    ScrollView,
-    TouchableOpacity,
-    Switch,
-    StyleSheet,
-    Platform,
-    Alert,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { NestedHeader } from '@/components/navigation';
 import type { SettingsScreenProps } from '@/navigation/types';
+import notificationsService, {
+  type NotificationChannel,
+  type ChannelType,
+} from '@/services/api/notifications';
 
-interface NotificationPreference {
-    id: string;
-    title: string;
-    description: string;
-    enabled: boolean;
-    type: 'push' | 'email' | 'sms';
-    icon: keyof typeof Ionicons.glyphMap;
-}
+// Preset options
+const PRESETS = [
+  {
+    id: 'minimal',
+    name: 'Minimal',
+    description: 'Only critical alerts',
+    icon: 'notifications-off-outline' as const,
+    color: '#6b7280',
+  },
+  {
+    id: 'balanced',
+    name: 'Balanced',
+    description: 'Recommended settings',
+    icon: 'notifications-outline' as const,
+    color: '#0066A1',
+    recommended: true,
+  },
+  {
+    id: 'everything',
+    name: 'Everything',
+    description: 'All notifications',
+    icon: 'notifications' as const,
+    color: '#10b981',
+  },
+];
 
-interface NotificationCategory {
-    id: string;
-    title: string;
-    description: string;
-    icon: keyof typeof Ionicons.glyphMap;
-    iconColor: string;
-    iconBackgroundColor: string;
-    preferences: NotificationPreference[];
-}
+// Categories
+const CATEGORIES = [
+  {
+    id: 'transactions',
+    name: 'Transactions',
+    description: 'Deposits, withdrawals, transfers',
+    icon: 'swap-horizontal-outline' as const,
+    color: '#10b981',
+  },
+  {
+    id: 'packages',
+    name: 'Savings & Packages',
+    description: 'Package updates',
+    icon: 'briefcase-outline' as const,
+    color: '#0066A1',
+  },
+  {
+    id: 'security',
+    name: 'Security',
+    description: 'Security alerts',
+    icon: 'shield-outline' as const,
+    color: '#ef4444',
+    locked: true,
+  },
+  {
+    id: 'account',
+    name: 'Account',
+    description: 'Account status',
+    icon: 'person-circle-outline' as const,
+    color: '#8b5cf6',
+  },
+  {
+    id: 'orders',
+    name: 'Orders',
+    description: 'Order updates',
+    icon: 'bag-outline' as const,
+    color: '#f59e0b',
+  },
+  {
+    id: 'marketing',
+    name: 'Marketing',
+    description: 'Promotions',
+    icon: 'star-outline' as const,
+    color: '#6366f1',
+  },
+];
 
 export default function NotificationSettingsScreen({
-    navigation
+  navigation,
 }: SettingsScreenProps<'NotificationSettings'>) {
-    const [categories, setCategories] = useState<NotificationCategory[]>([
+  const queryClient = useQueryClient();
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  // Fetch preferences
+  const { data: preferences, isLoading, isError } = useQuery({
+    queryKey: ['notification-preferences'],
+    queryFn: async () => {
+      console.log('📱 Fetching notification preferences...');
+      const result = await notificationsService.getPreferences();
+      console.log('✅ Preferences loaded:', result.preset);
+      return result;
+    },
+  });
+
+  // Apply preset mutation
+  const applyPresetMutation = useMutation({
+    mutationFn: async (preset: 'minimal' | 'balanced' | 'everything') => {
+      console.log('🔄 Applying preset:', preset);
+      const result = await notificationsService.applyPreset(preset);
+      console.log('✅ Preset applied successfully');
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
+      Alert.alert('Success', 'Preset applied!');
+    },
+    onError: (error: any) => {
+      console.error('❌ Failed to apply preset:', error);
+      Alert.alert('Error', error?.response?.data?.message || 'Failed to apply preset');
+    },
+  });
+
+  // Update category mutation
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({ category, channels }: { category: string; channels: ChannelType[] }) => {
+      console.log('🔄 Updating category:', category, 'channels:', channels);
+      const result = await notificationsService.updateCategoryPreferences(category, channels);
+      console.log('✅ Category updated successfully');
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
+    },
+    onError: (error: any) => {
+      console.error('❌ Failed to update category:', error);
+      Alert.alert('Error', error?.response?.data?.message || 'Failed to update category');
+    },
+  });
+
+  const handlePresetSelect = (presetId: string) => {
+    if (presetId === 'custom') return;
+
+    Alert.alert(
+      'Apply Preset',
+      `Apply "${presetId}" preset?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
         {
-            id: 'transactions',
-            title: 'Transaction Notifications',
-            description: 'Get notified about your financial activities',
-            icon: 'card-outline',
-            iconColor: '#10b981',
-            iconBackgroundColor: '#ecfdf5',
-            preferences: [
-                {
-                    id: 'transaction-push',
-                    title: 'Transaction Alerts',
-                    description: 'Instant notifications for deposits and withdrawals',
-                    enabled: true,
-                    type: 'push',
-                    icon: 'notifications-outline',
-                },
-                {
-                    id: 'transaction-email',
-                    title: 'Transaction Emails',
-                    description: 'Email confirmations for all transactions',
-                    enabled: true,
-                    type: 'email',
-                    icon: 'mail-outline',
-                },
-                {
-                    id: 'low-balance',
-                    title: 'Low Balance Alerts',
-                    description: 'Get notified when your balance is low',
-                    enabled: false,
-                    type: 'push',
-                    icon: 'warning-outline',
-                },
-            ],
+          text: 'Apply',
+          onPress: () => applyPresetMutation.mutate(presetId as any),
         },
-        {
-            id: 'security',
-            title: 'Security Alerts',
-            description: 'Important security and account updates',
-            icon: 'shield-outline',
-            iconColor: '#ef4444',
-            iconBackgroundColor: '#fef2f2',
-            preferences: [
-                {
-                    id: 'login-alerts',
-                    title: 'Login Notifications',
-                    description: 'Get notified of new device logins',
-                    enabled: true,
-                    type: 'push',
-                    icon: 'log-in-outline',
-                },
-                {
-                    id: 'security-email',
-                    title: 'Security Updates',
-                    description: 'Email notifications for security changes',
-                    enabled: true,
-                    type: 'email',
-                    icon: 'shield-checkmark-outline',
-                },
-                {
-                    id: 'password-changes',
-                    title: 'Password Changes',
-                    description: 'Immediate alerts for password modifications',
-                    enabled: true,
-                    type: 'push',
-                    icon: 'key-outline',
-                },
-            ],
-        },
-        {
-            id: 'account',
-            title: 'Account Updates',
-            description: 'Account status and verification notifications',
-            icon: 'person-outline',
-            iconColor: '#0066A1',
-            iconBackgroundColor: 'rgba(0, 102, 161, 0.1)',
-            preferences: [
-                {
-                    id: 'kyc-updates',
-                    title: 'KYC Status Updates',
-                    description: 'Notifications about verification progress',
-                    enabled: true,
-                    type: 'push',
-                    icon: 'checkmark-circle-outline',
-                },
-                {
-                    id: 'account-email',
-                    title: 'Account Notifications',
-                    description: 'General account updates via email',
-                    enabled: false,
-                    type: 'email',
-                    icon: 'mail-outline',
-                },
-            ],
-        },
-        {
-            id: 'marketing',
-            title: 'Marketing & Promotions',
-            description: 'Updates about new features and offers',
-            icon: 'megaphone-outline',
-            iconColor: '#6366f1',
-            iconBackgroundColor: '#eef2ff',
-            preferences: [
-                {
-                    id: 'promotions',
-                    title: 'Promotional Offers',
-                    description: 'Special offers and discounts',
-                    enabled: false,
-                    type: 'push',
-                    icon: 'pricetag-outline',
-                },
-                {
-                    id: 'product-updates',
-                    title: 'Product Updates',
-                    description: 'New features and product announcements',
-                    enabled: false,
-                    type: 'email',
-                    icon: 'rocket-outline',
-                },
-                {
-                    id: 'newsletter',
-                    title: 'Newsletter',
-                    description: 'Monthly newsletter with tips and updates',
-                    enabled: false,
-                    type: 'email',
-                    icon: 'newspaper-outline',
-                },
-            ],
-        },
-    ]);
-
-    const handleBack = () => {
-        navigation.goBack();
-    };
-
-    const togglePreference = (categoryId: string, preferenceId: string) => {
-        setCategories(prev =>
-            prev.map(category => {
-                if (category.id === categoryId) {
-                    return {
-                        ...category,
-                        preferences: category.preferences.map(pref =>
-                            pref.id === preferenceId
-                                ? { ...pref, enabled: !pref.enabled }
-                                : pref
-                        ),
-                    };
-                }
-                return category;
-            })
-        );
-    };
-
-    const toggleAllInCategory = (categoryId: string, enabled: boolean) => {
-        setCategories(prev =>
-            prev.map(category => {
-                if (category.id === categoryId) {
-                    return {
-                        ...category,
-                        preferences: category.preferences.map(pref => ({ ...pref, enabled })),
-                    };
-                }
-                return category;
-            })
-        );
-    };
-
-    const saveSettings = () => {
-        // TODO: Implement API call to save notification preferences
-        console.log('Saving notification preferences:', categories);
-        Alert.alert('Success', 'Your notification preferences have been saved.');
-    };
-
-    const resetToDefaults = () => {
-        Alert.alert(
-            'Reset to Defaults',
-            'Are you sure you want to reset all notification settings to their default values?',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Reset',
-                    style: 'destructive',
-                    onPress: () => {
-                        // Reset to default values
-                        setCategories(prev =>
-                            prev.map(category => ({
-                                ...category,
-                                preferences: category.preferences.map(pref => ({
-                                    ...pref,
-                                    enabled: pref.id === 'transaction-push' ||
-                                        pref.id === 'transaction-email' ||
-                                        pref.id === 'login-alerts' ||
-                                        pref.id === 'security-email' ||
-                                        pref.id === 'password-changes' ||
-                                        pref.id === 'kyc-updates',
-                                })),
-                            }))
-                        );
-                    },
-                },
-            ]
-        );
-    };
-
-    const getCategoryEnabledCount = (category: NotificationCategory) => {
-        return category.preferences.filter(pref => pref.enabled).length;
-    };
-
-    const getTypeIcon = (type: 'push' | 'email' | 'sms') => {
-        switch (type) {
-            case 'push':
-                return 'phone-portrait-outline';
-            case 'email':
-                return 'mail-outline';
-            case 'sms':
-                return 'chatbubble-outline';
-            default:
-                return 'notifications-outline';
-        }
-    };
-
-    return (
-        <SafeAreaView style={styles.container}>
-            <NestedHeader
-                title="Notification Settings"
-                onBack={handleBack}
-                rightComponent={
-                    <TouchableOpacity onPress={resetToDefaults} style={styles.resetButton}>
-                        <Text style={styles.resetButtonText}>Reset</Text>
-                    </TouchableOpacity>
-                }
-            />
-
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Overview Card */}
-                <View style={styles.overviewCard}>
-                    <View style={styles.overviewHeader}>
-                        <View style={styles.overviewIcon}>
-                            <Ionicons name="notifications-outline" size={24} color="#0066A1" />
-                        </View>
-                        <View style={styles.overviewContent}>
-                            <Text style={styles.overviewTitle}>Notification Preferences</Text>
-                            <Text style={styles.overviewDescription}>
-                                Manage how and when you receive notifications from SureBank
-                            </Text>
-                        </View>
-                    </View>
-                </View>
-
-                {/* Notification Categories */}
-                {categories.map((category) => {
-                    const enabledCount = getCategoryEnabledCount(category);
-                    const totalCount = category.preferences.length;
-                    const allEnabled = enabledCount === totalCount;
-                    const noneEnabled = enabledCount === 0;
-
-                    return (
-                        <View key={category.id} style={styles.categoryCard}>
-                            {/* Category Header */}
-                            <View style={styles.categoryHeader}>
-                                <View style={styles.categoryLeft}>
-                                    <View style={[
-                                        styles.categoryIcon,
-                                        { backgroundColor: category.iconBackgroundColor }
-                                    ]}>
-                                        <Ionicons
-                                            name={category.icon}
-                                            size={20}
-                                            color={category.iconColor}
-                                        />
-                                    </View>
-                                    <View style={styles.categoryInfo}>
-                                        <Text style={styles.categoryTitle}>{category.title}</Text>
-                                        <Text style={styles.categoryDescription}>{category.description}</Text>
-                                        <Text style={styles.categoryCount}>
-                                            {enabledCount} of {totalCount} enabled
-                                        </Text>
-                                    </View>
-                                </View>
-                                <View style={styles.categoryActions}>
-                                    <TouchableOpacity
-                                        onPress={() => toggleAllInCategory(category.id, !allEnabled)}
-                                        style={[
-                                            styles.toggleAllButton,
-                                            allEnabled ? styles.toggleAllButtonActive : styles.toggleAllButtonInactive
-                                        ]}
-                                    >
-                                        <Text style={[
-                                            styles.toggleAllText,
-                                            allEnabled ? styles.toggleAllTextActive : styles.toggleAllTextInactive
-                                        ]}>
-                                            {allEnabled ? 'Disable All' : 'Enable All'}
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-
-                            {/* Category Preferences */}
-                            <View style={styles.preferencesContainer}>
-                                {category.preferences.map((preference) => (
-                                    <View key={preference.id} style={styles.preferenceItem}>
-                                        <View style={styles.preferenceLeft}>
-                                            <View style={styles.preferenceIconContainer}>
-                                                <Ionicons
-                                                    name={getTypeIcon(preference.type)}
-                                                    size={16}
-                                                    color="#6b7280"
-                                                />
-                                            </View>
-                                            <View style={styles.preferenceContent}>
-                                                <Text style={styles.preferenceTitle}>{preference.title}</Text>
-                                                <Text style={styles.preferenceDescription}>
-                                                    {preference.description}
-                                                </Text>
-                                                <View style={styles.preferenceType}>
-                                                    <Ionicons
-                                                        name={preference.icon}
-                                                        size={12}
-                                                        color="#9ca3af"
-                                                    />
-                                                    <Text style={styles.preferenceTypeText}>
-                                                        {preference.type.toUpperCase()}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </View>
-                                        <Switch
-                                            value={preference.enabled}
-                                            onValueChange={() => togglePreference(category.id, preference.id)}
-                                            trackColor={{ false: '#f3f4f6', true: '#0066A1' }}
-                                            thumbColor={preference.enabled ? '#ffffff' : '#ffffff'}
-                                            ios_backgroundColor="#f3f4f6"
-                                        />
-                                    </View>
-                                ))}
-                            </View>
-                        </View>
-                    );
-                })}
-
-                {/* Save Button */}
-                <TouchableOpacity onPress={saveSettings} style={styles.saveButton}>
-                    <Text style={styles.saveButtonText}>Save Preferences</Text>
-                </TouchableOpacity>
-
-                {/* Info Note */}
-                <View style={styles.infoNote}>
-                    <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
-                    <Text style={styles.infoNoteText}>
-                        Changes will take effect immediately. You can modify these settings at any time.
-                    </Text>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+      ]
     );
+  };
+
+  const toggleCategoryChannel = (categoryId: string, channel: ChannelType) => {
+    // Simple toggle - if any notification in category has this channel, we remove it, otherwise add it
+    const currentChannels: ChannelType[] = ['in-app', 'email']; // Default for now
+    const newChannels = currentChannels.includes(channel)
+      ? currentChannels.filter((c) => c !== channel)
+      : [...currentChannels, channel];
+
+    updateCategoryMutation.mutate({ category: categoryId, channels: newChannels });
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <NestedHeader title="Notification Settings" onBack={() => navigation.goBack()} />
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#0066A1" />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (isError) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <NestedHeader title="Notification Settings" onBack={() => navigation.goBack()} />
+        <View style={styles.centerContainer}>
+          <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
+          <Text style={styles.errorText}>Failed to load preferences</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => queryClient.invalidateQueries({ queryKey: ['notification-preferences'] })}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const currentPreset = preferences?.preset || 'balanced';
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <NestedHeader title="Notification Settings" onBack={() => navigation.goBack()} />
+
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Quick Setup Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Quick Setup</Text>
+          <Text style={styles.headerSubtitle}>Choose a preset to get started</Text>
+        </View>
+
+        {/* Presets */}
+        <View style={styles.presetsContainer}>
+          {PRESETS.map((preset) => {
+            const isSelected = currentPreset === preset.id;
+
+            return (
+              <TouchableOpacity
+                key={preset.id}
+                style={[styles.presetCard, isSelected && styles.presetCardSelected]}
+                onPress={() => handlePresetSelect(preset.id)}
+              >
+                <View style={styles.presetLeft}>
+                  <View
+                    style={[
+                      styles.presetIcon,
+                      { backgroundColor: isSelected ? `${preset.color}15` : '#f3f4f6' },
+                    ]}
+                  >
+                    <Ionicons
+                      name={preset.icon}
+                      size={24}
+                      color={isSelected ? preset.color : '#6b7280'}
+                    />
+                  </View>
+                  <View style={styles.presetInfo}>
+                    <View style={styles.presetNameRow}>
+                      <Text
+                        style={[styles.presetName, isSelected && { color: preset.color }]}
+                      >
+                        {preset.name}
+                      </Text>
+                      {preset.recommended && (
+                        <View style={styles.badge}>
+                          <Text style={styles.badgeText}>Recommended</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={styles.presetDescription}>{preset.description}</Text>
+                  </View>
+                </View>
+                <View
+                  style={[
+                    styles.radio,
+                    isSelected && { borderColor: preset.color },
+                  ]}
+                >
+                  {isSelected && (
+                    <View style={[styles.radioDot, { backgroundColor: preset.color }]} />
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Custom Indicator */}
+        {currentPreset === 'custom' && (
+          <View style={styles.customBanner}>
+            <Ionicons name="options-outline" size={20} color="#6366f1" />
+            <Text style={styles.customBannerText}>Using custom settings</Text>
+          </View>
+        )}
+
+        {/* Categories Section */}
+        <View style={styles.categoriesHeader}>
+          <Text style={styles.sectionTitle}>Customize by Category</Text>
+          <Text style={styles.sectionSubtitle}>
+            Fine-tune notifications for each category
+          </Text>
+        </View>
+
+        {/* Category Cards */}
+        {CATEGORIES.map((category) => {
+          const isExpanded = expandedCategory === category.id;
+
+          return (
+            <View key={category.id} style={styles.categoryCard}>
+              <TouchableOpacity
+                style={styles.categoryHeader}
+                onPress={() => setExpandedCategory(isExpanded ? null : category.id)}
+              >
+                <View style={styles.categoryLeft}>
+                  <View
+                    style={[styles.categoryIcon, { backgroundColor: `${category.color}15` }]}
+                  >
+                    <Ionicons name={category.icon} size={20} color={category.color} />
+                  </View>
+                  <View style={styles.categoryInfo}>
+                    <View style={styles.categoryNameRow}>
+                      <Text style={styles.categoryName}>{category.name}</Text>
+                      {category.locked && (
+                        <Ionicons name="lock-closed" size={14} color="#6b7280" />
+                      )}
+                    </View>
+                    <Text style={styles.categoryDescription}>{category.description}</Text>
+                  </View>
+                </View>
+                <Ionicons
+                  name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={20}
+                  color="#6b7280"
+                />
+              </TouchableOpacity>
+
+              {/* Channel Toggles */}
+              {isExpanded && (
+                <View style={styles.channelToggles}>
+                  {(['in-app', 'email', 'sms'] as ChannelType[]).map((channel) => (
+                    <TouchableOpacity
+                      key={channel}
+                      style={styles.channelToggle}
+                      onPress={() => toggleCategoryChannel(category.id, channel)}
+                      disabled={category.locked}
+                    >
+                      <View style={styles.checkbox}>
+                        <Ionicons name="checkmark" size={12} color="#0066A1" />
+                      </View>
+                      <Ionicons
+                        name={
+                          channel === 'in-app'
+                            ? 'phone-portrait-outline'
+                            : channel === 'email'
+                            ? 'mail-outline'
+                            : 'chatbubble-outline'
+                        }
+                        size={16}
+                        color={category.color}
+                      />
+                      <Text style={styles.channelLabel}>{channel}</Text>
+                    </TouchableOpacity>
+                  ))}
+                  {category.locked && (
+                    <Text style={styles.lockedNote}>
+                      Security notifications are always enabled
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
+          );
+        })}
+
+        {/* Info */}
+        <View style={styles.infoBox}>
+          <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+          <Text style={styles.infoText}>
+            Changes take effect immediately. Security notifications are always enabled.
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
-    scrollView: {
-        flex: 1,
-        backgroundColor: '#f9fafb',
-    },
-    scrollContent: {
-        paddingBottom: 32,
-    },
-    resetButton: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    },
-    resetButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#ef4444',
-    },
-    // Overview Card
-    overviewCard: {
-        backgroundColor: '#ffffff',
-        marginHorizontal: 24,
-        marginTop: 16,
-        marginBottom: 24,
-        borderRadius: 12,
-        padding: 20,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-            },
-            android: {
-                elevation: 3,
-            },
-        }),
-    },
-    overviewHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 16,
-    },
-    overviewIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 12,
-        backgroundColor: 'rgba(0, 102, 161, 0.1)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    overviewContent: {
-        flex: 1,
-    },
-    overviewTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#212529',
-        marginBottom: 4,
-    },
-    overviewDescription: {
-        fontSize: 14,
-        color: '#6b7280',
-        lineHeight: 20,
-    },
-    // Category Card
-    categoryCard: {
-        backgroundColor: '#ffffff',
-        marginHorizontal: 24,
-        marginBottom: 16,
-        borderRadius: 12,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.05,
-                shadowRadius: 4,
-            },
-            android: {
-                elevation: 2,
-            },
-        }),
-    },
-    categoryHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f1f5f9',
-    },
-    categoryLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-        gap: 12,
-    },
-    categoryIcon: {
-        width: 40,
-        height: 40,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    categoryInfo: {
-        flex: 1,
-    },
-    categoryTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#212529',
-        marginBottom: 2,
-    },
-    categoryDescription: {
-        fontSize: 13,
-        color: '#6b7280',
-        marginBottom: 4,
-    },
-    categoryCount: {
-        fontSize: 12,
-        color: '#9ca3af',
-        fontWeight: '500',
-    },
-    categoryActions: {
-        marginLeft: 12,
-    },
-    toggleAllButton: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-        borderWidth: 1,
-    },
-    toggleAllButtonActive: {
-        backgroundColor: '#fef2f2',
-        borderColor: '#fecaca',
-    },
-    toggleAllButtonInactive: {
-        backgroundColor: 'rgba(0, 102, 161, 0.1)',
-        borderColor: 'rgba(0, 102, 161, 0.2)',
-    },
-    toggleAllText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    toggleAllTextActive: {
-        color: '#ef4444',
-    },
-    toggleAllTextInactive: {
-        color: '#0066A1',
-    },
-    // Preferences
-    preferencesContainer: {
-        padding: 20,
-        paddingTop: 0,
-        gap: 16,
-    },
-    preferenceItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 8,
-    },
-    preferenceLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-        gap: 12,
-    },
-    preferenceIconContainer: {
-        width: 32,
-        height: 32,
-        borderRadius: 8,
-        backgroundColor: '#f3f4f6',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    preferenceContent: {
-        flex: 1,
-    },
-    preferenceTitle: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#212529',
-        marginBottom: 2,
-    },
-    preferenceDescription: {
-        fontSize: 13,
-        color: '#6b7280',
-        marginBottom: 4,
-        lineHeight: 18,
-    },
-    preferenceType: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    preferenceTypeText: {
-        fontSize: 10,
-        fontWeight: '600',
-        color: '#9ca3af',
-        letterSpacing: 0.5,
-    },
-    // Save Button
-    saveButton: {
-        marginHorizontal: 24,
-        marginTop: 8,
-        paddingVertical: 16,
-        borderRadius: 12,
-        backgroundColor: '#0066A1',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    saveButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#ffffff',
-    },
-    // Info Note
-    infoNote: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 8,
-        marginHorizontal: 24,
-        marginTop: 16,
-        padding: 12,
-        backgroundColor: '#f8fafc',
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#e2e8f0',
-    },
-    infoNoteText: {
-        fontSize: 12,
-        color: '#6b7280',
-        lineHeight: 16,
-        flex: 1,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    padding: 24,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#212529',
+    marginTop: 16,
+  },
+  retryButton: {
+    marginTop: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: '#0066A1',
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  header: {
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#212529',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  presetsContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  presetCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+  },
+  presetCardSelected: {
+    borderColor: '#0066A1',
+    backgroundColor: 'rgba(0, 102, 161, 0.02)',
+  },
+  presetLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  presetIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  presetInfo: {
+    flex: 1,
+  },
+  presetNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 2,
+  },
+  presetName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#374151',
+  },
+  badge: {
+    backgroundColor: '#0066A1',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: '#ffffff',
+    textTransform: 'uppercase',
+  },
+  presetDescription: {
+    fontSize: 13,
+    color: '#6b7280',
+  },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#d1d5db',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  customBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    backgroundColor: '#eef2ff',
+    borderRadius: 8,
+    marginBottom: 24,
+  },
+  customBannerText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#6366f1',
+  },
+  categoriesHeader: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#212529',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: '#6b7280',
+  },
+  categoryCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    marginBottom: 12,
+    overflow: 'hidden',
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  categoryLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  categoryIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryInfo: {
+    flex: 1,
+  },
+  categoryNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  categoryName: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#212529',
+  },
+  categoryDescription: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  channelToggles: {
+    padding: 16,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    gap: 10,
+  },
+  channelToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#0066A1',
+    backgroundColor: '#0066A1',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  channelLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    flex: 1,
+    textTransform: 'capitalize',
+  },
+  lockedNote: {
+    fontSize: 11,
+    color: '#6b7280',
+    fontStyle: 'italic',
+    marginTop: 4,
+  },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    padding: 12,
+    backgroundColor: '#f8fafc',
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  infoText: {
+    fontSize: 12,
+    color: '#6b7280',
+    flex: 1,
+    lineHeight: 16,
+  },
 });

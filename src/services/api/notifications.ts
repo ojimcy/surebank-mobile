@@ -49,15 +49,41 @@ export interface NotificationCountResponse {
 }
 
 // Notification preference types
-export type NotificationChannel = 'email' | 'sms' | 'both' | 'none';
+export type NotificationChannel = 'in-app' | 'email' | 'sms' | 'both' | 'none';
+export type NotificationPreset = 'minimal' | 'balanced' | 'everything' | 'custom';
+export type ChannelType = 'in-app' | 'email' | 'sms';
 
 export interface NotificationPreferences {
   id: string;
   userId: string;
+  preset: NotificationPreset;
   preferences: Record<string, NotificationChannel>;
   unsubscribedFromAll: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PresetInfo {
+  name: string;
+  description: string;
+  icon: string;
+  preferences: Record<string, NotificationChannel>;
+}
+
+export interface PresetsResponse {
+  minimal: PresetInfo;
+  balanced: PresetInfo;
+  everything: PresetInfo;
+  custom: PresetInfo;
+}
+
+export interface CategoriesResponse {
+  transactions: string[];
+  packages: string[];
+  security: string[];
+  account: string[];
+  orders: string[];
+  marketing: string[];
 }
 
 export interface NotificationTypesResponse {
@@ -179,6 +205,53 @@ const notificationsService = {
   unsubscribeFromType: async (type: string): Promise<NotificationPreferences> => {
     const response = await apiClient.post<NotificationPreferences>(
       `/notifications/unsubscribe/${type}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Get available notification presets
+   * @returns Promise<PresetsResponse>
+   */
+  getPresets: async (): Promise<PresetsResponse> => {
+    const response = await apiClient.get<PresetsResponse>('/notifications/presets/available');
+    return response.data;
+  },
+
+  /**
+   * Apply a notification preset
+   * @param preset - Preset to apply ('minimal', 'balanced', 'everything')
+   * @returns Promise<NotificationPreferences>
+   */
+  applyPreset: async (preset: 'minimal' | 'balanced' | 'everything'): Promise<NotificationPreferences> => {
+    const response = await apiClient.post<NotificationPreferences>('/notifications/presets/apply', {
+      preset,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get notification categories
+   * @returns Promise<CategoriesResponse>
+   */
+  getCategories: async (): Promise<CategoriesResponse> => {
+    const response = await apiClient.get<CategoriesResponse>('/notifications/categories');
+    return response.data;
+  },
+
+  /**
+   * Update notification preferences for a category
+   * @param category - Category to update
+   * @param channels - Array of enabled channels
+   * @returns Promise<NotificationPreferences>
+   */
+  updateCategoryPreferences: async (
+    category: string,
+    channels: ChannelType[]
+  ): Promise<NotificationPreferences> => {
+    const response = await apiClient.post<NotificationPreferences>(
+      '/notifications/categories/update',
+      { category, channels }
     );
     return response.data;
   },
