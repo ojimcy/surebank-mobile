@@ -164,20 +164,95 @@ export default function NotificationSettingsScreen({
     );
   };
 
+  // Helper: Get channels enabled for a category based on actual backend data
+  const getCategoryChannels = (categoryId: string): ChannelType[] => {
+    if (!preferences?.preferences) return ['in-app', 'email'];
+
+    // Map category IDs to their notification type IDs
+    const categoryTypeMapping: Record<string, string[]> = {
+      transactions: [
+        'transaction_alerts',
+        'deposit_confirmation',
+        'withdrawal_request',
+        'withdrawal_approval',
+        'withdrawal_success',
+        'withdrawal_failed',
+      ],
+      packages: [
+        'package_created',
+        'package_matured',
+        'package_maturity_alert',
+        'contribution_notification',
+        'daily_savings',
+        'savings_reminders',
+      ],
+      security: ['security_alerts', 'login_alerts'],
+      account: ['account_activities', 'kyc_updates'],
+      orders: [
+        'order_updates',
+        'order_created',
+        'order_payment',
+        'order_shipped',
+        'order_delivered',
+      ],
+      marketing: ['marketing_updates'],
+    };
+
+    const typeIds = categoryTypeMapping[categoryId] || [];
+    if (typeIds.length === 0) return [];
+
+    // Count which channels are most common in this category
+    const channelCounts: Record<string, number> = {
+      'in-app': 0,
+      email: 0,
+      sms: 0,
+    };
+
+    typeIds.forEach((typeId) => {
+      const channelValue = preferences.preferences[typeId];
+      if (channelValue === 'both') {
+        channelCounts['in-app']++;
+        channelCounts.email++;
+      } else if (channelValue === 'in-app' || channelValue === 'email' || channelValue === 'sms') {
+        channelCounts[channelValue]++;
+      }
+    });
+
+    // Return channels that are enabled for majority of types (>50%)
+    const threshold = typeIds.length / 2;
+    const enabledChannels: ChannelType[] = [];
+
+    if (channelCounts['in-app'] >= threshold) enabledChannels.push('in-app');
+    if (channelCounts.email >= threshold) enabledChannels.push('email');
+    if (channelCounts.sms >= threshold) enabledChannels.push('sms');
+
+    return enabledChannels;
+  };
+
   const toggleCategoryChannel = (categoryId: string, channel: ChannelType) => {
-    // Simple toggle - if any notification in category has this channel, we remove it, otherwise add it
-    const currentChannels: ChannelType[] = ['in-app', 'email']; // Default for now
-    const newChannels = currentChannels.includes(channel)
+    const currentChannels = getCategoryChannels(categoryId);
+    const isEnabled = currentChannels.includes(channel);
+
+    const newChannels = isEnabled
       ? currentChannels.filter((c) => c !== channel)
       : [...currentChannels, channel];
 
+    // Don't allow disabling all channels for security
+    if (categoryId === 'security' && newChannels.length === 0) {
+      Alert.alert(
+        'Security Required',
+        'Security notifications cannot be completely disabled for your protection.'
+      );
+      return;
+    }
+
+    console.log(`🔄 Toggling ${channel} for ${categoryId}:`, currentChannels, '→', newChannels);
     updateCategoryMutation.mutate({ category: categoryId, channels: newChannels });
   };
 
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <NestedHeader title="Notification Settings" onBack={() => navigation.goBack()} />
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color="#0066A1" />
           <Text style={styles.loadingText}>Loading...</Text>
@@ -189,7 +264,6 @@ export default function NotificationSettingsScreen({
   if (isError) {
     return (
       <SafeAreaView style={styles.container}>
-        <NestedHeader title="Notification Settings" onBack={() => navigation.goBack()} />
         <View style={styles.centerContainer}>
           <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
           <Text style={styles.errorText}>Failed to load preferences</Text>
@@ -208,7 +282,6 @@ export default function NotificationSettingsScreen({
 
   return (
     <SafeAreaView style={styles.container}>
-      <NestedHeader title="Notification Settings" onBack={() => navigation.goBack()} />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Quick Setup Header */}
@@ -324,30 +397,52 @@ export default function NotificationSettingsScreen({
               {/* Channel Toggles */}
               {isExpanded && (
                 <View style={styles.channelToggles}>
-                  {(['in-app', 'email', 'sms'] as ChannelType[]).map((channel) => (
-                    <TouchableOpacity
-                      key={channel}
-                      style={styles.channelToggle}
-                      onPress={() => toggleCategoryChannel(category.id, channel)}
-                      disabled={category.locked}
-                    >
-                      <View style={styles.checkbox}>
-                        <Ionicons name="checkmark" size={12} color="#0066A1" />
-                      </View>
-                      <Ionicons
-                        name={
-                          channel === 'in-app'
-                            ? 'phone-portrait-outline'
-                            : channel === 'email'
-                            ? 'mail-outline'
-                            : 'chatbubble-outline'
-                        }
-                        size={16}
-                        color={category.color}
-                      />
-                      <Text style={styles.channelLabel}>{channel}</Text>
-                    </TouchableOpacity>
-                  ))}
+                  {(['in-app', 'email', 'sms'] as ChannelType[]).map((channel) => {
+                    const categoryChannels = getCategoryChannels(category.id);
+                    const isChannelEnabled = categoryChannels.includes(channel);
+
+                    return (
+                      <TouchableOpacity
+                        key={channel}
+                        style={[
+                          styles.channelToggle,
+                          isChannelEnabled && styles.channelToggleEnabled,
+                        ]}
+                        onPress={() => toggleCategoryChannel(category.id, channel)}
+                        disabled={category.locked}
+                      >
+                        <View
+                          style={[
+                            styles.checkbox,
+                            isChannelEnabled && styles.checkboxEnabled,
+                          ]}
+                        >
+                          {isChannelEnabled && (
+                            <Ionicons name="checkmark" size={12} color="#ffffff" />
+                          )}
+                        </View>
+                        <Ionicons
+                          name={
+                            channel === 'in-app'
+                              ? 'phone-portrait-outline'
+                              : channel === 'email'
+                              ? 'mail-outline'
+                              : 'chatbubble-outline'
+                          }
+                          size={16}
+                          color={isChannelEnabled ? category.color : '#9ca3af'}
+                        />
+                        <Text
+                          style={[
+                            styles.channelLabel,
+                            isChannelEnabled && { color: category.color, fontWeight: '600' },
+                          ]}
+                        >
+                          {channel}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                   {category.locked && (
                     <Text style={styles.lockedNote}>
                       Security notifications are always enabled
@@ -585,21 +680,31 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: '#f9fafb',
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  channelToggleEnabled: {
+    backgroundColor: 'rgba(0, 102, 161, 0.05)',
+    borderColor: '#0066A1',
   },
   checkbox: {
     width: 18,
     height: 18,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: '#0066A1',
-    backgroundColor: '#0066A1',
+    borderColor: '#d1d5db',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  checkboxEnabled: {
+    borderColor: '#0066A1',
+    backgroundColor: '#0066A1',
   },
   channelLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#374151',
+    color: '#6b7280',
     flex: 1,
     textTransform: 'capitalize',
   },
