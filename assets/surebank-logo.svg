@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="512" cy="512" r="512" fill="#1a2c4f"/>
+
+  <!-- Shield Shape -->
+  <defs>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a2c4f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f1721;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e6c547;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main Shield -->
+  <path d="M512 180 L780 280 L780 520 Q780 680 512 860 Q244 680 244 520 L244 280 Z"
+        fill="url(#shieldGradient)"
+        stroke="#d4af37"
+        stroke-width="8"
+        opacity="0.95"/>
+
+  <!-- Inner Shield Detail -->
+  <path d="M512 220 L740 305 L740 520 Q740 655 512 815 Q284 655 284 520 L284 305 Z"
+        fill="none"
+        stroke="#d4af37"
+        stroke-width="2"
+        opacity="0.3"/>
+
+  <!-- Stylized 'S' with Dollar Sign Integration -->
+  <g transform="translate(512, 512)">
+    <!-- Top curve of S -->
+    <path d="M -80 -140 Q -130 -140 -130 -100 Q -130 -60 -80 -60 L 80 -60 Q 110 -60 110 -30 Q 110 0 80 0 L -60 0"
+          fill="none"
+          stroke="url(#goldGradient)"
+          stroke-width="45"
+          stroke-linecap="round"/>
+
+    <!-- Bottom curve of S -->
+    <path d="M 60 0 L -80 0 Q -110 0 -110 30 Q -110 60 -80 60 L 80 60 Q 130 60 130 100 Q 130 140 80 140"
+          fill="none"
+          stroke="url(#goldGradient)"
+          stroke-width="45"
+          stroke-linecap="round"/>
+
+    <!-- Dollar sign vertical line -->
+    <line x1="0" y1="-170" x2="0" y2="-140"
+          stroke="url(#goldGradient)"
+          stroke-width="30"
+          stroke-linecap="round"/>
+    <line x1="0" y1="140" x2="0" y2="170"
+          stroke="url(#goldGradient)"
+          stroke-width="30"
+          stroke-linecap="round"/>
+  </g>
+
+  <!-- Accent dots for premium feel -->
+  <circle cx="512" cy="200" r="6" fill="#d4af37" opacity="0.6"/>
+  <circle cx="450" cy="230" r="4" fill="#d4af37" opacity="0.4"/>
+  <circle cx="574" cy="230" r="4" fill="#d4af37" opacity="0.4"/>
+</svg>

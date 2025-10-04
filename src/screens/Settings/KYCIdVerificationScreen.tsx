@@ -408,7 +408,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                   label="Gender"
                   value={personalInfo.gender}
                   options={GENDER_OPTIONS}
-                  onValueChange={(value) => setPersonalInfo(prev => ({ ...prev, gender: value }))}
+                  onValueChange={(value) => setPersonalInfo(prev => ({ ...prev, gender: String(value) }))}
                   placeholder="Select your gender"
                   errorText={errors.gender}
                   required

@@ -30,6 +30,7 @@ export interface DeepLinkData {
 
 class DeepLinkingService {
   private pendingLink: DeepLinkData | null = null;
+  private subscription: { remove: () => void } | null = null;
 
   /**
    * Initialize deep linking service
@@ -43,18 +44,22 @@ class DeepLinkingService {
       }
 
       // Listen for incoming deep links
-      const subscription = Linking.addEventListener('url', (event) => {
+      this.subscription = Linking.addEventListener('url', (event) => {
         this.handleDeepLink(event.url);
       });
 
       console.log('Deep linking service initialized');
-      
-      return () => {
-        subscription?.remove();
-      };
     } catch (error) {
       console.error('Failed to initialize deep linking:', error);
     }
+  }
+
+  /**
+   * Cleanup deep linking service
+   */
+  cleanup(): void {
+    this.subscription?.remove();
+    this.subscription = null;
   }
 
   /**

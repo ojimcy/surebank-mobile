@@ -130,7 +130,7 @@ export function useSession() {
         {
           text: 'Stay Active',
           onPress: () => {
-            recordActivity('user_action');
+            recordActivity('touch');
             updateActivity();
             setSessionState(prev => ({ ...prev, showWarning: false }));
           }
@@ -204,7 +204,7 @@ export function useSession() {
   const trackActivity = useCallback(() => {
     if (sessionState.isActive) {
       sessionManager.updateActivity();
-      recordActivity('user_action');
+      recordActivity('touch');
       updateActivity();
     }
   }, [sessionState.isActive, recordActivity, updateActivity]);

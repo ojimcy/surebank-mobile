@@ -19,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useCardsQuery } from '@/hooks/queries/useCardsQuery';
 import { StoredCard } from '@/services/api/cards';
-import type { CardsScreenProps } from '@/navigation/types';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
 // Card Item Component with Flip Animation
 function CardItem({
@@ -227,7 +227,7 @@ function CardItem({
   );
 }
 
-export default function CardsListScreen({ navigation }: CardsScreenProps<'CardsList'>) {
+export default function CardsListScreen({ navigation }: { navigation: StackNavigationProp<any> }) {
   const [refreshing, setRefreshing] = useState(false);
 
   const {

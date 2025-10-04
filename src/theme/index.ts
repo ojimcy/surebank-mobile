@@ -10,7 +10,7 @@
  */
 
 import colors, { colorUtils } from './colors';
-import typography, { typographyUtils } from './typography';
+import typography, { typographyUtils, fontFamilies, fontSizes } from './typography';
 import spacing, { spacingUtils } from './spacing';
 import components from './components';
 import animations, { animationUtils } from './animations';
@@ -71,8 +71,8 @@ export const brand = {
     accent: colors.accent[500],         // #f59e0b - Premium Gold
   },
   fonts: {
-    primary: typography.fontFamilies.sans,
-    mono: typography.fontFamilies.mono,
+    primary: fontFamilies.sans,
+    mono: fontFamilies.mono,
   },
 } as const;
 
@@ -114,17 +114,12 @@ export const tokens = {
   
   // Typography tokens
   typography: {
-    'text-xs': typography.fontSizes.xs,
-    'text-sm': typography.fontSizes.sm,
-    'text-base': typography.fontSizes.base,
-    'text-lg': typography.fontSizes.lg,
-    'text-xl': typography.fontSizes.xl,
-    'text-2xl': typography.fontSizes['2xl'],
-    
-    'font-normal': typography.fontWeights.normal,
-    'font-medium': typography.fontWeights.medium,
-    'font-semibold': typography.fontWeights.semibold,
-    'font-bold': typography.fontWeights.bold,
+    'text-xs': fontSizes.xs,
+    'text-sm': fontSizes.sm,
+    'text-base': fontSizes.base,
+    'text-lg': fontSizes.lg,
+    'text-xl': fontSizes.xl,
+    'text-2xl': fontSizes['2xl'],
   },
   
   // Animation tokens
@@ -246,7 +241,7 @@ export const a11y = {
 export { colors } from './colors';
 export { typography } from './typography';
 export { spacing } from './spacing';
-export { components } from './components';
+export { default as componentsSystem } from './components';
 export { animations } from './animations';
 
 // Export utility functions

@@ -179,7 +179,7 @@ export default function CodeStep({ email, onVerified, onResendEmail }: CodeStepP
         </Text>
         
         <Text className="text-gray-600 text-center leading-6">
-          We've sent a 6-digit code to{'\n'}
+          We&apos;ve sent a 6-digit code to{'\n'}
           <Text className="font-semibold text-gray-900">{email}</Text>
         </Text>
       </View>
@@ -199,7 +199,7 @@ export default function CodeStep({ email, onVerified, onResendEmail }: CodeStepP
           {code.map((digit, index) => (
             <TextInput
               key={index}
-              ref={(ref) => (inputRefs.current[index] = ref)}
+              ref={(ref) => { inputRefs.current[index] = ref; }}
               value={digit}
               onChangeText={(value) => handleCodeChange(index, value)}
               onKeyPress={({ nativeEvent }) => handleKeyPress(index, nativeEvent.key)}
@@ -245,7 +245,7 @@ export default function CodeStep({ email, onVerified, onResendEmail }: CodeStepP
       {/* Resend Section */}
       <View className="items-center space-y-4">
         <Text className="text-gray-600">
-          Didn't receive the code?
+          Didn&apos;t receive the code?
         </Text>
         
         <OutlineButton

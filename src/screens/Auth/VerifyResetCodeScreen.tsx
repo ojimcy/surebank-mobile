@@ -237,7 +237,7 @@ export default function VerifyResetCodeScreen({ navigation, route }: AuthScreenP
                 {code.map((digit, index) => (
                   <TextInput
                     key={index}
-                    ref={(ref) => (inputRefs.current[index] = ref)}
+                    ref={(ref) => { inputRefs.current[index] = ref; }}
                     style={[
                       styles.codeInput,
                       digit && styles.codeInputFilled,
@@ -284,7 +284,7 @@ export default function VerifyResetCodeScreen({ navigation, route }: AuthScreenP
 
             {/* Resend Code */}
             <View style={styles.resendContainer}>
-              <Text style={styles.resendText}>Didn't receive a code? </Text>
+              <Text style={styles.resendText}>Didn&apos;t receive a code? </Text>
               {canResend ? (
                 <TouchableOpacity
                   onPress={handleResend}

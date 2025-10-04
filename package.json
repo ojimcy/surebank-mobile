@@ -1,5 +1,5 @@
 {
-  "name": "surebank-native",
+  "name": "surebank-stores",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,13 @@
     "web": "expo start --web",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "build:apk": "eas build --platform android --profile preview",
+    "build:aab": "eas build --platform android --profile production",
+    "build:apk:local": "eas build --platform android --profile preview --local",
+    "build:aab:local": "eas build --platform android --profile production --local",
+    "assets:convert": "cd assets && ./convert-assets.sh",
+    "assets:optimize": "npx @expo/image-utils resize assets/icon.png 1024 1024"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f1721;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a2c4f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="logoGoldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e6c547;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bgGradient)"/>
+
+  <!-- Subtle geometric pattern -->
+  <g opacity="0.05">
+    <line x1="0" y1="256" x2="1024" y2="256" stroke="#d4af37" stroke-width="1"/>
+    <line x1="0" y1="512" x2="1024" y2="512" stroke="#d4af37" stroke-width="1"/>
+    <line x1="0" y1="768" x2="1024" y2="768" stroke="#d4af37" stroke-width="1"/>
+    <line x1="256" y1="0" x2="256" y2="1024" stroke="#d4af37" stroke-width="1"/>
+    <line x1="512" y1="0" x2="512" y2="1024" stroke="#d4af37" stroke-width="1"/>
+    <line x1="768" y1="0" x2="768" y2="1024" stroke="#d4af37" stroke-width="1"/>
+  </g>
+
+  <!-- Glow effect behind logo -->
+  <ellipse cx="512" cy="380" rx="300" ry="280" fill="url(#glowGradient)"/>
+
+  <!-- Logo Group (centered and properly sized) -->
+  <g transform="translate(512, 380) scale(0.75)">
+    <!-- Shield -->
+    <path d="M0 -200 L240 -120 L240 80 Q240 200 0 350 Q-240 200 -240 80 L-240 -120 Z"
+          fill="#1a2c4f"
+          stroke="#d4af37"
+          stroke-width="6"
+          opacity="0.95"/>
+
+    <!-- Inner Shield Detail -->
+    <path d="M0 -170 L200 -100 L200 80 Q200 180 0 315 Q-200 180 -200 80 L-200 -100 Z"
+          fill="none"
+          stroke="#d4af37"
+          stroke-width="2"
+          opacity="0.3"/>
+
+    <!-- Stylized 'S$' Symbol - Better Centered -->
+    <g transform="translate(0, 30)">
+      <!-- Top curve of S -->
+      <path d="M -50 -80 Q -85 -80 -85 -50 Q -85 -20 -50 -20 L 50 -20 Q 75 -20 75 5 Q 75 30 50 30 L -40 30"
+            fill="none"
+            stroke="url(#logoGoldGradient)"
+            stroke-width="32"
+            stroke-linecap="round"/>
+
+      <!-- Bottom curve of S -->
+      <path d="M 40 30 L -50 30 Q -75 30 -75 55 Q -75 80 -50 80 L 50 80 Q 85 80 85 105 Q 85 130 50 130"
+            fill="none"
+            stroke="url(#logoGoldGradient)"
+            stroke-width="32"
+            stroke-linecap="round"/>
+
+      <!-- Dollar sign vertical lines -->
+      <line x1="0" y1="-105" x2="0" y2="-80" stroke="url(#logoGoldGradient)" stroke-width="20" stroke-linecap="round"/>
+      <line x1="0" y1="130" x2="0" y2="155" stroke="url(#logoGoldGradient)" stroke-width="20" stroke-linecap="round"/>
+    </g>
+
+    <!-- Premium dots at top of shield -->
+    <circle cx="0" cy="-185" r="5" fill="#d4af37" opacity="0.6"/>
+    <circle cx="-35" cy="-160" r="3" fill="#d4af37" opacity="0.4"/>
+    <circle cx="35" cy="-160" r="3" fill="#d4af37" opacity="0.4"/>
+  </g>
+
+  <!-- Surebank Stores Text - Moved down to avoid overlap -->
+  <text x="512" y="740"
+        font-family="SF Pro Display, -apple-system, Roboto, sans-serif"
+        font-size="68"
+        font-weight="700"
+        fill="#d4af37"
+        text-anchor="middle">
+    Surebank Stores
+  </text>
+
+  <!-- Tagline with better spacing -->
+  <text x="512" y="805"
+        font-family="SF Pro Display, -apple-system, Roboto, sans-serif"
+        font-size="22"
+        font-weight="400"
+        fill="#94a3b8"
+        text-anchor="middle"
+        opacity="0.9">
+    Shop Smart, Save Smart
+  </text>
+
+  <!-- Accent line under tagline -->
+  <line x1="362" y1="825" x2="662" y2="825"
+        stroke="#d4af37"
+        stroke-width="2"
+        opacity="0.4"/>
+
+  <!-- Small shopping cart icon integrated -->
+  <g transform="translate(365, 800)" opacity="0.6">
+    <path d="M 0 0 L 2 -6 L 10 -6 L 12 0 Z"
+          fill="none"
+          stroke="#d4af37"
+          stroke-width="1.5"/>
+    <circle cx="3" cy="2" r="1.5" fill="#d4af37"/>
+    <circle cx="9" cy="2" r="1.5" fill="#d4af37"/>
+  </g>
+
+  <!-- Small piggy bank icon integrated -->
+  <g transform="translate(640, 800)" opacity="0.6">
+    <ellipse cx="6" cy="0" rx="6" ry="4" fill="none" stroke="#d4af37" stroke-width="1.5"/>
+    <line x1="6" y1="-4" x2="6" y2="-7" stroke="#d4af37" stroke-width="1.5"/>
+  </g>
+</svg>

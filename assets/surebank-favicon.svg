@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="48" height="48" rx="8" fill="#1a2c4f"/>
+
+  <!-- Simplified Shield -->
+  <defs>
+    <linearGradient id="favGold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e6c547;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Mini Shield Shape -->
+  <path d="M24 8 L38 13 L38 26 Q38 34 24 42 Q10 34 10 26 L10 13 Z"
+        fill="#0f1721"
+        stroke="url(#favGold)"
+        stroke-width="1.5"/>
+
+  <!-- Simplified '$' Symbol -->
+  <g transform="translate(24, 24)">
+    <!-- S curve top -->
+    <path d="M -4 -7 Q -6 -7 -6 -5 Q -6 -3 -4 -3 L 4 -3 Q 5.5 -3 5.5 -1.5 Q 5.5 0 4 0"
+          fill="none"
+          stroke="url(#favGold)"
+          stroke-width="2.5"
+          stroke-linecap="round"/>
+
+    <!-- S curve bottom -->
+    <path d="M -4 0 Q -5.5 0 -5.5 1.5 Q -5.5 3 -4 3 L 4 3 Q 6 3 6 5 Q 6 7 4 7"
+          fill="none"
+          stroke="url(#favGold)"
+          stroke-width="2.5"
+          stroke-linecap="round"/>
+
+    <!-- Dollar lines -->
+    <line x1="0" y1="-9" x2="0" y2="-7" stroke="url(#favGold)" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="7" x2="0" y2="9" stroke="url(#favGold)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>
