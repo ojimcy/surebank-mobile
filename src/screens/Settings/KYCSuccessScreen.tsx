@@ -60,7 +60,7 @@ export default function KYCSuccessScreen({ navigation }: SettingsScreenProps<'KY
         <View style={styles.statusCard}>
           <View style={styles.statusHeader}>
             <Ionicons name="time-outline" size={24} color="#FFC107" />
-            <Text style={styles.statusTitle}>What's Next?</Text>
+            <Text style={styles.statusTitle}>What&apos;s Next?</Text>
           </View>
 
           <View style={styles.statusContent}>
@@ -84,7 +84,7 @@ export default function KYCSuccessScreen({ navigation }: SettingsScreenProps<'KY
                 <View style={styles.timelineContent}>
                   <Text style={styles.timelineTitle}>Email Notification</Text>
                   <Text style={styles.timelineDescription}>
-                    You'll receive an email once verified
+                    You&apos;ll receive an email once verified
                   </Text>
                 </View>
               </View>
@@ -148,7 +148,7 @@ export default function KYCSuccessScreen({ navigation }: SettingsScreenProps<'KY
             • Check your email for verification status updates
           </Text>
           <Text style={styles.tipsText}>
-            • Contact support if you don't hear back within 3 business days
+            • Contact support if you don&apos;t hear back within 3 business days
           </Text>
         </View>
       </ScrollView>

@@ -218,7 +218,7 @@ function PINSetupScreen({ navigation }: Props) {
           Create your PIN
         </Text>
         <Text className="text-gray-600 text-center">
-          Enter a {pinLength}-digit PIN that you'll remember
+          Enter a {pinLength}-digit PIN that you&apos;ll remember
         </Text>
       </View>
 

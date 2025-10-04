@@ -237,21 +237,9 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
               <View style={styles.dividerLine} />
             </View>
 
-            {/* Biometric Login Option */}
-            <TouchableOpacity
-              style={styles.biometricButton}
-              disabled={isLoading}
-              activeOpacity={0.7}
-            >
-              <View style={styles.biometricIcon}>
-                <Ionicons name="finger-print" size={24} color="#0066A1" />
-              </View>
-              <Text style={styles.biometricText}>Use Biometric Login</Text>
-            </TouchableOpacity>
-
             {/* Sign Up Link */}
             <View style={styles.signUpContainer}>
-              <Text style={styles.signUpPrompt}>Don't have an account? </Text>
+              <Text style={styles.signUpPrompt}>Don&apos;t have an account? </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Register')}
                 disabled={isLoading}

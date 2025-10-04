@@ -250,7 +250,7 @@ function VerificationScreen({ navigation, route }: Props) {
             </Text>
             
             <Text className="text-gray-600 text-center leading-6">
-              We've sent a 6-digit code to{'\n'}
+              We&apos;ve sent a 6-digit code to{'\n'}
               <Text className="font-semibold text-gray-900">{identifier}</Text>
             </Text>
           </View>
@@ -325,7 +325,7 @@ function VerificationScreen({ navigation, route }: Props) {
           {/* Resend Section */}
           <View className="items-center mb-8">
             <Text className="text-gray-600 mb-4">
-              Didn't receive the code?
+              Didn&apos;t receive the code?
             </Text>
             
             <OutlineButton

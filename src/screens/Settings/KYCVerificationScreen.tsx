@@ -151,7 +151,7 @@ export default function KYCVerificationScreen({ navigation }: SettingsScreenProp
               <View style={styles.optionContent}>
                 <Text style={styles.optionTitle}>Government ID</Text>
                 <Text style={styles.optionDescription}>
-                  Verify with your National ID, Driver's License, or Passport
+                  Verify with your National ID, Driver&apos;s License, or Passport
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />

@@ -195,7 +195,7 @@ export default function ThemeSettingsScreen({ navigation }: SettingsScreenProps<
         <View style={styles.infoBox}>
           <Ionicons name="information-circle-outline" size={20} color="#0066A1" />
           <Text style={styles.infoText}>
-            Dark mode is coming soon! We're working on a beautiful dark theme for the app.
+            Dark mode is coming soon! We&apos;re working on a beautiful dark theme for the app.
           </Text>
         </View>
       </ScrollView>

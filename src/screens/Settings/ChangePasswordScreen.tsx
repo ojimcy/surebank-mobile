@@ -370,7 +370,7 @@ export default function ChangePasswordScreen({ navigation }: SettingsScreenProps
         <View style={styles.infoBox}>
           <Ionicons name="information-circle-outline" size={20} color="#0066A1" />
           <Text style={styles.infoText}>
-            Choose a strong password that you don't use for other accounts. Never share your
+            Choose a strong password that you don&apos;t use for other accounts. Never share your
             password with anyone.
           </Text>
         </View>

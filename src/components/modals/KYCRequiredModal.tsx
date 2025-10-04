@@ -16,7 +16,15 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import type { NavigationProp } from '@react-navigation/native';
+import type { MainTabParamList, SettingsStackParamList } from '@/navigation/types';
+import type { CompositeNavigationProp } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+type KYCNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabParamList, 'SettingsTab'>,
+  StackNavigationProp<SettingsStackParamList>
+>;
 
 interface KYCRequiredModalProps {
   visible: boolean;
@@ -31,7 +39,7 @@ export function KYCRequiredModal({
   feature = 'use this feature',
   onStartVerification,
 }: KYCRequiredModalProps) {
-  const navigation = useNavigation<NavigationProp<any>>();
+  const navigation = useNavigation<KYCNavigationProp>();
 
   const handleStartVerification = () => {
     onClose();
@@ -39,7 +47,6 @@ export function KYCRequiredModal({
       onStartVerification();
     } else {
       // Navigate to KYC verification screen
-      // @ts-ignore - Navigation typing needs improvement
       navigation.navigate('SettingsTab', {
         screen: 'KYCVerification',
       });
@@ -97,7 +104,7 @@ export function KYCRequiredModal({
             <View style={styles.infoBox}>
               <Ionicons name="information-circle-outline" size={20} color="#0066A1" />
               <Text style={styles.infoText}>
-                Verification takes only a few minutes. You'll need a valid government ID and a selfie.
+                Verification takes only a few minutes. You&apos;ll need a valid government ID and a selfie.
               </Text>
             </View>
           </View>

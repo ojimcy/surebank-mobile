@@ -558,7 +558,7 @@ export default function CreateIBSPackageScreen({ navigation }: PackageScreenProp
 
                         <Text className="text-gray-600 text-center mb-6">
                             You need an Interest-Based Savings account to create IBS packages.
-                            Would you like to create one now? It's free and instant!
+                            Would you like to create one now? It&apos;s free and instant!
                         </Text>
 
                         <View className="flex-row gap-3">

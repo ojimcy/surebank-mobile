@@ -51,7 +51,7 @@ export function RoleGuard({
       </Text>
 
       <Text className="text-gray-600 text-center leading-6 mb-8 max-w-sm">
-        You don't have permission to access this feature.
+        You don&apos;t have permission to access this feature.
         {allowedRoles.length === 1
           ? ` This requires ${allowedRoles[0]} access.`
           : ` This requires one of the following roles: ${allowedRoles.join(', ')}.`

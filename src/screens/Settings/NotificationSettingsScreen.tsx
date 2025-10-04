@@ -16,10 +16,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { NestedHeader } from '@/components/navigation';
 import type { SettingsScreenProps } from '@/navigation/types';
 import notificationsService, {
-  type NotificationChannel,
   type ChannelType,
 } from '@/services/api/notifications';
 
@@ -106,9 +104,7 @@ export default function NotificationSettingsScreen({
   const { data: preferences, isLoading, isError } = useQuery({
     queryKey: ['notification-preferences'],
     queryFn: async () => {
-      console.log('📱 Fetching notification preferences...');
       const result = await notificationsService.getPreferences();
-      console.log('✅ Preferences loaded:', result.preset);
       return result;
     },
   });
@@ -116,9 +112,7 @@ export default function NotificationSettingsScreen({
   // Apply preset mutation
   const applyPresetMutation = useMutation({
     mutationFn: async (preset: 'minimal' | 'balanced' | 'everything') => {
-      console.log('🔄 Applying preset:', preset);
       const result = await notificationsService.applyPreset(preset);
-      console.log('✅ Preset applied successfully');
       return result;
     },
     onSuccess: () => {
@@ -134,9 +128,7 @@ export default function NotificationSettingsScreen({
   // Update category mutation
   const updateCategoryMutation = useMutation({
     mutationFn: async ({ category, channels }: { category: string; channels: ChannelType[] }) => {
-      console.log('🔄 Updating category:', category, 'channels:', channels);
       const result = await notificationsService.updateCategoryPreferences(category, channels);
-      console.log('✅ Category updated successfully');
       return result;
     },
     onSuccess: () => {

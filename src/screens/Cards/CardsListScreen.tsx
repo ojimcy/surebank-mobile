@@ -349,7 +349,7 @@ export default function CardsListScreen({ navigation }: { navigation: StackNavig
           <Ionicons name="alert-circle-outline" size={64} color="#DC3545" />
           <Text style={styles.errorTitle}>Error Loading Cards</Text>
           <Text style={styles.errorMessage}>
-            We couldn't load your cards. Please try again.
+            We couldn&apos;t load your cards. Please try again.
           </Text>
           <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
             <Text style={styles.retryButtonText}>Try Again</Text>

@@ -173,7 +173,7 @@ export default function PresetSelector({
         <View style={styles.customIndicator}>
           <Ionicons name="options-outline" size={20} color="#6366f1" />
           <Text style={styles.customIndicatorText}>
-            You're using custom notification settings
+            You&apos;re using custom notification settings
           </Text>
         </View>
       )}

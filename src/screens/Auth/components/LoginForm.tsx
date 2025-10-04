@@ -206,7 +206,7 @@ export default function LoginForm({
         {/* Switch to Register */}
         <View className="items-center pt-6">
           <Text className="text-gray-600 mb-2">
-            Don't have an account?
+            Don&apos;t have an account?
           </Text>
           <GhostButton
             title="Create Account"

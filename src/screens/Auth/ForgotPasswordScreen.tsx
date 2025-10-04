@@ -134,7 +134,7 @@ export default function ForgotPasswordScreen({ navigation }: AuthScreenProps<'Fo
               </View>
               <Text style={styles.headerTitle}>Reset Password</Text>
               <Text style={styles.headerSubtitle}>
-                Enter your email address and we'll send you a verification code to reset your password
+                Enter your email address and we&apos;ll send you a verification code to reset your password
               </Text>
             </View>
           </LinearGradient>
@@ -159,7 +159,7 @@ export default function ForgotPasswordScreen({ navigation }: AuthScreenProps<'Fo
               <View style={styles.infoContainer}>
                 <Ionicons name="information-circle-outline" size={20} color="#6b7280" />
                 <Text style={styles.infoText}>
-                  We'll send a 6-digit verification code to your registered email address
+                  We&apos;ll send a 6-digit verification code to your registered email address
                 </Text>
               </View>
             </View>

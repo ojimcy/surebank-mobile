@@ -893,10 +893,10 @@ export default function CreateScheduleScreen() {
             <Info size={20} color="#0066A1" />
             <View className="flex-1 ml-3">
               <Text className="text-sm font-medium text-blue-900">
-                You'll save {formatCurrency(formData.amount)} {formData.frequency}
+                You&apos;ll save {formatCurrency(formData.amount)} {formData.frequency}
               </Text>
               <Text className="text-xs text-blue-700 mt-1">
-                That's {formatCurrency(
+                That&apos;s {formatCurrency(
                   formData.frequency === 'daily' ? formData.amount * 30 :
                   formData.frequency === 'weekly' ? formData.amount * 4 :
                   formData.amount

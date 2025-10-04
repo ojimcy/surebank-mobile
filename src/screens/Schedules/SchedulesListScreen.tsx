@@ -189,7 +189,7 @@ export default function SchedulesListScreen() {
               Error Loading Schedules
             </Text>
             <Text className="text-red-600 text-center mb-4">
-              We couldn't load your scheduled contributions. Please try again.
+              We couldn&apos;t load your scheduled contributions. Please try again.
             </Text>
             <TouchableOpacity
               onPress={() => refetchSchedules()}

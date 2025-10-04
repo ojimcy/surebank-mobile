@@ -198,8 +198,6 @@ export type SettingsStackNavigationProp<Screen extends keyof SettingsStackParamL
   Screen
 >['navigation'];
 
-declare global {
-  namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList { }
-  }
+declare module '@react-navigation/native' {
+  export type RootParamList = RootStackParamList;
 }

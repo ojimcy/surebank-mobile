@@ -287,7 +287,7 @@ function AddCardScreen({ navigation }: CardsScreenProps<'AddCard'>) {
             <View style={styles.noticeContent}>
               <Text style={styles.noticeTitle}>Card Verification</Text>
               <Text style={styles.noticeText}>
-                We'll charge ₦1 to verify your card. This amount will be refunded immediately.
+                We&apos;ll charge ₦1 to verify your card. This amount will be refunded immediately.
                 Your card details are encrypted and CVV is never stored.
               </Text>
             </View>

@@ -4,18 +4,12 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { SettingsScreenProps } from '@/navigation/types';
 
-export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<'PrivacyPolicy'>) {
+export default function PrivacyPolicyScreen({}: SettingsScreenProps<'PrivacyPolicy'>) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView
@@ -36,13 +30,15 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Introduction</Text>
             <Text style={styles.paragraph}>
-              SureBank ("we", "our", or "us") is committed to protecting your privacy. This Privacy
-              Policy explains how we collect, use, disclose, and safeguard your information when you
-              use our mobile application and services.
+              SureBank (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your
+              privacy. This Privacy Policy explains how we collect, use,
+              disclose, and safeguard your information when you use our mobile
+              application and services.
             </Text>
             <Text style={styles.paragraph}>
-              Please read this privacy policy carefully. If you do not agree with the terms of this
-              privacy policy, please do not access the application.
+              Please read this privacy policy carefully. If you do not agree
+              with the terms of this privacy policy, please do not access the
+              application.
             </Text>
           </View>
 
@@ -52,26 +48,43 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
 
             <Text style={styles.subsectionTitle}>Personal Information</Text>
             <Text style={styles.paragraph}>
-              We collect personal information that you voluntarily provide to us when registering at
-              the application, including:
+              We collect personal information that you voluntarily provide to us
+              when registering at the application, including:
             </Text>
             <View style={styles.list}>
-              <Text style={styles.listItem}>• Full name and contact information</Text>
-              <Text style={styles.listItem}>• Email address and phone number</Text>
-              <Text style={styles.listItem}>• Government-issued identification documents</Text>
-              <Text style={styles.listItem}>• Financial information and payment card details</Text>
+              <Text style={styles.listItem}>
+                • Full name and contact information
+              </Text>
+              <Text style={styles.listItem}>
+                • Email address and phone number
+              </Text>
+              <Text style={styles.listItem}>
+                • Government-issued identification documents
+              </Text>
+              <Text style={styles.listItem}>
+                • Financial information and payment card details
+              </Text>
               <Text style={styles.listItem}>• Bank account information</Text>
             </View>
 
-            <Text style={styles.subsectionTitle}>Automatically Collected Information</Text>
+            <Text style={styles.subsectionTitle}>
+              Automatically Collected Information
+            </Text>
             <Text style={styles.paragraph}>
-              When you access our app, we automatically collect certain information, including:
+              When you access our app, we automatically collect certain
+              information, including:
             </Text>
             <View style={styles.list}>
-              <Text style={styles.listItem}>• Device information (model, OS version)</Text>
-              <Text style={styles.listItem}>• IP address and location data</Text>
+              <Text style={styles.listItem}>
+                • Device information (model, OS version)
+              </Text>
+              <Text style={styles.listItem}>
+                • IP address and location data
+              </Text>
               <Text style={styles.listItem}>• Usage data and analytics</Text>
-              <Text style={styles.listItem}>• Crash reports and performance data</Text>
+              <Text style={styles.listItem}>
+                • Crash reports and performance data
+              </Text>
             </View>
           </View>
 
@@ -80,13 +93,27 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
             <Text style={styles.sectionTitle}>How We Use Your Information</Text>
             <Text style={styles.paragraph}>We use your information to:</Text>
             <View style={styles.list}>
-              <Text style={styles.listItem}>• Create and manage your account</Text>
-              <Text style={styles.listItem}>• Process your transactions and payments</Text>
-              <Text style={styles.listItem}>• Verify your identity (KYC compliance)</Text>
-              <Text style={styles.listItem}>• Send you notifications and updates</Text>
-              <Text style={styles.listItem}>• Improve our services and user experience</Text>
-              <Text style={styles.listItem}>• Prevent fraud and ensure security</Text>
-              <Text style={styles.listItem}>• Comply with legal and regulatory requirements</Text>
+              <Text style={styles.listItem}>
+                • Create and manage your account
+              </Text>
+              <Text style={styles.listItem}>
+                • Process your transactions and payments
+              </Text>
+              <Text style={styles.listItem}>
+                • Verify your identity (KYC compliance)
+              </Text>
+              <Text style={styles.listItem}>
+                • Send you notifications and updates
+              </Text>
+              <Text style={styles.listItem}>
+                • Improve our services and user experience
+              </Text>
+              <Text style={styles.listItem}>
+                • Prevent fraud and ensure security
+              </Text>
+              <Text style={styles.listItem}>
+                • Comply with legal and regulatory requirements
+              </Text>
             </View>
           </View>
 
@@ -94,15 +121,25 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Data Security</Text>
             <Text style={styles.paragraph}>
-              We implement appropriate technical and organizational security measures to protect your
-              personal information, including:
+              We implement appropriate technical and organizational security
+              measures to protect your personal information, including:
             </Text>
             <View style={styles.list}>
-              <Text style={styles.listItem}>• 256-bit SSL/TLS encryption for data transmission</Text>
-              <Text style={styles.listItem}>• Encrypted storage of sensitive information</Text>
-              <Text style={styles.listItem}>• Regular security audits and testing</Text>
-              <Text style={styles.listItem}>• Access controls and authentication</Text>
-              <Text style={styles.listItem}>• Secure payment processing (PCI DSS compliant)</Text>
+              <Text style={styles.listItem}>
+                • 256-bit SSL/TLS encryption for data transmission
+              </Text>
+              <Text style={styles.listItem}>
+                • Encrypted storage of sensitive information
+              </Text>
+              <Text style={styles.listItem}>
+                • Regular security audits and testing
+              </Text>
+              <Text style={styles.listItem}>
+                • Access controls and authentication
+              </Text>
+              <Text style={styles.listItem}>
+                • Secure payment processing (PCI DSS compliant)
+              </Text>
             </View>
           </View>
 
@@ -110,11 +147,13 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Information Sharing</Text>
             <Text style={styles.paragraph}>
-              We do not sell your personal information. We may share your information with:
+              We do not sell your personal information. We may share your
+              information with:
             </Text>
             <View style={styles.list}>
               <Text style={styles.listItem}>
-                • Service providers (payment processors, identity verification services)
+                • Service providers (payment processors, identity verification
+                services)
               </Text>
               <Text style={styles.listItem}>
                 • Financial institutions for transaction processing
@@ -133,12 +172,24 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
             <Text style={styles.sectionTitle}>Your Privacy Rights</Text>
             <Text style={styles.paragraph}>You have the right to:</Text>
             <View style={styles.list}>
-              <Text style={styles.listItem}>• Access your personal information</Text>
-              <Text style={styles.listItem}>• Correct inaccurate or incomplete data</Text>
-              <Text style={styles.listItem}>• Request deletion of your data</Text>
-              <Text style={styles.listItem}>• Object to processing of your data</Text>
-              <Text style={styles.listItem}>• Export your data in a portable format</Text>
-              <Text style={styles.listItem}>• Withdraw consent at any time</Text>
+              <Text style={styles.listItem}>
+                • Access your personal information
+              </Text>
+              <Text style={styles.listItem}>
+                • Correct inaccurate or incomplete data
+              </Text>
+              <Text style={styles.listItem}>
+                • Request deletion of your data
+              </Text>
+              <Text style={styles.listItem}>
+                • Object to processing of your data
+              </Text>
+              <Text style={styles.listItem}>
+                • Export your data in a portable format
+              </Text>
+              <Text style={styles.listItem}>
+                • Withdraw consent at any time
+              </Text>
             </View>
           </View>
 
@@ -146,19 +197,21 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Data Retention</Text>
             <Text style={styles.paragraph}>
-              We retain your personal information for as long as necessary to fulfill the purposes
-              outlined in this policy, unless a longer retention period is required by law. After
-              account closure, we may retain certain information for legal and regulatory compliance.
+              We retain your personal information for as long as necessary to
+              fulfill the purposes outlined in this policy, unless a longer
+              retention period is required by law. After account closure, we may
+              retain certain information for legal and regulatory compliance.
             </Text>
           </View>
 
           {/* Children's Privacy */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Children's Privacy</Text>
+            <Text style={styles.sectionTitle}>Children&apos;s Privacy</Text>
             <Text style={styles.paragraph}>
-              Our services are not intended for individuals under the age of 18. We do not knowingly
-              collect personal information from children. If you believe we have collected information
-              from a child, please contact us immediately.
+              Our services are not intended for individuals under the age of 18.
+              We do not knowingly collect personal information from children. If
+              you believe we have collected information from a child, please
+              contact us immediately.
             </Text>
           </View>
 
@@ -166,9 +219,10 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Changes to This Policy</Text>
             <Text style={styles.paragraph}>
-              We may update this privacy policy from time to time. We will notify you of any changes
-              by posting the new privacy policy in the app and updating the "Last updated" date. You
-              are advised to review this policy periodically for any changes.
+              We may update this privacy policy from time to time. We will
+              notify you of any changes by posting the new privacy policy in the
+              app and updating the &quot;Last updated&quot; date. You are advised to
+              review this policy periodically for any changes.
             </Text>
           </View>
 
@@ -176,7 +230,8 @@ export default function PrivacyPolicyScreen({ navigation }: SettingsScreenProps<
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Contact Us</Text>
             <Text style={styles.paragraph}>
-              If you have questions or concerns about this Privacy Policy, please contact us:
+              If you have questions or concerns about this Privacy Policy,
+              please contact us:
             </Text>
             <View style={styles.contactBox}>
               <View style={styles.contactItem}>

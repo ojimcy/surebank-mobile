@@ -73,7 +73,7 @@ export default function EmailStep({ onSubmit }: EmailStepProps) {
           </Text>
           
           <Text className="text-gray-600 text-center leading-6">
-            No worries! Enter your email address and we'll send you a reset code.
+            No worries! Enter your email address and we&apos;ll send you a reset code.
           </Text>
         </View>
 

@@ -20,6 +20,7 @@ interface ProtectedScreenOptions {
   trackActivity?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface ProtectedScreenProps {
   // Screen-specific props would go here
 }
@@ -51,7 +52,7 @@ export function withProtectedScreen<P extends object>(
 
   const ProtectedScreen = (props: P & ProtectedScreenProps) => {
     // Wrap with activity tracking if enabled
-    let Component = trackActivity 
+    const Component = trackActivity 
       ? withActivityTracking(WrappedComponent)
       : WrappedComponent;
 

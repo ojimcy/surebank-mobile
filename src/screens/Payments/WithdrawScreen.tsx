@@ -533,7 +533,7 @@ export default function WithdrawScreen({ navigation }: Props) {
               </View>
               <Text className="text-gray-900 font-semibold text-lg mb-2">No Available Funds</Text>
               <Text className="text-gray-500 text-center mb-6">
-                You don't have any accounts with available balance for withdrawal.
+                You don&apos;t have any accounts with available balance for withdrawal.
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.goBack()}

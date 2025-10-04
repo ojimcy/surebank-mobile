@@ -143,7 +143,7 @@ Narration: ${transaction.narration}`;
         <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
         <Text style={styles.errorTitle}>Transaction Not Found</Text>
         <Text style={styles.errorSubtitle}>
-          The transaction you're looking for could not be found.
+          The transaction you&apos;re looking for could not be found.
         </Text>
         <TouchableOpacity
           style={styles.errorButton}

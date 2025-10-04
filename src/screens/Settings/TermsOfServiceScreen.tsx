@@ -35,8 +35,8 @@ export default function TermsOfServiceScreen({ navigation }: SettingsScreenProps
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Agreement to Terms</Text>
             <Text style={styles.paragraph}>
-              These Terms of Service ("Terms") govern your use of the SureBank mobile application and
-              services (collectively, the "Service"). By accessing or using our Service, you agree to
+              These Terms of Service (&quot;Terms&quot;) govern your use of the SureBank mobile application and
+              services (collectively, the &quot;Service&quot;). By accessing or using our Service, you agree to
               be bound by these Terms.
             </Text>
             <Text style={styles.paragraph}>
@@ -221,7 +221,7 @@ export default function TermsOfServiceScreen({ navigation }: SettingsScreenProps
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Disclaimer</Text>
             <Text style={styles.paragraph}>
-              The Service is provided "as is" and "as available" without warranties of any kind. We do
+              The Service is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind. We do
               not guarantee that the Service will be uninterrupted, secure, or error-free. Investment
               products carry risk, and past performance does not guarantee future results.
             </Text>
@@ -242,7 +242,7 @@ export default function TermsOfServiceScreen({ navigation }: SettingsScreenProps
             <Text style={styles.sectionTitle}>Changes to Terms</Text>
             <Text style={styles.paragraph}>
               We reserve the right to modify these Terms at any time. We will notify you of any changes
-              by posting the new Terms in the app and updating the "Last updated" date. Your continued
+              by posting the new Terms in the app and updating the &quot;Last updated&quot; date. Your continued
               use of the Service after changes constitutes acceptance of the new Terms.
             </Text>
           </View>

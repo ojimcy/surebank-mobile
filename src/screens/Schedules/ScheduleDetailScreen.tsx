@@ -576,7 +576,7 @@ export default function ScheduleDetailScreen() {
           <Ionicons name="calendar-outline" size={64} color="#9ca3af" />
           <Text className="text-gray-900 text-lg font-semibold mt-4">Schedule Not Found</Text>
           <Text className="text-gray-600 text-center mt-2">
-            This schedule may have been deleted or you don't have permission to view it.
+            This schedule may have been deleted or you don&apos;t have permission to view it.
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}

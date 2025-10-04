@@ -208,7 +208,7 @@ export default function NotificationsScreen() {
       <Ionicons name="notifications-off-outline" size={64} color="#9CA3AF" />
       <Text className="text-xl font-semibold text-gray-700 mt-4">No Notifications</Text>
       <Text className="text-gray-500 text-center mt-2">
-        You're all caught up! We'll notify you when something important happens.
+        You&apos;re all caught up! We&apos;ll notify you when something important happens.
       </Text>
     </View>
   );
