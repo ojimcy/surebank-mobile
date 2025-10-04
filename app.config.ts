@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     ...config,
     name: 'Surebank Stores',
-    slug: 'surebank-stores',
+    slug: 'surebank-native',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
