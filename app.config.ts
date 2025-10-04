@@ -66,11 +66,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     plugins: [
       'expo-font',
+      'expo-secure-store',
+      'expo-web-browser',
       [
         'expo-build-properties',
         {
           android: {
             enableProguardInReleaseBuilds: true,
+            enableMinifyInReleaseBuilds: true,
             enableShrinkResourcesInReleaseBuilds: true
           },
           ios: {
