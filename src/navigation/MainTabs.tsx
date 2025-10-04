@@ -1,7 +1,8 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { MainTabParamList } from './types';
 
@@ -14,7 +15,7 @@ import SettingsStack from './SettingsStack';
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function MainTabs() {
-
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={{ flex: 1 }}>
@@ -26,11 +27,15 @@ export default function MainTabs() {
           tabBarInactiveTintColor: '#6c757d', // Muted text
           tabBarStyle: {
             backgroundColor: '#ffffff', // White background
-            borderTopColor: '#e5e8ed', // Light border
-            borderTopWidth: 1,
-            paddingBottom: 8,
+            borderTopWidth: 0, // Remove top border
+            elevation: 8, // Android shadow
+            shadowColor: '#000', // iOS shadow
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            paddingBottom: Math.max(insets.bottom, 8), // Use safe area bottom or minimum 8px
             paddingTop: 8,
-            height: 70,
+            height: 70 + insets.bottom, // Adjust height to include safe area
           },
           tabBarLabelStyle: {
             fontSize: 12,

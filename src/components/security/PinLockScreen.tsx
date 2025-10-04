@@ -6,17 +6,17 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
+import {
+  View,
+  Text,
   StatusBar,
-  SafeAreaView,
   Image,
   Pressable,
   Alert,
   ViewStyle,
   AccessibilityRole,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { usePinSecurity } from '@/contexts/PinSecurityContext';
 import PinInput from './PinInput';

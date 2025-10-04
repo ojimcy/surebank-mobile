@@ -8,7 +8,6 @@ import {
   View,
   Text,
   StatusBar,
-  SafeAreaView,
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
@@ -17,6 +16,7 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
@@ -306,6 +306,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: 40, // Extra spacing to prevent overlap with phone navigation buttons
   },
   // Header Styles
   header: {
@@ -571,7 +572,7 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: 'center',
     paddingTop: 16,
-    marginBottom: 16,
+    marginBottom: 32,
   },
   footerText: {
     color: '#9ca3af',

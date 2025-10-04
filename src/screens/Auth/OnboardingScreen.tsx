@@ -10,7 +10,6 @@ import {
   View,
   Text,
   StatusBar,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Dimensions,
@@ -19,6 +18,7 @@ import {
   ViewToken,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/navigation/types';
