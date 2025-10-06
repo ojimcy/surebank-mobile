@@ -17,6 +17,7 @@ import {
   TextStyle,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 export interface DropdownOption {
@@ -80,6 +81,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   leftIcon,
   rightIcon,
 }) => {
+  const insets = useSafeAreaInsets();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredOptions, setFilteredOptions] = useState<DropdownOption[]>(options);
@@ -132,62 +134,81 @@ const Dropdown: React.FC<DropdownProps> = ({
       ? '#0066A1'
       : '#6b7280';
 
-  const renderOption = ({ item }: { item: DropdownOption }) => (
-    <TouchableOpacity
-      onPress={() => handleSelect(item)}
-      disabled={item.disabled}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: item.disabled ? '#f9fafb' : '#ffffff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#f3f4f6',
-        opacity: item.disabled ? 0.5 : 1,
-      }}
-    >
-      {/* Option Icon */}
-      {showIcons && item.icon && (
-        <View style={{ marginRight: 12 }}>
-          <Ionicons
-            name={item.icon}
-            size={20}
-            color={item.disabled ? '#9ca3af' : '#6b7280'}
-          />
-        </View>
-      )}
+  const renderOption = ({ item }: { item: DropdownOption }) => {
+    const isSelected = value === item.value;
 
-      {/* Option Content */}
-      <View style={{ flex: 1 }}>
-        <Text
-          style={{
-            fontSize: 16,
-            color: item.disabled ? '#9ca3af' : '#111827',
-            fontWeight: '500',
-          }}
-        >
-          {item.label}
-        </Text>
-        {showDescriptions && item.description && (
+    return (
+      <TouchableOpacity
+        onPress={() => handleSelect(item)}
+        disabled={item.disabled}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 20,
+          paddingVertical: 14,
+          backgroundColor: isSelected
+            ? '#EFF6FF'
+            : item.disabled
+            ? '#f9fafb'
+            : '#ffffff',
+          borderBottomWidth: 1,
+          borderBottomColor: '#f3f4f6',
+          opacity: item.disabled ? 0.5 : 1,
+        }}
+      >
+        {/* Option Icon */}
+        {showIcons && item.icon && (
+          <View style={{ marginRight: 12 }}>
+            <Ionicons
+              name={item.icon}
+              size={22}
+              color={isSelected ? '#0066A1' : item.disabled ? '#9ca3af' : '#6b7280'}
+            />
+          </View>
+        )}
+
+        {/* Option Content */}
+        <View style={{ flex: 1 }}>
           <Text
             style={{
-              fontSize: 12,
-              color: item.disabled ? '#d1d5db' : '#6b7280',
-              marginTop: 2,
+              fontSize: 16,
+              color: isSelected ? '#0066A1' : item.disabled ? '#9ca3af' : '#111827',
+              fontWeight: isSelected ? '600' : '500',
             }}
           >
-            {item.description}
+            {item.label}
           </Text>
-        )}
-      </View>
+          {showDescriptions && item.description && (
+            <Text
+              style={{
+                fontSize: 13,
+                color: item.disabled ? '#d1d5db' : '#6b7280',
+                marginTop: 3,
+              }}
+            >
+              {item.description}
+            </Text>
+          )}
+        </View>
 
-      {/* Selected indicator */}
-      {value === item.value && (
-        <Ionicons name="checkmark" size={20} color="#0066A1" />
-      )}
-    </TouchableOpacity>
-  );
+        {/* Selected indicator */}
+        {isSelected && (
+          <View
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: 12,
+              backgroundColor: '#0066A1',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={containerStyle}>
@@ -293,37 +314,61 @@ const Dropdown: React.FC<DropdownProps> = ({
         animationType="slide"
         onRequestClose={closeDropdown}
       >
-        <View
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={closeDropdown}
           style={{
             flex: 1,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
             justifyContent: 'flex-end',
           }}
         >
-          <View
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
             style={{
               backgroundColor: '#ffffff',
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
               maxHeight: maxHeight + 120, // Extra space for header and search
+              paddingBottom: insets.bottom || 16,
             }}
           >
+            {/* Drag Handle */}
+            <View
+              style={{
+                alignItems: 'center',
+                paddingTop: 8,
+                paddingBottom: 4,
+              }}
+            >
+              <View
+                style={{
+                  width: 40,
+                  height: 4,
+                  backgroundColor: '#d1d5db',
+                  borderRadius: 2,
+                }}
+              />
+            </View>
+
             {/* Header */}
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 16,
+                paddingHorizontal: 20,
+                paddingTop: 12,
+                paddingBottom: 16,
                 borderBottomWidth: 1,
                 borderBottomColor: '#f3f4f6',
               }}
             >
               <Text
                 style={{
-                  fontSize: 18,
-                  fontWeight: '600',
+                  fontSize: 20,
+                  fontWeight: '700',
                   color: '#111827',
                 }}
               >
@@ -333,11 +378,11 @@ const Dropdown: React.FC<DropdownProps> = ({
                 onPress={closeDropdown}
                 style={{
                   padding: 8,
-                  borderRadius: 8,
+                  borderRadius: 20,
                   backgroundColor: '#f3f4f6',
                 }}
               >
-                <Ionicons name="close" size={20} color="#6b7280" />
+                <Ionicons name="close" size={22} color="#6b7280" />
               </TouchableOpacity>
             </View>
 
@@ -345,10 +390,9 @@ const Dropdown: React.FC<DropdownProps> = ({
             {searchable && (
               <View
                 style={{
-                  paddingHorizontal: 16,
-                  paddingVertical: 12,
-                  borderBottomWidth: 1,
-                  borderBottomColor: '#f3f4f6',
+                  paddingHorizontal: 20,
+                  paddingVertical: 16,
+                  backgroundColor: '#ffffff',
                 }}
               >
                 <View
@@ -356,10 +400,10 @@ const Dropdown: React.FC<DropdownProps> = ({
                     flexDirection: 'row',
                     alignItems: 'center',
                     borderWidth: 1,
-                    borderColor: '#d1d5db',
-                    borderRadius: 8,
-                    paddingHorizontal: 12,
-                    paddingVertical: 8,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    paddingHorizontal: 14,
+                    paddingVertical: 10,
                     backgroundColor: '#f9fafb',
                   }}
                 >
@@ -367,7 +411,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                     name="search"
                     size={20}
                     color="#6b7280"
-                    style={{ marginRight: 8 }}
+                    style={{ marginRight: 10 }}
                   />
                   <TextInput
                     style={{
@@ -379,14 +423,15 @@ const Dropdown: React.FC<DropdownProps> = ({
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     placeholder={searchPlaceholder}
-                    placeholderTextColor="#64748b"
+                    placeholderTextColor="#9ca3af"
+                    autoFocus
                   />
                   {searchQuery.length > 0 && (
                     <TouchableOpacity
                       onPress={() => setSearchQuery('')}
-                      style={{ marginLeft: 8 }}
+                      style={{ marginLeft: 8, padding: 4 }}
                     >
-                      <Ionicons name="close-circle" size={20} color="#6b7280" />
+                      <Ionicons name="close-circle" size={20} color="#9ca3af" />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -402,42 +447,69 @@ const Dropdown: React.FC<DropdownProps> = ({
                   renderItem={renderOption}
                   showsVerticalScrollIndicator={true}
                   keyboardShouldPersistTaps="handled"
+                  contentContainerStyle={{
+                    paddingBottom: 8,
+                  }}
                 />
               ) : (
                 <View
                   style={{
-                    paddingVertical: 40,
-                    paddingHorizontal: 16,
+                    paddingVertical: 60,
+                    paddingHorizontal: 20,
                     alignItems: 'center',
                   }}
                 >
-                  <Ionicons
-                    name="search"
-                    size={48}
-                    color="#d1d5db"
-                    style={{ marginBottom: 12 }}
-                  />
+                  <View
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 32,
+                      backgroundColor: '#f3f4f6',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 16,
+                    }}
+                  >
+                    <Ionicons name="search" size={32} color="#9ca3af" />
+                  </View>
                   <Text
                     style={{
                       fontSize: 16,
-                      color: '#6b7280',
+                      fontWeight: '600',
+                      color: '#374151',
                       textAlign: 'center',
+                      marginBottom: 4,
                     }}
                   >
                     {noResultsText}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: '#6b7280',
+                      textAlign: 'center',
+                      marginBottom: 16,
+                    }}
+                  >
+                    Try adjusting your search
                   </Text>
                   {searchQuery && (
                     <TouchableOpacity
                       onPress={() => setSearchQuery('')}
                       style={{
-                        marginTop: 12,
-                        paddingHorizontal: 16,
-                        paddingVertical: 8,
+                        paddingHorizontal: 20,
+                        paddingVertical: 10,
                         backgroundColor: '#0066A1',
-                        borderRadius: 6,
+                        borderRadius: 8,
                       }}
                     >
-                      <Text style={{ color: '#ffffff', fontSize: 14 }}>
+                      <Text
+                        style={{
+                          color: '#ffffff',
+                          fontSize: 15,
+                          fontWeight: '600',
+                        }}
+                      >
                         Clear Search
                       </Text>
                     </TouchableOpacity>
@@ -445,8 +517,8 @@ const Dropdown: React.FC<DropdownProps> = ({
                 </View>
               )}
             </View>
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </View>
   );

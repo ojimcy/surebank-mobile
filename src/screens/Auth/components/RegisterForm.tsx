@@ -5,8 +5,8 @@
  * and integration with authentication services.
  */
 
-import React from 'react';
-import { View, Text, Linking } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, Linking, TextInput } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -97,6 +97,14 @@ export default function RegisterForm({
 }: RegisterFormProps) {
   const { trackFormSubmission } = useActivityTracking();
   const registerMutation = useRegisterMutation();
+
+  // Refs for keyboard navigation
+  const lastNameRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
+  const phoneRef = useRef<TextInput>(null);
+  const addressRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const confirmPasswordRef = useRef<TextInput>(null);
 
   const {
     control,
@@ -198,6 +206,8 @@ export default function RegisterForm({
                 textContentType="givenName"
                 accessibilityLabel="First name"
                 accessibilityHint="Enter your first name"
+                returnKeyType="next"
+                onSubmitEditing={() => lastNameRef.current?.focus()}
               />
             </View>
             <View className="flex-1">
@@ -211,6 +221,9 @@ export default function RegisterForm({
                 textContentType="familyName"
                 accessibilityLabel="Last name"
                 accessibilityHint="Enter your last name"
+                returnKeyType="next"
+                onSubmitEditing={() => emailRef.current?.focus()}
+                ref={lastNameRef}
               />
             </View>
           </View>
@@ -228,6 +241,9 @@ export default function RegisterForm({
             textContentType="emailAddress"
             accessibilityLabel="Email address"
             accessibilityHint="Enter your email address"
+            returnKeyType="next"
+            onSubmitEditing={() => phoneRef.current?.focus()}
+            ref={emailRef}
           />
 
           {/* Phone Number (Optional) */}
@@ -241,6 +257,9 @@ export default function RegisterForm({
             textContentType="telephoneNumber"
             accessibilityLabel="Phone number"
             accessibilityHint="Enter your phone number (optional)"
+            returnKeyType="next"
+            onSubmitEditing={() => addressRef.current?.focus()}
+            ref={phoneRef}
           />
 
           {/* Address (Optional) */}
@@ -255,6 +274,9 @@ export default function RegisterForm({
             textContentType="fullStreetAddress"
             accessibilityLabel="Address"
             accessibilityHint="Enter your address (optional)"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            ref={addressRef}
           />
 
           {/* Password */}
@@ -265,10 +287,14 @@ export default function RegisterForm({
             placeholder="Enter a secure password"
             leftIcon="lock-closed-outline"
             secureTextEntry
+            autoCapitalize="none"
             textContentType="newPassword"
             accessibilityLabel="Password"
             accessibilityHint="Enter a secure password with at least 8 characters"
             helperText="Must contain uppercase, lowercase, and number"
+            returnKeyType="next"
+            onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+            ref={passwordRef}
           />
 
           {/* Confirm Password */}
@@ -279,9 +305,13 @@ export default function RegisterForm({
             placeholder="Re-enter your password"
             leftIcon="lock-closed-outline"
             secureTextEntry
+            autoCapitalize="none"
             textContentType="newPassword"
             accessibilityLabel="Confirm password"
             accessibilityHint="Re-enter your password to confirm"
+            returnKeyType="done"
+            onSubmitEditing={handleSubmit(onSubmit)}
+            ref={confirmPasswordRef}
           />
 
           {/* Terms and Conditions */}

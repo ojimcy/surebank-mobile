@@ -25,6 +25,8 @@ export interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle;
   inputStyle?: TextStyle;
   disabled?: boolean;
+  returnKeyType?: TextInputProps['returnKeyType'];
+  onSubmitEditing?: TextInputProps['onSubmitEditing'];
 }
 
 export const Input = forwardRef<TextInput, InputProps>(function Input(
@@ -41,6 +43,8 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
     disabled = false,
     onFocus,
     onBlur,
+    returnKeyType,
+    onSubmitEditing,
     ...textInputProps
   },
   ref
@@ -118,6 +122,8 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
           editable={!disabled}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
           {...textInputProps}
         />
 

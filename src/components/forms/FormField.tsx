@@ -1,20 +1,20 @@
 /**
  * SureBank Form Field Component
- * 
+ *
  * React Hook Form integrated field component with validation,
  * error handling, and professional styling.
  */
 
-import React from 'react';
-import { 
-  Control, 
-  FieldPath, 
-  FieldValues, 
+import React, { forwardRef } from 'react';
+import {
+  Control,
+  FieldPath,
+  FieldValues,
   useController,
   RegisterOptions,
 } from 'react-hook-form';
 import Input, { InputProps } from './Input';
-import { ViewStyle } from 'react-native';
+import { ViewStyle, TextInput } from 'react-native';
 
 export interface FormFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -24,25 +24,34 @@ export interface FormFieldProps<
   control: Control<TFieldValues>;
   name: TName;
   rules?: RegisterOptions<TFieldValues, TName>;
-  
+
   // Custom validation message
   customErrorMessage?: string;
-  
+
   // Styling
   containerStyle?: ViewStyle;
+
+  // Keyboard navigation
+  returnKeyType?: InputProps['returnKeyType'];
+  onSubmitEditing?: InputProps['onSubmitEditing'];
 }
 
-export function FormField<
+export const FormField = forwardRef(function FormField<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({
-  control,
-  name,
-  rules,
-  customErrorMessage,
-  containerStyle,
-  ...inputProps
-}: FormFieldProps<TFieldValues, TName>) {
+>(
+  {
+    control,
+    name,
+    rules,
+    customErrorMessage,
+    containerStyle,
+    returnKeyType,
+    onSubmitEditing,
+    ...inputProps
+  }: FormFieldProps<TFieldValues, TName>,
+  ref: React.Ref<TextInput>
+) {
   const {
     field: { value, onChange, onBlur },
     fieldState: { error, isTouched },
@@ -58,14 +67,22 @@ export function FormField<
 
   return (
     <Input
+      ref={ref}
       {...inputProps}
       value={value || ''}
       onChangeText={onChange}
       onBlur={onBlur}
       errorText={showError ? errorMessage : undefined}
       containerStyle={containerStyle}
+      returnKeyType={returnKeyType}
+      onSubmitEditing={onSubmitEditing}
     />
   );
-}
+}) as <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>(
+  props: FormFieldProps<TFieldValues, TName> & { ref?: React.Ref<TextInput> }
+) => React.ReactElement;
 
 export default FormField;

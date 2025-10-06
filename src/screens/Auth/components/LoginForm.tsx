@@ -5,17 +5,17 @@
  * and integration with authentication services.
  */
 
-import React, { useState } from 'react';
-import { View, Text, Alert } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, TextInput } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { 
-  Form, 
-  FormField, 
-  PrimaryButton, 
+import {
+  Form,
+  FormField,
+  PrimaryButton,
   GhostButton,
-  Checkbox 
+  Checkbox
 } from '@/components/forms';
 import { useLoginMutation } from '@/hooks/auth';
 import { useActivityTracking } from '@/components/security/ActivityTracker';
@@ -60,10 +60,13 @@ export default function LoginForm({
   const { trackFormSubmission } = useActivityTracking();
   const loginMutation = useLoginMutation();
 
+  // Refs for keyboard navigation
+  const passwordRef = useRef<TextInput>(null);
+
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
     watch,
   } = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
@@ -95,7 +98,7 @@ export default function LoginForm({
       });
 
       onSuccess?.();
-    } catch (error: any) {
+    } catch (error) {
       // Error handling is managed by the mutation
       // Additional error handling can be added here if needed
       console.error('Login error:', error);
@@ -148,6 +151,8 @@ export default function LoginForm({
             textContentType={identifierType === 'email' ? 'emailAddress' : 'telephoneNumber'}
             accessibilityLabel="Email or phone number"
             accessibilityHint="Enter your email address or phone number"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
           />
 
           <FormField
@@ -157,9 +162,13 @@ export default function LoginForm({
             placeholder="Enter your password"
             leftIcon="lock-closed-outline"
             secureTextEntry
+            autoCapitalize="none"
             textContentType="password"
             accessibilityLabel="Password"
             accessibilityHint="Enter your account password"
+            returnKeyType="done"
+            onSubmitEditing={handleSubmit(onSubmit)}
+            ref={passwordRef}
           />
 
           {/* Remember Me & Forgot Password Row */}

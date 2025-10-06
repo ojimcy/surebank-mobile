@@ -5,7 +5,7 @@
  * Steps: Personal Info → ID Details → Document Upload → Review & Submit
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -26,7 +26,6 @@ import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import type { SettingsScreenProps } from '@/navigation/types';
 import kycApi from '@/services/api/kyc';
-import imageUploadService from '@/services/upload/imageUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { DateInput, Dropdown } from '@/components/forms';
 import type { DropdownOption } from '@/components/forms';
@@ -65,7 +64,11 @@ interface DocumentImages {
 const ID_TYPES: DropdownOption[] = [
   { value: 'national_id', label: 'National ID Card', icon: 'card-outline' },
   { value: 'drivers_license', label: "Driver's License", icon: 'car-outline' },
-  { value: 'passport', label: 'International Passport', icon: 'airplane-outline' },
+  {
+    value: 'passport',
+    label: 'International Passport',
+    icon: 'airplane-outline',
+  },
   { value: 'voters_card', label: "Voter's Card", icon: 'finger-print-outline' },
 ];
 
@@ -75,10 +78,11 @@ const GENDER_OPTIONS: DropdownOption[] = [
   { value: 'other', label: 'Other', icon: 'person-outline' },
 ];
 
-export default function KYCIdVerificationScreen({ navigation }: SettingsScreenProps<'KYCIdVerification'>) {
+export default function KYCIdVerificationScreen({
+  navigation,
+}: SettingsScreenProps<'KYCIdVerification'>) {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form states
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
@@ -100,7 +104,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
     selfieImage: null,
   });
 
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const steps = [
     'Personal Information',
@@ -111,11 +115,12 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
 
   // Validation functions
   const validatePersonalInfo = (): boolean => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
 
     if (!personalInfo.firstName) newErrors.firstName = 'First name is required';
     if (!personalInfo.lastName) newErrors.lastName = 'Last name is required';
-    if (!personalInfo.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+    if (!personalInfo.dateOfBirth)
+      newErrors.dateOfBirth = 'Date of birth is required';
     if (!personalInfo.gender) newErrors.gender = 'Gender is required';
     if (!personalInfo.address) newErrors.address = 'Address is required';
 
@@ -127,7 +132,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
   };
 
   const validateIdInfo = (): boolean => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
 
     if (!idInfo.idType) newErrors.idType = 'ID type is required';
     if (!idInfo.idNumber) newErrors.idNumber = 'ID number is required';
@@ -141,10 +146,12 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
   };
 
   const validateDocuments = (): boolean => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
 
-    if (!documents.idImage?.uploaded) newErrors.idImage = 'Please upload your ID document';
-    if (!documents.selfieImage?.uploaded) newErrors.selfieImage = 'Please upload a selfie';
+    if (!documents.idImage?.uploaded)
+      newErrors.idImage = 'Please upload your ID document';
+    if (!documents.selfieImage?.uploaded)
+      newErrors.selfieImage = 'Please upload a selfie';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -161,7 +168,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
       });
 
       if (!result.canceled && result.assets[0]) {
-        setDocuments(prev => ({
+        setDocuments((prev) => ({
           ...prev,
           [type]: {
             uri: result.assets[0].uri,
@@ -172,7 +179,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
 
         // Simulate upload (replace with actual upload)
         setTimeout(() => {
-          setDocuments(prev => ({
+          setDocuments((prev) => ({
             ...prev,
             [type]: {
               uri: result.assets[0].uri,
@@ -183,11 +190,13 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
           Toast.show({
             type: 'success',
             text1: 'Upload Successful',
-            text2: type === 'idImage' ? 'ID document uploaded' : 'Selfie uploaded',
+            text2:
+              type === 'idImage' ? 'ID document uploaded' : 'Selfie uploaded',
           });
         }, 2000);
       }
     } catch (error) {
+      console.error('Failed to pick image:', error);
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -198,10 +207,14 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
 
   const takePhoto = async (type: 'selfieImage') => {
     try {
-      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      const permissionResult =
+        await ImagePicker.requestCameraPermissionsAsync();
 
       if (!permissionResult.granted) {
-        Alert.alert('Permission Required', 'Camera permission is required to take photos');
+        Alert.alert(
+          'Permission Required',
+          'Camera permission is required to take photos'
+        );
         return;
       }
 
@@ -212,7 +225,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
       });
 
       if (!result.canceled && result.assets[0]) {
-        setDocuments(prev => ({
+        setDocuments((prev) => ({
           ...prev,
           [type]: {
             uri: result.assets[0].uri,
@@ -223,7 +236,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
 
         // Simulate upload
         setTimeout(() => {
-          setDocuments(prev => ({
+          setDocuments((prev) => ({
             ...prev,
             [type]: {
               uri: result.assets[0].uri,
@@ -239,6 +252,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
         }, 2000);
       }
     } catch (error) {
+      console.error('Failed to take photo:', error);
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -266,13 +280,13 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
     }
 
     if (isValid) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
       setErrors({});
     }
   };
 
   const handleBack = () => {
-    setCurrentStep(prev => prev - 1);
+    setCurrentStep((prev) => prev - 1);
     setErrors({});
   };
 
@@ -297,7 +311,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
     onSuccess: () => {
       navigation.navigate('KYCSuccess');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       Toast.show({
         type: 'error',
         text1: 'Submission Failed',
@@ -325,16 +339,31 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
             {index < currentStep ? (
               <Ionicons name="checkmark" size={16} color="#FFFFFF" />
             ) : (
-              <Text style={[styles.stepNumber, index <= currentStep && styles.stepNumberActive]}>
+              <Text
+                style={[
+                  styles.stepNumber,
+                  index <= currentStep && styles.stepNumberActive,
+                ]}
+              >
                 {index + 1}
               </Text>
             )}
           </View>
-          <Text style={[styles.stepLabel, index <= currentStep && styles.stepLabelActive]}>
+          <Text
+            style={[
+              styles.stepLabel,
+              index <= currentStep && styles.stepLabelActive,
+            ]}
+          >
             {step}
           </Text>
           {index < steps.length - 1 && (
-            <View style={[styles.stepLine, index < currentStep && styles.stepLineActive]} />
+            <View
+              style={[
+                styles.stepLine,
+                index < currentStep && styles.stepLineActive,
+              ]}
+            />
           )}
         </View>
       ))}
@@ -347,25 +376,20 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#212529" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>ID Verification</Text>
-          <View style={{ width: 40 }} />
-        </View>
-
         {/* Step Indicator */}
         <StepIndicator />
 
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Step 0: Personal Information */}
           {currentStep === 0 && (
             <View style={styles.stepContent}>
               <Text style={styles.stepTitle}>Personal Information</Text>
               <Text style={styles.stepDescription}>
-                Please provide your personal details exactly as they appear on your ID
+                Please provide your personal details exactly as they appear on
+                your ID
               </Text>
 
               <View style={styles.formGroup}>
@@ -373,10 +397,14 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                 <TextInput
                   style={[styles.input, errors.firstName && styles.inputError]}
                   value={personalInfo.firstName}
-                  onChangeText={(text) => setPersonalInfo(prev => ({ ...prev, firstName: text }))}
+                  onChangeText={(text) =>
+                    setPersonalInfo((prev) => ({ ...prev, firstName: text }))
+                  }
                   placeholder="Enter first name"
                 />
-                {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
+                {errors.firstName && (
+                  <Text style={styles.errorText}>{errors.firstName}</Text>
+                )}
               </View>
 
               <View style={styles.formGroup}>
@@ -384,19 +412,34 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                 <TextInput
                   style={[styles.input, errors.lastName && styles.inputError]}
                   value={personalInfo.lastName}
-                  onChangeText={(text) => setPersonalInfo(prev => ({ ...prev, lastName: text }))}
+                  onChangeText={(text) =>
+                    setPersonalInfo((prev) => ({ ...prev, lastName: text }))
+                  }
                   placeholder="Enter last name"
                 />
-                {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
+                {errors.lastName && (
+                  <Text style={styles.errorText}>{errors.lastName}</Text>
+                )}
               </View>
 
               <View style={styles.formGroup}>
                 <DateInput
                   label="Date of Birth"
                   value={personalInfo.dateOfBirth}
-                  onDateChange={(date) => setPersonalInfo(prev => ({ ...prev, dateOfBirth: date ? format(date, 'yyyy-MM-dd') : '' }))}
+                  onDateChange={(date) =>
+                    setPersonalInfo((prev) => ({
+                      ...prev,
+                      dateOfBirth: date ? format(date, 'yyyy-MM-dd') : '',
+                    }))
+                  }
                   placeholder="DD/MM/YYYY"
-                  maxDate={new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate())}
+                  maxDate={
+                    new Date(
+                      new Date().getFullYear() - 18,
+                      new Date().getMonth(),
+                      new Date().getDate()
+                    )
+                  }
                   errorText={errors.dateOfBirth}
                   helperText="You must be at least 18 years old"
                   required
@@ -408,7 +451,12 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                   label="Gender"
                   value={personalInfo.gender}
                   options={GENDER_OPTIONS}
-                  onValueChange={(value) => setPersonalInfo(prev => ({ ...prev, gender: String(value) }))}
+                  onValueChange={(value) =>
+                    setPersonalInfo((prev) => ({
+                      ...prev,
+                      gender: String(value),
+                    }))
+                  }
                   placeholder="Select your gender"
                   errorText={errors.gender}
                   required
@@ -418,14 +466,22 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
               <View style={styles.formGroup}>
                 <Text style={styles.label}>Address</Text>
                 <TextInput
-                  style={[styles.input, styles.textArea, errors.address && styles.inputError]}
+                  style={[
+                    styles.input,
+                    styles.textArea,
+                    errors.address && styles.inputError,
+                  ]}
                   value={personalInfo.address}
-                  onChangeText={(text) => setPersonalInfo(prev => ({ ...prev, address: text }))}
+                  onChangeText={(text) =>
+                    setPersonalInfo((prev) => ({ ...prev, address: text }))
+                  }
                   placeholder="Enter your residential address"
                   multiline
                   numberOfLines={3}
                 />
-                {errors.address && <Text style={styles.errorText}>{errors.address}</Text>}
+                {errors.address && (
+                  <Text style={styles.errorText}>{errors.address}</Text>
+                )}
               </View>
             </View>
           )}
@@ -443,7 +499,9 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                   label="ID Type"
                   value={idInfo.idType}
                   options={ID_TYPES}
-                  onValueChange={(value) => setIdInfo(prev => ({ ...prev, idType: value as IdType }))}
+                  onValueChange={(value) =>
+                    setIdInfo((prev) => ({ ...prev, idType: value as IdType }))
+                  }
                   placeholder="Select ID type"
                   errorText={errors.idType}
                   helperText="Choose the government-issued ID you want to verify with"
@@ -459,14 +517,19 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                     value={idInfo.idNumber}
                     onChangeText={(text) => {
                       // Format based on ID type
-                      const formatted = text.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                      setIdInfo(prev => ({ ...prev, idNumber: formatted }));
+                      const formatted = text
+                        .toUpperCase()
+                        .replace(/[^A-Z0-9]/g, '');
+                      setIdInfo((prev) => ({ ...prev, idNumber: formatted }));
                     }}
                     placeholder={
-                      idInfo.idType === 'national_id' ? 'e.g., 12345678901' :
-                      idInfo.idType === 'drivers_license' ? 'e.g., ABC12345678' :
-                      idInfo.idType === 'passport' ? 'e.g., A12345678' :
-                      'Enter ID number'
+                      idInfo.idType === 'national_id'
+                        ? 'e.g., 12345678901'
+                        : idInfo.idType === 'drivers_license'
+                        ? 'e.g., ABC12345678'
+                        : idInfo.idType === 'passport'
+                        ? 'e.g., A12345678'
+                        : 'Enter ID number'
                     }
                     autoCapitalize="characters"
                     maxLength={20}
@@ -474,19 +537,27 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                   {idInfo.idNumber && (
                     <TouchableOpacity
                       style={styles.clearButton}
-                      onPress={() => setIdInfo(prev => ({ ...prev, idNumber: '' }))}
+                      onPress={() =>
+                        setIdInfo((prev) => ({ ...prev, idNumber: '' }))
+                      }
                     >
                       <Ionicons name="close-circle" size={20} color="#9CA3AF" />
                     </TouchableOpacity>
                   )}
                 </View>
-                {errors.idNumber && <Text style={styles.errorText}>{errors.idNumber}</Text>}
+                {errors.idNumber && (
+                  <Text style={styles.errorText}>{errors.idNumber}</Text>
+                )}
                 {idInfo.idType && !errors.idNumber && (
                   <Text style={styles.helperText}>
-                    {idInfo.idType === 'national_id' && 'Enter your 11-digit NIN'}
-                    {idInfo.idType === 'drivers_license' && 'Enter your driver\'s license number'}
-                    {idInfo.idType === 'passport' && 'Enter your passport number'}
-                    {idInfo.idType === 'voters_card' && 'Enter your voter\'s card number'}
+                    {idInfo.idType === 'national_id' &&
+                      'Enter your 11-digit NIN'}
+                    {idInfo.idType === 'drivers_license' &&
+                      "Enter your driver's license number"}
+                    {idInfo.idType === 'passport' &&
+                      'Enter your passport number'}
+                    {idInfo.idType === 'voters_card' &&
+                      "Enter your voter's card number"}
                   </Text>
                 )}
               </View>
@@ -495,7 +566,12 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                 <DateInput
                   label="Expiry Date"
                   value={idInfo.expiryDate}
-                  onDateChange={(date) => setIdInfo(prev => ({ ...prev, expiryDate: date ? format(date, 'yyyy-MM-dd') : '' }))}
+                  onDateChange={(date) =>
+                    setIdInfo((prev) => ({
+                      ...prev,
+                      expiryDate: date ? format(date, 'yyyy-MM-dd') : '',
+                    }))
+                  }
                   placeholder="DD/MM/YYYY"
                   minDate={new Date()}
                   errorText={errors.expiryDate}
@@ -517,11 +593,16 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
               {/* ID Document Upload */}
               <View style={styles.uploadSection}>
                 <Text style={styles.uploadLabel}>ID Document</Text>
-                <Text style={styles.uploadHint}>Upload a clear photo of your ID</Text>
+                <Text style={styles.uploadHint}>
+                  Upload a clear photo of your ID
+                </Text>
 
                 {documents.idImage ? (
                   <View style={styles.imagePreview}>
-                    <Image source={{ uri: documents.idImage.uri }} style={styles.previewImage} />
+                    <Image
+                      source={{ uri: documents.idImage.uri }}
+                      style={styles.previewImage}
+                    />
                     {documents.idImage.uploading && (
                       <View style={styles.uploadingOverlay}>
                         <ActivityIndicator size="large" color="#FFFFFF" />
@@ -530,33 +611,55 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                     )}
                     {documents.idImage.uploaded && (
                       <View style={styles.uploadedBadge}>
-                        <Ionicons name="checkmark-circle" size={24} color="#28A745" />
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={24}
+                          color="#28A745"
+                        />
                       </View>
                     )}
                     <TouchableOpacity
                       style={styles.removeButton}
-                      onPress={() => setDocuments(prev => ({ ...prev, idImage: null }))}
+                      onPress={() =>
+                        setDocuments((prev) => ({ ...prev, idImage: null }))
+                      }
                     >
                       <Ionicons name="close-circle" size={24} color="#DC3545" />
                     </TouchableOpacity>
                   </View>
                 ) : (
-                  <TouchableOpacity style={styles.uploadButton} onPress={() => pickImage('idImage')}>
-                    <Ionicons name="cloud-upload-outline" size={32} color="#0066A1" />
-                    <Text style={styles.uploadButtonText}>Choose from Gallery</Text>
+                  <TouchableOpacity
+                    style={styles.uploadButton}
+                    onPress={() => pickImage('idImage')}
+                  >
+                    <Ionicons
+                      name="cloud-upload-outline"
+                      size={32}
+                      color="#0066A1"
+                    />
+                    <Text style={styles.uploadButtonText}>
+                      Choose from Gallery
+                    </Text>
                   </TouchableOpacity>
                 )}
-                {errors.idImage && <Text style={styles.errorText}>{errors.idImage}</Text>}
+                {errors.idImage && (
+                  <Text style={styles.errorText}>{errors.idImage}</Text>
+                )}
               </View>
 
               {/* Selfie Upload */}
               <View style={styles.uploadSection}>
                 <Text style={styles.uploadLabel}>Selfie</Text>
-                <Text style={styles.uploadHint}>Take a clear selfie of yourself</Text>
+                <Text style={styles.uploadHint}>
+                  Take a clear selfie of yourself
+                </Text>
 
                 {documents.selfieImage ? (
                   <View style={styles.imagePreview}>
-                    <Image source={{ uri: documents.selfieImage.uri }} style={styles.previewImage} />
+                    <Image
+                      source={{ uri: documents.selfieImage.uri }}
+                      style={styles.previewImage}
+                    />
                     {documents.selfieImage.uploading && (
                       <View style={styles.uploadingOverlay}>
                         <ActivityIndicator size="large" color="#FFFFFF" />
@@ -565,29 +668,53 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                     )}
                     {documents.selfieImage.uploaded && (
                       <View style={styles.uploadedBadge}>
-                        <Ionicons name="checkmark-circle" size={24} color="#28A745" />
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={24}
+                          color="#28A745"
+                        />
                       </View>
                     )}
                     <TouchableOpacity
                       style={styles.removeButton}
-                      onPress={() => setDocuments(prev => ({ ...prev, selfieImage: null }))}
+                      onPress={() =>
+                        setDocuments((prev) => ({ ...prev, selfieImage: null }))
+                      }
                     >
                       <Ionicons name="close-circle" size={24} color="#DC3545" />
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <View style={styles.uploadOptions}>
-                    <TouchableOpacity style={styles.uploadButton} onPress={() => takePhoto('selfieImage')}>
-                      <Ionicons name="camera-outline" size={32} color="#0066A1" />
+                    <TouchableOpacity
+                      style={styles.uploadButton}
+                      onPress={() => takePhoto('selfieImage')}
+                    >
+                      <Ionicons
+                        name="camera-outline"
+                        size={32}
+                        color="#0066A1"
+                      />
                       <Text style={styles.uploadButtonText}>Take Photo</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.uploadButton} onPress={() => pickImage('selfieImage')}>
-                      <Ionicons name="image-outline" size={32} color="#0066A1" />
-                      <Text style={styles.uploadButtonText}>Choose from Gallery</Text>
+                    <TouchableOpacity
+                      style={styles.uploadButton}
+                      onPress={() => pickImage('selfieImage')}
+                    >
+                      <Ionicons
+                        name="image-outline"
+                        size={32}
+                        color="#0066A1"
+                      />
+                      <Text style={styles.uploadButtonText}>
+                        Choose from Gallery
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 )}
-                {errors.selfieImage && <Text style={styles.errorText}>{errors.selfieImage}</Text>}
+                {errors.selfieImage && (
+                  <Text style={styles.errorText}>{errors.selfieImage}</Text>
+                )}
               </View>
             </View>
           )}
@@ -604,11 +731,15 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                 <Text style={styles.reviewTitle}>Personal Information</Text>
                 <View style={styles.reviewItem}>
                   <Text style={styles.reviewLabel}>Name:</Text>
-                  <Text style={styles.reviewValue}>{personalInfo.firstName} {personalInfo.lastName}</Text>
+                  <Text style={styles.reviewValue}>
+                    {personalInfo.firstName} {personalInfo.lastName}
+                  </Text>
                 </View>
                 <View style={styles.reviewItem}>
                   <Text style={styles.reviewLabel}>Date of Birth:</Text>
-                  <Text style={styles.reviewValue}>{personalInfo.dateOfBirth}</Text>
+                  <Text style={styles.reviewValue}>
+                    {personalInfo.dateOfBirth}
+                  </Text>
                 </View>
                 <View style={styles.reviewItem}>
                   <Text style={styles.reviewLabel}>Gender:</Text>
@@ -625,7 +756,7 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                 <View style={styles.reviewItem}>
                   <Text style={styles.reviewLabel}>ID Type:</Text>
                   <Text style={styles.reviewValue}>
-                    {ID_TYPES.find(t => t.value === idInfo.idType)?.label}
+                    {ID_TYPES.find((t) => t.value === idInfo.idType)?.label}
                   </Text>
                 </View>
                 <View style={styles.reviewItem}>
@@ -643,13 +774,19 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
                 <View style={styles.documentThumbnails}>
                   {documents.idImage && (
                     <View style={styles.thumbnail}>
-                      <Image source={{ uri: documents.idImage.uri }} style={styles.thumbnailImage} />
+                      <Image
+                        source={{ uri: documents.idImage.uri }}
+                        style={styles.thumbnailImage}
+                      />
                       <Text style={styles.thumbnailLabel}>ID Document</Text>
                     </View>
                   )}
                   {documents.selfieImage && (
                     <View style={styles.thumbnail}>
-                      <Image source={{ uri: documents.selfieImage.uri }} style={styles.thumbnailImage} />
+                      <Image
+                        source={{ uri: documents.selfieImage.uri }}
+                        style={styles.thumbnailImage}
+                      />
                       <Text style={styles.thumbnailLabel}>Selfie</Text>
                     </View>
                   )}
@@ -657,10 +794,15 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
               </View>
 
               <View style={styles.disclaimerBox}>
-                <Ionicons name="information-circle-outline" size={20} color="#0066A1" />
+                <Ionicons
+                  name="information-circle-outline"
+                  size={20}
+                  color="#0066A1"
+                />
                 <Text style={styles.disclaimerText}>
-                  By submitting, you confirm that all information provided is accurate and belongs to you.
-                  Providing false information may result in account suspension.
+                  By submitting, you confirm that all information provided is
+                  accurate and belongs to you. Providing false information may
+                  result in account suspension.
                 </Text>
               </View>
             </View>
@@ -681,14 +823,20 @@ export default function KYCIdVerificationScreen({ navigation }: SettingsScreenPr
 
           {currentStep < steps.length - 1 ? (
             <TouchableOpacity
-              style={[styles.nextButton, currentStep === 0 && styles.fullWidthButton]}
+              style={[
+                styles.nextButton,
+                currentStep === 0 && styles.fullWidthButton,
+              ]}
               onPress={handleNext}
             >
               <Text style={styles.nextButtonText}>Continue</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              style={[styles.submitButton, submitKycMutation.isPending && styles.submitButtonDisabled]}
+              style={[
+                styles.submitButton,
+                submitKycMutation.isPending && styles.submitButtonDisabled,
+              ]}
               onPress={handleSubmit}
               disabled={submitKycMutation.isPending}
             >
