@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     ...config,
     name: 'Surebank Stores',
-    slug: 'surebank-native',
+    slug: 'surebank-stores',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
@@ -14,35 +14,38 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     splash: {
       image: './assets/splash-icon.png',
       resizeMode: 'contain',
-      backgroundColor: '#1a2c4f' // Dark navy background matching brand
+      backgroundColor: '#1a2c4f', // Dark navy background matching brand
     },
-    description: 'Surebank Stores - Shop Smart, Save Smart. Your all-in-one marketplace for shopping quality products and building your savings. Buy what you need, save for what you want.',
+    description:
+      'Surebank Stores - Shop Smart, Save Smart. Your all-in-one marketplace for shopping quality products and building your savings. Buy what you need, save for what you want.',
     primaryColor: '#1a2c4f', // Navy blue brand color
-    assetBundlePatterns: [
-      '**/*'
-    ],
+    assetBundlePatterns: ['**/*'],
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.surebankstores.app',
       buildNumber: '1',
       userInterfaceStyle: 'dark',
       infoPlist: {
-        NSCameraUsageDescription: 'Surebank Stores needs camera access for product photos and secure KYC identity verification',
-        NSPhotoLibraryUsageDescription: 'Surebank Stores needs photo library access to upload product photos and identity documents for KYC verification',
-        NSFaceIDUsageDescription: 'Surebank Stores uses Face ID to securely authenticate your identity and protect your account',
-        NSLocationWhenInUseUsageDescription: 'Surebank Stores may use your location to show nearby stores and delivery options',
+        NSCameraUsageDescription:
+          'Surebank Stores needs camera access for product photos and secure KYC identity verification',
+        NSPhotoLibraryUsageDescription:
+          'Surebank Stores needs photo library access to upload product photos and identity documents for KYC verification',
+        NSFaceIDUsageDescription:
+          'Surebank Stores uses Face ID to securely authenticate your identity and protect your account',
+        NSLocationWhenInUseUsageDescription:
+          'Surebank Stores may use your location to show nearby stores and delivery options',
         CFBundleDisplayName: 'Surebank Stores',
-        UIRequiresFullScreen: false
+        UIRequiresFullScreen: false,
       },
       config: {
-        usesNonExemptEncryption: false
-      }
+        usesNonExemptEncryption: false,
+      },
     },
     android: {
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#1a2c4f', // Navy blue background
-        monochromeImage: './assets/adaptive-icon.png'
+        monochromeImage: './assets/adaptive-icon.png',
       },
       edgeToEdgeEnabled: true,
       package: 'com.surebankstores.app',
@@ -53,16 +56,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         'android.permission.USE_BIOMETRIC',
         'android.permission.USE_FINGERPRINT',
         'android.permission.INTERNET',
-        'android.permission.ACCESS_NETWORK_STATE'
+        'android.permission.ACCESS_NETWORK_STATE',
       ],
-      blockedPermissions: [
-        'android.permission.RECORD_AUDIO'
-      ],
-      softwareKeyboardLayoutMode: 'pan'
+      blockedPermissions: ['android.permission.RECORD_AUDIO'],
+      softwareKeyboardLayoutMode: 'pan',
     },
     web: {
       favicon: './assets/favicon.png',
-      bundler: 'metro'
+      bundler: 'metro',
     },
     plugins: [
       'expo-font',
@@ -74,25 +75,28 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           android: {
             enableProguardInReleaseBuilds: true,
             enableMinifyInReleaseBuilds: true,
-            enableShrinkResourcesInReleaseBuilds: true
+            enableShrinkResourcesInReleaseBuilds: true,
           },
           ios: {
-            flipper: false
-          }
-        }
-      ]
+            flipper: false,
+          },
+        },
+      ],
     ],
     experiments: {
-      typedRoutes: false
+      typedRoutes: false,
     },
     extra: {
       // EAS project configuration
       eas: {
-        projectId: 'a2ef1fcb-89df-4d9d-864e-1900baa74b02'
+        projectId:
+          process.env.EXPO_EAS_PROJECT_ID ||
+          '0ecf345d-18da-42f8-912b-ecf509a4d85f',
       },
 
       // Environment variables will be accessible via expo-constants
-      apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.surebank.com',
+      apiBaseUrl:
+        process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.surebank.com',
       wsBaseUrl: process.env.EXPO_PUBLIC_WS_BASE_URL || 'wss://ws.surebank.com',
       appName: process.env.EXPO_PUBLIC_APP_NAME || 'SureBank',
       appVersion: process.env.EXPO_PUBLIC_APP_VERSION || '1.0.0',
@@ -102,7 +106,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       // Feature flags
       enableMockData: process.env.EXPO_PUBLIC_ENABLE_MOCK_DATA === 'true',
       enableWebsockets: process.env.EXPO_PUBLIC_ENABLE_WEBSOCKETS !== 'false',
-      enablePushNotifications: process.env.EXPO_PUBLIC_ENABLE_PUSH_NOTIFICATIONS !== 'false',
+      enablePushNotifications:
+        process.env.EXPO_PUBLIC_ENABLE_PUSH_NOTIFICATIONS !== 'false',
 
       // Debug flags
       debugApiCalls: process.env.EXPO_PUBLIC_DEBUG_API_CALLS === 'true',
@@ -119,8 +124,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
 
       // Use Firebase emulator in development
-      useFirebaseEmulator: process.env.EXPO_PUBLIC_USE_FIREBASE_EMULATOR === 'true'
+      useFirebaseEmulator:
+        process.env.EXPO_PUBLIC_USE_FIREBASE_EMULATOR === 'true',
     },
-    owner: 'ojimcy'
+    owner: 'ojimcy',
   };
 };
