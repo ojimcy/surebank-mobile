@@ -11,7 +11,6 @@ import {
     StyleSheet,
     RefreshControl,
     TouchableOpacity,
-    Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -25,9 +24,6 @@ import {
 } from '@/components/store';
 import { useQuery } from '@tanstack/react-query';
 import productsService from '@/services/api/products';
-import type { Product } from '@/services/api/products';
-
-const { width } = Dimensions.get('window');
 
 export default function StoreHomeScreen() {
     const navigation = useNavigation();

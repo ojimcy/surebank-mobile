@@ -36,7 +36,6 @@ export default function RootNavigator() {
   // Listen to token manager events for authentication state changes
   useEffect(() => {
     const handleLoginRequired = () => {
-      console.log('[RootNavigator] Login required - redirecting to auth screen');
       setForceAuthRedirect(true);
       // Trigger logout to clean up auth state
       logout().catch((error) => {
@@ -45,7 +44,6 @@ export default function RootNavigator() {
     };
 
     const handleTokenExpired = () => {
-      console.log('[RootNavigator] Token expired - redirecting to auth screen');
       setForceAuthRedirect(true);
       // Trigger logout to clean up auth state
       logout().catch((error) => {
