@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Platform } from 'react-native';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -56,22 +56,22 @@ export default function MainTabs() {
           }}
         />
         <Tab.Screen
-          name="PackageTab"
-          component={PackageStack}
-          options={{
-            title: 'Packages',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="wallet-outline" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
           name="ProductsTab"
           component={ProductsStack}
           options={{
             title: 'Products',
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="bag-outline" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="PackageTab"
+          component={PackageStack}
+          options={{
+            title: 'Packages',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="wallet-outline" size={size} color={color} />
             ),
           }}
         />

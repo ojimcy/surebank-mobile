@@ -4,8 +4,7 @@ import { stackScreenOptions, secondaryScreenOptions, mainScreenOptions } from '.
 
 import type { SettingsStackParamList } from './types';
 
-// Import dashboard and settings screens
-import DashboardScreen from '@/screens/Dashboard/DashboardScreen';
+// Import settings screens
 import {
   SettingsScreen,
   PersonalInformationScreen,
@@ -31,23 +30,15 @@ const Stack = createStackNavigator<SettingsStackParamList>();
 export default function SettingsStack() {
   return (
     <Stack.Navigator
-      initialRouteName="Dashboard"
+      initialRouteName="Settings"
       screenOptions={stackScreenOptions}
     >
-      <Stack.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          ...mainScreenOptions,
-          title: 'Account'
-        }}
-      />
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          ...secondaryScreenOptions,
-          title: 'Settings'
+          ...mainScreenOptions,
+          title: 'Account'
         }}
       />
       <Stack.Screen

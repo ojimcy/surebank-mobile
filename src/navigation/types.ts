@@ -99,7 +99,6 @@ export type ProductsStackParamList = {
 
 // Settings Stack (Account Tab)
 export type SettingsStackParamList = {
-  Dashboard: undefined;
   Settings: undefined;
   PersonalInformation: undefined;
   NotificationSettings: undefined;

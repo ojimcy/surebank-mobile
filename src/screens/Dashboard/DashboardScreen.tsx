@@ -10,7 +10,7 @@ import {
   SavingsPackages,
   PackageTypes,
 } from '@/components/dashboard';
-import type { SettingsScreenProps, PackageStackParamList } from '@/navigation/types';
+import type { DashboardScreenProps, PackageStackParamList } from '@/navigation/types';
 import type {
   Account,
   PackageType,
@@ -21,7 +21,7 @@ import { useAccountsQuery } from '@/hooks/queries/useAccountsQuery';
 import { usePackagesQuery } from '@/hooks/queries/usePackagesQuery';
 import { useRecentTransactions } from '@/hooks/queries/useTransactionsQuery';
 
-export default function DashboardScreen({ navigation }: SettingsScreenProps<'Dashboard'>) {
+export default function DashboardScreen({ navigation }: DashboardScreenProps<'Dashboard'>) {
   const { user } = useAuth();
   const [showBalance, setShowBalance] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -88,8 +88,10 @@ export default function DashboardScreen({ navigation }: SettingsScreenProps<'Das
         cta: {
           text: 'Complete KYC',
           action: () => {
-            // Navigate to KYC verification
-            navigation.navigate('KYCVerification');
+            // Navigate to KYC verification in Settings tab
+            navigation.getParent()?.navigate('SettingsTab', {
+              screen: 'KYCVerification'
+            });
           },
         },
         condition: (user: any) => user.kycStatus !== 'verified',
@@ -154,8 +156,10 @@ export default function DashboardScreen({ navigation }: SettingsScreenProps<'Das
   };
 
   const handleAvatarPress = () => {
-    // Navigate to Personal Information (Profile) screen
-    navigation.navigate('PersonalInformation');
+    // Navigate to Personal Information (Profile) screen in Settings tab
+    navigation.getParent()?.navigate('SettingsTab', {
+      screen: 'PersonalInformation'
+    });
   };
 
   const handleRefresh = useCallback(async () => {
@@ -175,8 +179,10 @@ export default function DashboardScreen({ navigation }: SettingsScreenProps<'Das
   const handleCreateAccount = useCallback((type: 'ds' | 'sb' | 'ibs') => {
     // Check if user has completed KYC
     if (user?.kycStatus !== 'verified') {
-      // Navigate to KYC verification screen
-      navigation.navigate('KYCVerification');
+      // Navigate to KYC verification screen in Settings tab
+      navigation.getParent()?.navigate('SettingsTab', {
+        screen: 'KYCVerification'
+      });
       return;
     }
 
@@ -211,8 +217,10 @@ export default function DashboardScreen({ navigation }: SettingsScreenProps<'Das
   };
 
   const handleMyCards = () => {
-    // Navigate to Payment Methods in Settings
-    navigation.navigate('PaymentMethods');
+    // Navigate to Payment Methods in Settings tab
+    navigation.getParent()?.navigate('SettingsTab', {
+      screen: 'PaymentMethods'
+    });
   };
 
   const handleSchedules = () => {
