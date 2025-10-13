@@ -12,6 +12,7 @@ import type { ProductsStackParamList } from './types';
 
 // Import screens
 import ProductsHomeScreen from '@/screens/Products/ProductsHomeScreen';
+import ProductDetailScreen from '@/screens/Products/ProductDetailScreen';
 import CreateSBPackageScreen from '@/screens/Package/CreateSBPackageScreen';
 
 const Stack = createStackNavigator<ProductsStackParamList>();
@@ -29,6 +30,22 @@ export default function ProductsStack() {
           ...mainScreenOptions,
           title: 'Products'
         }}
+      />
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+        options={({ navigation }) => ({
+          ...secondaryScreenOptions,
+          title: 'Product Details',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#0066A1" />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="CreateSBPackage"

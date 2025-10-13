@@ -76,9 +76,9 @@ export default function StoreHomeScreen() {
     };
 
     const handleProductPress = (productId: string) => {
-        // Navigate to Products tab with product detail
+        // Navigate to Products tab with product detail screen
         navigation.getParent()?.navigate('ProductsTab', {
-            screen: 'CreateSBPackage',
+            screen: 'ProductDetail',
             params: { productId },
         });
     };
