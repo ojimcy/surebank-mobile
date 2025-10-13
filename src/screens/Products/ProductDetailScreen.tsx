@@ -163,6 +163,7 @@ export default function ProductDetailScreen() {
                                                 styles.imageIndicator,
                                                 activeImageIndex === index &&
                                                     styles.imageIndicatorActive,
+                                                { marginHorizontal: 3 },
                                             ]}
                                         />
                                     ))}
@@ -180,7 +181,7 @@ export default function ProductDetailScreen() {
 
                             {/* Tap to enlarge hint */}
                             <View style={styles.enlargeHint}>
-                                <Ionicons name="expand-outline" size={16} color="white" />
+                                <Ionicons name="expand-outline" size={16} color="white" style={{ marginRight: 4 }} />
                                 <Text style={styles.enlargeHintText}>Tap to enlarge</Text>
                             </View>
                         </>
@@ -201,28 +202,32 @@ export default function ProductDetailScreen() {
                             contentContainerStyle={styles.thumbnailScroll}
                         >
                             {images.map((imageUri, index) => (
-                                <TouchableOpacity
+                                <View
                                     key={index}
-                                    style={[
-                                        styles.thumbnail,
-                                        activeImageIndex === index && styles.thumbnailActive,
-                                    ]}
-                                    onPress={() => handleThumbnailPress(index)}
-                                    activeOpacity={0.7}
+                                    style={styles.thumbnailWrapper}
                                 >
-                                    <Image
-                                        source={{ uri: imageUri }}
-                                        style={styles.thumbnailImage}
-                                        resizeMode="cover"
-                                    />
-                                    {activeImageIndex === index && (
-                                        <View style={styles.thumbnailOverlay}>
-                                            <View style={styles.thumbnailCheckmark}>
-                                                <Ionicons name="checkmark" size={16} color="white" />
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.thumbnail,
+                                            activeImageIndex === index && styles.thumbnailActive,
+                                        ]}
+                                        onPress={() => handleThumbnailPress(index)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Image
+                                            source={{ uri: imageUri }}
+                                            style={styles.thumbnailImage}
+                                            resizeMode="cover"
+                                        />
+                                        {activeImageIndex === index && (
+                                            <View style={styles.thumbnailOverlay}>
+                                                <View style={styles.thumbnailCheckmark}>
+                                                    <Ionicons name="checkmark" size={16} color="white" />
+                                                </View>
                                             </View>
-                                        </View>
-                                    )}
-                                </TouchableOpacity>
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
                             ))}
                         </ScrollView>
                     </View>
@@ -240,7 +245,7 @@ export default function ProductDetailScreen() {
                     {/* Category */}
                     {product.categoryName && (
                         <View style={styles.categoryBadge}>
-                            <Ionicons name="pricetag-outline" size={14} color="#6b7280" />
+                            <Ionicons name="pricetag-outline" size={14} color="#6b7280" style={{ marginRight: 4 }} />
                             <Text style={styles.categoryText}>{product.categoryName}</Text>
                         </View>
                     )}
@@ -276,6 +281,7 @@ export default function ProductDetailScreen() {
                                     product.isAvailable
                                         ? styles.statusDotAvailable
                                         : styles.statusDotUnavailable,
+                                    { marginRight: 6 },
                                 ]}
                             />
                             <Text
@@ -319,6 +325,7 @@ export default function ProductDetailScreen() {
                             name="information-circle-outline"
                             size={20}
                             color="#0066A1"
+                            style={{ marginRight: 12 }}
                         />
                         <Text style={styles.infoCardText}>
                             Create a savings package for this product and save towards it at your
@@ -332,14 +339,14 @@ export default function ProductDetailScreen() {
 
                 {/* Fixed Bottom Action */}
                 <View style={styles.bottomAction}>
-                    <View style={styles.bottomPriceContainer}>
+                    <View style={[styles.bottomPriceContainer, { marginBottom: 12 }]}>
                         <Text style={styles.bottomPriceLabel}>Total Price</Text>
                         <Text style={styles.bottomPrice}>{formatCurrency(displayPrice)}</Text>
                     </View>
 
                     {/* Action Buttons */}
-                    <View style={styles.bottomButtonsRow}>
-                        <View style={styles.buttonHalf}>
+                    <View style={[styles.bottomButtonsRow, { marginBottom: 12 }]}>
+                        <View style={[styles.buttonHalf, { marginRight: 6 }]}>
                             <Button
                                 title="Buy Now"
                                 onPress={handleInstantCheckout}
@@ -350,7 +357,7 @@ export default function ProductDetailScreen() {
                                 disabled={!product.isAvailable}
                             />
                         </View>
-                        <View style={styles.buttonHalf}>
+                        <View style={[styles.buttonHalf, { marginLeft: 6 }]}>
                             <Button
                                 title="Save & Buy"
                                 onPress={handleCreatePackage}
@@ -366,13 +373,13 @@ export default function ProductDetailScreen() {
                     {/* Helper Text */}
                     <View style={styles.helperTextContainer}>
                         <View style={styles.helperTextRow}>
-                            <View style={styles.helperDot} />
+                            <View style={[styles.helperDot, { marginRight: 8 }]} />
                             <Text style={styles.helperText}>
                                 <Text style={styles.helperTextBold}>Buy Now:</Text> Purchase immediately with instant payment
                             </Text>
                         </View>
                         <View style={styles.helperTextRow}>
-                            <View style={styles.helperDot} />
+                            <View style={[styles.helperDot, { marginRight: 8 }]} />
                             <Text style={styles.helperText}>
                                 <Text style={styles.helperTextBold}>Save & Buy:</Text> Create a savings plan and pay over time
                             </Text>
@@ -465,7 +472,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 6,
     },
     imageIndicator: {
         width: 8,
@@ -501,7 +507,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: 16,
-        gap: 4,
     },
     enlargeHintText: {
         color: 'white',
@@ -516,8 +521,10 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e5e7eb',
     },
     thumbnailScroll: {
-        gap: 8,
         paddingHorizontal: 4,
+    },
+    thumbnailWrapper: {
+        marginRight: 8,
     },
     thumbnail: {
         width: 64,
@@ -575,7 +582,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 16,
-        gap: 4,
         marginBottom: 16,
     },
     categoryText: {
@@ -629,7 +635,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 16,
-        gap: 6,
     },
     statusAvailable: {
         backgroundColor: '#d1fae5',
@@ -678,13 +683,14 @@ const styles = StyleSheet.create({
     tagsRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
     },
     tag: {
         backgroundColor: '#e0f2fe',
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 16,
+        marginRight: 8,
+        marginBottom: 8,
     },
     tagText: {
         fontSize: 12,
@@ -697,7 +703,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
         alignItems: 'flex-start',
-        gap: 12,
         marginBottom: 20,
     },
     infoCardText: {
@@ -712,7 +717,6 @@ const styles = StyleSheet.create({
         borderTopColor: '#e5e7eb',
         paddingHorizontal: 20,
         paddingVertical: 16,
-        gap: 12,
     },
     bottomPriceContainer: {
         flexDirection: 'row',
@@ -731,19 +735,18 @@ const styles = StyleSheet.create({
     },
     bottomButtonsRow: {
         flexDirection: 'row',
-        gap: 12,
+        justifyContent: 'space-between',
     },
     buttonHalf: {
         flex: 1,
     },
     helperTextContainer: {
-        gap: 8,
         paddingTop: 4,
     },
     helperTextRow: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 8,
+        marginBottom: 8,
     },
     helperDot: {
         width: 4,

@@ -11,6 +11,7 @@ import StoreStack from './StoreStack';
 import PackageStack from './PackageStack';
 import ProductsStack from './ProductsStack';
 import SettingsStack from './SettingsStack';
+import DashboardStack from './DashboardStack';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -75,6 +76,16 @@ export default function MainTabs() {
           }}
         />
         <Tab.Screen
+          name="DashboardTab"
+          component={DashboardStack}
+          options={{
+            title: 'Dashboard',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="grid-outline" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
           name="SettingsTab"
           component={SettingsStack}
           options={{
@@ -85,7 +96,6 @@ export default function MainTabs() {
           }}
         />
       </Tab.Navigator>
-
     </View>
   );
 }

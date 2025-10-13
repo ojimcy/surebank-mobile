@@ -104,7 +104,7 @@ export function KYCRequiredModal({
             <View style={styles.infoBox}>
               <Ionicons name="information-circle-outline" size={20} color="#0066A1" />
               <Text style={styles.infoText}>
-                Verification takes only a few minutes. You&apos;ll need a valid government ID and a selfie.
+                Verification takes only a few minutes. You&apos;ll need a valid government ID.
               </Text>
             </View>
           </View>

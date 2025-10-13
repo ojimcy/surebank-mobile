@@ -13,9 +13,7 @@ import {
 import type { SettingsScreenProps, PackageStackParamList } from '@/navigation/types';
 import type {
   Account,
-  SavingsPackage,
   PackageType,
-  Transaction,
   Announcement,
 } from '@/components/dashboard/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -77,27 +75,6 @@ export default function DashboardScreen({ navigation }: SettingsScreenProps<'Das
     if (!user) return [];
 
     const announcements: Announcement[] = [];
-
-    // Email verification announcement
-    if (!user.isEmailVerified) {
-      announcements.push({
-        id: 'verify-email',
-        title: 'Verify Your Email Address',
-        description: 'Please complete your email verification to unlock all features.',
-        type: 'warning',
-        priority: 'high',
-        dismissible: true,
-        cta: {
-          text: 'Verify Now',
-          action: () => {
-            // Navigate to settings for email verification
-            navigation.navigate('Settings');
-          },
-        },
-        condition: (user: any) => !user.isEmailVerified,
-        createdAt: '2024-01-20T10:00:00Z',
-      });
-    }
 
     // KYC verification announcement
     if (user.kycStatus !== 'verified') {
@@ -177,8 +154,8 @@ export default function DashboardScreen({ navigation }: SettingsScreenProps<'Das
   };
 
   const handleAvatarPress = () => {
-    // Navigate to Settings screen within the same stack
-    navigation.navigate('Settings');
+    // Navigate to Personal Information (Profile) screen
+    navigation.navigate('PersonalInformation');
   };
 
   const handleRefresh = useCallback(async () => {

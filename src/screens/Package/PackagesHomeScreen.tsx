@@ -34,7 +34,10 @@ export default function PackagesHomeScreen({ navigation }: PackageScreenProps<'P
   };
 
   const handleAvatarPress = () => {
-    console.log('Avatar pressed');
+    // Navigate to Settings screen
+    navigation.getParent()?.navigate('SettingsTab', {
+      screen: 'Settings',
+    });
   };
 
   const fetchPackages = async (isRefresh = false) => {

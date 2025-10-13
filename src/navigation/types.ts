@@ -27,6 +27,7 @@ export type MainTabParamList = {
   ProductsTab: NavigatorScreenParams<ProductsStackParamList>;
   HistoryTab: NavigatorScreenParams<HistoryStackParamList>;
   SettingsTab: NavigatorScreenParams<SettingsStackParamList>;
+  DashboardTab: NavigatorScreenParams<DashboardStackParamList>;
 };
 
 // Store Stack

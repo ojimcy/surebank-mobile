@@ -54,11 +54,6 @@ interface DocumentImages {
     uploaded: boolean;
     uploading: boolean;
   } | null;
-  selfieImage: {
-    uri: string;
-    uploaded: boolean;
-    uploading: boolean;
-  } | null;
 }
 
 const ID_TYPES: DropdownOption[] = [
@@ -101,7 +96,6 @@ export default function KYCIdVerificationScreen({
 
   const [documents, setDocuments] = useState<DocumentImages>({
     idImage: null,
-    selfieImage: null,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -109,7 +103,7 @@ export default function KYCIdVerificationScreen({
   const steps = [
     'Personal Information',
     'ID Details',
-    'Upload Documents',
+    'Upload Document',
     'Review & Submit',
   ];
 
@@ -150,15 +144,12 @@ export default function KYCIdVerificationScreen({
 
     if (!documents.idImage?.uploaded)
       newErrors.idImage = 'Please upload your ID document';
-    if (!documents.selfieImage?.uploaded)
-      newErrors.selfieImage = 'Please upload a selfie';
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   // Image picker functions
-  const pickImage = async (type: 'idImage' | 'selfieImage') => {
+  const pickImage = async (type: 'idImage') => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -190,8 +181,7 @@ export default function KYCIdVerificationScreen({
           Toast.show({
             type: 'success',
             text1: 'Upload Successful',
-            text2:
-              type === 'idImage' ? 'ID document uploaded' : 'Selfie uploaded',
+            text2: 'ID document uploaded',
           });
         }, 2000);
       }
@@ -205,61 +195,6 @@ export default function KYCIdVerificationScreen({
     }
   };
 
-  const takePhoto = async (type: 'selfieImage') => {
-    try {
-      const permissionResult =
-        await ImagePicker.requestCameraPermissionsAsync();
-
-      if (!permissionResult.granted) {
-        Alert.alert(
-          'Permission Required',
-          'Camera permission is required to take photos'
-        );
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets[0]) {
-        setDocuments((prev) => ({
-          ...prev,
-          [type]: {
-            uri: result.assets[0].uri,
-            uploaded: false,
-            uploading: true,
-          },
-        }));
-
-        // Simulate upload
-        setTimeout(() => {
-          setDocuments((prev) => ({
-            ...prev,
-            [type]: {
-              uri: result.assets[0].uri,
-              uploaded: true,
-              uploading: false,
-            },
-          }));
-          Toast.show({
-            type: 'success',
-            text1: 'Upload Successful',
-            text2: 'Selfie uploaded',
-          });
-        }, 2000);
-      }
-    } catch (error) {
-      console.error('Failed to take photo:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to take photo',
-      });
-    }
-  };
 
   // Navigation functions
   const handleNext = () => {
@@ -299,7 +234,6 @@ export default function KYCIdVerificationScreen({
         idType: idInfo.idType,
         idNumber: idInfo.idNumber,
         idImage: documents.idImage?.uri || '',
-        selfieImage: documents.selfieImage?.uri || '',
         expiryDate: idInfo.expiryDate,
         address: personalInfo.address,
         dateOfBirth: personalInfo.dateOfBirth,
@@ -585,16 +519,16 @@ export default function KYCIdVerificationScreen({
           {/* Step 2: Upload Documents */}
           {currentStep === 2 && (
             <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>Upload Documents</Text>
+              <Text style={styles.stepTitle}>Upload Document</Text>
               <Text style={styles.stepDescription}>
-                Please upload clear photos of your ID and a selfie
+                Please upload a clear photo of your ID document
               </Text>
 
               {/* ID Document Upload */}
               <View style={styles.uploadSection}>
                 <Text style={styles.uploadLabel}>ID Document</Text>
                 <Text style={styles.uploadHint}>
-                  Upload a clear photo of your ID
+                  Upload a clear, readable photo of your government-issued ID. Make sure all text and details are visible.
                 </Text>
 
                 {documents.idImage ? (
@@ -644,76 +578,6 @@ export default function KYCIdVerificationScreen({
                 )}
                 {errors.idImage && (
                   <Text style={styles.errorText}>{errors.idImage}</Text>
-                )}
-              </View>
-
-              {/* Selfie Upload */}
-              <View style={styles.uploadSection}>
-                <Text style={styles.uploadLabel}>Selfie</Text>
-                <Text style={styles.uploadHint}>
-                  Take a clear selfie of yourself
-                </Text>
-
-                {documents.selfieImage ? (
-                  <View style={styles.imagePreview}>
-                    <Image
-                      source={{ uri: documents.selfieImage.uri }}
-                      style={styles.previewImage}
-                    />
-                    {documents.selfieImage.uploading && (
-                      <View style={styles.uploadingOverlay}>
-                        <ActivityIndicator size="large" color="#FFFFFF" />
-                        <Text style={styles.uploadingText}>Uploading...</Text>
-                      </View>
-                    )}
-                    {documents.selfieImage.uploaded && (
-                      <View style={styles.uploadedBadge}>
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={24}
-                          color="#28A745"
-                        />
-                      </View>
-                    )}
-                    <TouchableOpacity
-                      style={styles.removeButton}
-                      onPress={() =>
-                        setDocuments((prev) => ({ ...prev, selfieImage: null }))
-                      }
-                    >
-                      <Ionicons name="close-circle" size={24} color="#DC3545" />
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <View style={styles.uploadOptions}>
-                    <TouchableOpacity
-                      style={styles.uploadButton}
-                      onPress={() => takePhoto('selfieImage')}
-                    >
-                      <Ionicons
-                        name="camera-outline"
-                        size={32}
-                        color="#0066A1"
-                      />
-                      <Text style={styles.uploadButtonText}>Take Photo</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.uploadButton}
-                      onPress={() => pickImage('selfieImage')}
-                    >
-                      <Ionicons
-                        name="image-outline"
-                        size={32}
-                        color="#0066A1"
-                      />
-                      <Text style={styles.uploadButtonText}>
-                        Choose from Gallery
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-                {errors.selfieImage && (
-                  <Text style={styles.errorText}>{errors.selfieImage}</Text>
                 )}
               </View>
             </View>
@@ -770,7 +634,7 @@ export default function KYCIdVerificationScreen({
               </View>
 
               <View style={styles.reviewSection}>
-                <Text style={styles.reviewTitle}>Documents</Text>
+                <Text style={styles.reviewTitle}>Document</Text>
                 <View style={styles.documentThumbnails}>
                   {documents.idImage && (
                     <View style={styles.thumbnail}>
@@ -779,15 +643,6 @@ export default function KYCIdVerificationScreen({
                         style={styles.thumbnailImage}
                       />
                       <Text style={styles.thumbnailLabel}>ID Document</Text>
-                    </View>
-                  )}
-                  {documents.selfieImage && (
-                    <View style={styles.thumbnail}>
-                      <Image
-                        source={{ uri: documents.selfieImage.uri }}
-                        style={styles.thumbnailImage}
-                      />
-                      <Text style={styles.thumbnailLabel}>Selfie</Text>
                     </View>
                   )}
                 </View>
@@ -1024,10 +879,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontWeight: '500',
   },
-  uploadOptions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
   imagePreview: {
     position: 'relative',
     borderRadius: 12,
@@ -1092,7 +943,6 @@ const styles = StyleSheet.create({
   },
   documentThumbnails: {
     flexDirection: 'row',
-    gap: 12,
   },
   thumbnail: {
     alignItems: 'center',
@@ -1127,7 +977,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
-    gap: 12,
   },
   backButtonNav: {
     flex: 1,
@@ -1136,6 +985,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 8,
+    marginRight: 12,
   },
   backButtonText: {
     fontSize: 16,
@@ -1165,7 +1015,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
   },
   submitButtonDisabled: {
     backgroundColor: '#9CA3AF',

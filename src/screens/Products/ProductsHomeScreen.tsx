@@ -83,8 +83,10 @@ export default function ProductsHomeScreen() {
     };
 
     const handleAvatarPress = () => {
-        // Navigate to profile/settings
-        console.log('Navigate to profile');
+        // Navigate to Personal Information (Profile) screen
+        navigation.getParent()?.navigate('SettingsTab', {
+            screen: 'Settings',
+        });
     };
 
     return (

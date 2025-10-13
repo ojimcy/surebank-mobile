@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { stackScreenOptions, homeScreenOptions, secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
+import { stackScreenOptions,  secondaryScreenOptions, mainScreenOptions } from './navigationTheme';
 
 import type { DashboardStackParamList } from './types';
 

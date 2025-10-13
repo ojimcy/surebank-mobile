@@ -152,11 +152,6 @@ export default function CreateIBSPackageScreen({ navigation }: PackageScreenProp
     // Create IBS account mutation
     const createAccountMutation = useMutation({
         mutationFn: async () => {
-            // Check KYC status before creating account
-            const isVerified = await kycApi.isKycVerified();
-            if (!isVerified) {
-                throw new Error('KYC verification required');
-            }
             return accountsApi.createAccount('ibs');
         },
         onSuccess: () => {

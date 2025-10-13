@@ -169,7 +169,7 @@ export default function StoreHomeScreen() {
                 )}
 
                 {/* New Arrivals */}
-                {newArrivals.length > 0 && (
+                {/* {newArrivals.length > 0 && (
                     <ProductSection
                         title="New Arrivals"
                         subtitle="Check out our latest products"
@@ -177,7 +177,7 @@ export default function StoreHomeScreen() {
                         onProductPress={handleProductPress}
                         onViewAll={handleViewAllProducts}
                     />
-                )}
+                )} */}
 
                 {/* Quick Savings Actions */}
                 <View style={styles.quickActionsSection}>

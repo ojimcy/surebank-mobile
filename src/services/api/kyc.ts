@@ -14,7 +14,6 @@ export interface KycIdVerificationPayload {
   idType?: string;
   idNumber?: string;
   idImage?: string;
-  selfieImage?: string;
   expiryDate?: string;
   address?: string;
   dateOfBirth: string;
