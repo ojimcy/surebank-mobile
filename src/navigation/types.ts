@@ -95,8 +95,9 @@ export type ProductsStackParamList = {
   CreateSBPackage: { productId?: string } | undefined;
 };
 
-// Settings Stack
+// Settings Stack (Account Tab)
 export type SettingsStackParamList = {
+  Dashboard: undefined;
   Settings: undefined;
   PersonalInformation: undefined;
   NotificationSettings: undefined;

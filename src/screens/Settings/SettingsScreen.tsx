@@ -166,10 +166,8 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps<'Sett
     };
 
     const handleAvatarPress = () => {
-        // Navigate back to dashboard/home
-        navigation.getParent()?.navigate('StoreTab', {
-            screen: 'StoreHome',
-        });
+        // Navigate back to dashboard (Account tab home)
+        navigation.navigate('Settings');
     };
 
     const handleEditProfile = () => {
@@ -330,11 +328,6 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps<'Sett
 
     return (
         <SafeAreaView style={styles.container}>
-            <MainHeader
-                onNotificationPress={handleNotificationPress}
-                onAvatarPress={handleAvatarPress}
-            />
-
             <ScrollView
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}

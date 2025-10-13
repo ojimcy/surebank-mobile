@@ -73,7 +73,7 @@ export default function StoreHomeScreen() {
     };
 
     const handleAvatarPress = () => {
-        // Navigate to Account tab
+        // Navigate to Account tab (Dashboard)
         navigation.getParent()?.navigate('SettingsTab', {
             screen: 'Settings',
         });
@@ -114,7 +114,7 @@ export default function StoreHomeScreen() {
                 break;
             case 'account':
                 navigation.getParent()?.navigate('SettingsTab', {
-                    screen: 'Settings',
+                    screen: 'Dashboard',
                 });
                 break;
         }

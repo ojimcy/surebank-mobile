@@ -10,7 +10,7 @@ import {
   SavingsPackages,
   PackageTypes,
 } from '@/components/dashboard';
-import type { DashboardScreenProps, PackageStackParamList } from '@/navigation/types';
+import type { SettingsScreenProps, PackageStackParamList } from '@/navigation/types';
 import type {
   Account,
   SavingsPackage,
@@ -23,7 +23,7 @@ import { useAccountsQuery } from '@/hooks/queries/useAccountsQuery';
 import { usePackagesQuery } from '@/hooks/queries/usePackagesQuery';
 import { useRecentTransactions } from '@/hooks/queries/useTransactionsQuery';
 
-export default function DashboardScreen({ navigation }: DashboardScreenProps<'Dashboard'>) {
+export default function DashboardScreen({ navigation }: SettingsScreenProps<'Dashboard'>) {
   const { user } = useAuth();
   const [showBalance, setShowBalance] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -90,10 +90,8 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
         cta: {
           text: 'Verify Now',
           action: () => {
-            // TODO: Navigate to email verification
-            navigation.getParent()?.navigate('SettingsTab', {
-              screen: 'EmailVerification',
-            });
+            // Navigate to settings for email verification
+            navigation.navigate('Settings');
           },
         },
         condition: (user: any) => !user.isEmailVerified,
@@ -113,10 +111,8 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
         cta: {
           text: 'Complete KYC',
           action: () => {
-            // TODO: Navigate to KYC verification
-            navigation.getParent()?.navigate('SettingsTab', {
-              screen: 'KYCVerification',
-            });
+            // Navigate to KYC verification
+            navigation.navigate('KYCVerification');
           },
         },
         condition: (user: any) => user.kycStatus !== 'verified',
@@ -176,14 +172,13 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
 
   // Event handlers
   const handleNotificationPress = () => {
-    navigation.navigate('Notifications');
+    // TODO: Add Notifications screen to SettingsStack or navigate appropriately
+    console.log('Notifications pressed');
   };
 
   const handleAvatarPress = () => {
-    // Navigate to Settings/Account tab
-    navigation.getParent()?.navigate('SettingsTab', {
-      screen: 'Settings',
-    });
+    // Navigate to Settings screen within the same stack
+    navigation.navigate('Settings');
   };
 
   const handleRefresh = useCallback(async () => {
@@ -203,10 +198,8 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   const handleCreateAccount = useCallback((type: 'ds' | 'sb' | 'ibs') => {
     // Check if user has completed KYC
     if (user?.kycStatus !== 'verified') {
-      // Navigate to KYC verification screen via the Settings tab
-      navigation.getParent()?.navigate('SettingsTab', {
-        screen: 'KYCVerification',
-      });
+      // Navigate to KYC verification screen
+      navigation.navigate('KYCVerification');
       return;
     }
 
@@ -234,15 +227,20 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handleWithdraw = () => {
-    navigation.navigate('Withdraw');
+    // Navigate to Package tab for withdraw
+    navigation.getParent()?.navigate('PackageTab', {
+      screen: 'Withdraw',
+    });
   };
 
   const handleMyCards = () => {
-    navigation.navigate('CardsList');
+    // Navigate to Payment Methods in Settings
+    navigation.navigate('PaymentMethods');
   };
 
   const handleSchedules = () => {
-    navigation.navigate('SchedulesList');
+    // TODO: Add schedules screen
+    console.log('Schedules pressed');
   };
 
   // Savings handlers
@@ -298,13 +296,13 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
 
   // Transactions handlers
   const handleViewAllTransactions = () => {
-    // Navigate to TransactionHistory screen within Dashboard stack
+    // Navigate to TransactionHistory screen within Settings stack
     navigation.navigate('TransactionHistory');
   };
 
   const handleTransactionPress = (transactionId: string) => {
-    // Navigate to TransactionDetail screen within Dashboard stack
-    navigation.navigate('TransactionDetail', { transactionId });
+    // TODO: Add TransactionDetail to SettingsStack
+    console.log('Transaction pressed:', transactionId);
   };
 
   // Announcements handlers
