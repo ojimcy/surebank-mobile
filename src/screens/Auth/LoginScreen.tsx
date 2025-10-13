@@ -25,7 +25,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { storage, STORAGE_KEYS } from '@/services/storage';
 import type { AuthScreenProps } from '@/navigation/types';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function LoginScreen({ navigation, route }: AuthScreenProps<'Login'>) {
 
@@ -69,7 +69,7 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
       Toast.show({
         type: 'success',
         text1: 'Login Successful',
-        text2: 'Welcome back to SureBank!',
+        text2: 'Welcome back to SureBank Stores!',
         position: 'top',
         visibilityTime: 2000,
       });
@@ -129,15 +129,15 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
               <View style={styles.logoContainer}>
                 <Ionicons name="shield-checkmark" size={32} color="#ffffff" />
               </View>
-              <Text style={styles.brandText}>SureBank</Text>
-              <Text style={styles.brandSubtext}>Your trusted financial partner</Text>
+              <Text style={styles.brandText}>SureBank Stores</Text>
+              <Text style={styles.brandSubtext}>Empowering You to Reach Your Goals, one Step at a Time.</Text>
             </View>
 
             {/* Welcome Message */}
             <View style={styles.welcomeSection}>
               <Text style={styles.welcomeTitle}>Welcome Back</Text>
               <Text style={styles.welcomeSubtitle}>
-                Sign in to access your account and manage your finances
+                Sign in to access your account Go Beyond Limits , Go for Your Goals
               </Text>
             </View>
           </LinearGradient>

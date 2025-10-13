@@ -22,11 +22,16 @@ export type AuthStackParamList = {
 
 // Main Tab Navigator
 export type MainTabParamList = {
-  DashboardTab: NavigatorScreenParams<DashboardStackParamList>;
+  StoreTab: NavigatorScreenParams<StoreStackParamList>;
   PackageTab: NavigatorScreenParams<PackageStackParamList>;
   ProductsTab: NavigatorScreenParams<ProductsStackParamList>;
   HistoryTab: NavigatorScreenParams<HistoryStackParamList>;
   SettingsTab: NavigatorScreenParams<SettingsStackParamList>;
+};
+
+// Store Stack
+export type StoreStackParamList = {
+  StoreHome: undefined;
 };
 
 // Dashboard Stack
@@ -132,6 +137,11 @@ export type MainTabScreenProps<Screen extends keyof MainTabParamList> = BottomTa
   Screen
 >;
 
+export type StoreScreenProps<Screen extends keyof StoreStackParamList> = StackScreenProps<
+  StoreStackParamList,
+  Screen
+>;
+
 export type DashboardScreenProps<Screen extends keyof DashboardStackParamList> = StackScreenProps<
   DashboardStackParamList,
   Screen
@@ -170,6 +180,11 @@ export type RootScreenProps<Screen extends keyof RootStackParamList> = StackScre
 // Navigation props types
 export type AuthStackNavigationProp<Screen extends keyof AuthStackParamList> = StackScreenProps<
   AuthStackParamList,
+  Screen
+>['navigation'];
+
+export type StoreStackNavigationProp<Screen extends keyof StoreStackParamList> = StackScreenProps<
+  StoreStackParamList,
   Screen
 >['navigation'];
 

@@ -166,7 +166,10 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps<'Sett
     };
 
     const handleAvatarPress = () => {
-        console.log('Avatar pressed');
+        // Navigate back to dashboard/home
+        navigation.getParent()?.navigate('StoreTab', {
+            screen: 'StoreHome',
+        });
     };
 
     const handleEditProfile = () => {

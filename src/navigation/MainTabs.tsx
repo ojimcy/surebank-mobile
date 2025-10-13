@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { MainTabParamList } from './types';
 
 // Import stack navigators
-import DashboardStack from './DashboardStack';
+import StoreStack from './StoreStack';
 import PackageStack from './PackageStack';
 import ProductsStack from './ProductsStack';
 import SettingsStack from './SettingsStack';
@@ -20,7 +20,7 @@ export default function MainTabs() {
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
-        initialRouteName="DashboardTab"
+        initialRouteName="StoreTab"
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: '#0066A1', // Blue to match Capacitor app
@@ -45,8 +45,8 @@ export default function MainTabs() {
         }}
       >
         <Tab.Screen
-          name="DashboardTab"
-          component={DashboardStack}
+          name="StoreTab"
+          component={StoreStack}
           options={{
             title: 'Home',
             tabBarIcon: ({ color, size }) => (

@@ -180,9 +180,9 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handleAvatarPress = () => {
-    // TODO: Navigate to profile or show user menu
+    // Navigate to Settings/Account tab
     navigation.getParent()?.navigate('SettingsTab', {
-      screen: 'Profile',
+      screen: 'Settings',
     });
   };
 
