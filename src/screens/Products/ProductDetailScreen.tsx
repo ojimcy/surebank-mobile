@@ -16,12 +16,16 @@ import {
     Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { ProductsScreenProps } from '@/navigation/types';
 import productsService from '@/services/api/products';
+import packagesService, { CreateSBPackageParams } from '@/services/api/packages';
+import accountsService from '@/services/api/accounts';
 import { Button } from '@/components/forms/Button';
+import { CreatePackageModal } from '@/screens/Package/components/CreatePackageModal';
+import Toast from 'react-native-toast-message';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const IMAGE_HEIGHT = SCREEN_WIDTH * 0.8; // 80% of screen width
@@ -35,6 +39,7 @@ export default function ProductDetailScreen() {
     const { productId } = route.params;
 
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const scrollViewRef = useRef<ScrollView>(null);
 
     // Fetch product details
@@ -45,6 +50,58 @@ export default function ProductDetailScreen() {
     } = useQuery({
         queryKey: ['product', productId],
         queryFn: () => productsService.getProductById(productId),
+    });
+
+    // Check if user has SB account
+    const { data: hasAccount, refetch: refetchAccount } = useQuery({
+        queryKey: ['check-account', 'sb'],
+        queryFn: () => packagesService.checkAccountType('sb'),
+    });
+
+    // Create SB account mutation
+    const createAccountMutation = useMutation({
+        mutationFn: () => accountsService.createAccount('sb'),
+        onSuccess: () => {
+            Toast.show({
+                type: 'success',
+                text1: 'Account Created',
+                text2: 'Your SB account has been created successfully',
+            });
+            refetchAccount();
+            // Show modal after account is created
+            setShowCreateModal(true);
+        },
+        onError: (error: any) => {
+            Toast.show({
+                type: 'error',
+                text1: 'Failed to Create Account',
+                text2: error?.message || 'Something went wrong',
+            });
+        },
+    });
+
+    // Create package mutation
+    const createPackageMutation = useMutation({
+        mutationFn: (data: CreateSBPackageParams) => packagesService.createSBPackage(data),
+        onSuccess: () => {
+            Toast.show({
+                type: 'success',
+                text1: 'Package Created',
+                text2: 'Your SB package has been created successfully',
+                visibilityTime: 3000,
+            });
+            setShowCreateModal(false);
+            // Navigate to package home to see the new package
+            navigation.navigate('Package' as any);
+        },
+        onError: (error: any) => {
+            const message = error?.response?.data?.message || error?.message || 'Failed to create package';
+            Toast.show({
+                type: 'error',
+                text1: 'Creation Failed',
+                text2: message,
+            });
+        },
     });
 
     const handleImageScroll = (event: any) => {
@@ -68,7 +125,36 @@ export default function ProductDetailScreen() {
 
     const handleCreatePackage = () => {
         if (!product) return;
-        navigation.navigate('CreateSBPackage', { productId: product._id });
+
+        // Check if user has SB account
+        if (hasAccount === false) {
+            Alert.alert(
+                'Create SB Account',
+                'You need to have an SB account to create packages. Would you like to create one now?',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                        text: 'Create Account',
+                        onPress: () => createAccountMutation.mutate(),
+                    },
+                ]
+            );
+            return;
+        }
+
+        // Show the confirmation modal
+        setShowCreateModal(true);
+    };
+
+    const handleConfirmCreate = () => {
+        if (!product) return;
+
+        const packageData: CreateSBPackageParams = {
+            product: product._id,
+            targetAmount: product.sellingPrice || product.price,
+        };
+
+        createPackageMutation.mutate(packageData);
     };
 
     const handleInstantCheckout = () => {
@@ -163,7 +249,6 @@ export default function ProductDetailScreen() {
                                                 styles.imageIndicator,
                                                 activeImageIndex === index &&
                                                     styles.imageIndicatorActive,
-                                                { marginHorizontal: 3 },
                                             ]}
                                         />
                                     ))}
@@ -181,7 +266,7 @@ export default function ProductDetailScreen() {
 
                             {/* Tap to enlarge hint */}
                             <View style={styles.enlargeHint}>
-                                <Ionicons name="expand-outline" size={16} color="white" style={{ marginRight: 4 }} />
+                                <Ionicons name="expand-outline" size={16} color="white" />
                                 <Text style={styles.enlargeHintText}>Tap to enlarge</Text>
                             </View>
                         </>
@@ -245,7 +330,7 @@ export default function ProductDetailScreen() {
                     {/* Category */}
                     {product.categoryName && (
                         <View style={styles.categoryBadge}>
-                            <Ionicons name="pricetag-outline" size={14} color="#6b7280" style={{ marginRight: 4 }} />
+                            <Ionicons name="pricetag-outline" size={14} color="#6b7280" />
                             <Text style={styles.categoryText}>{product.categoryName}</Text>
                         </View>
                     )}
@@ -281,7 +366,6 @@ export default function ProductDetailScreen() {
                                     product.isAvailable
                                         ? styles.statusDotAvailable
                                         : styles.statusDotUnavailable,
-                                    { marginRight: 6 },
                                 ]}
                             />
                             <Text
@@ -325,7 +409,6 @@ export default function ProductDetailScreen() {
                             name="information-circle-outline"
                             size={20}
                             color="#0066A1"
-                            style={{ marginRight: 12 }}
                         />
                         <Text style={styles.infoCardText}>
                             Create a savings package for this product and save towards it at your
@@ -334,19 +417,19 @@ export default function ProductDetailScreen() {
                     </View>
 
                     {/* Bottom Spacing */}
-                    <View style={{ height: 100 }} />
+                    <View style={styles.bottomSpacing} />
                 </ScrollView>
 
                 {/* Fixed Bottom Action */}
                 <View style={styles.bottomAction}>
-                    <View style={[styles.bottomPriceContainer, { marginBottom: 12 }]}>
+                    <View style={styles.bottomPriceContainer}>
                         <Text style={styles.bottomPriceLabel}>Total Price</Text>
                         <Text style={styles.bottomPrice}>{formatCurrency(displayPrice)}</Text>
                     </View>
 
                     {/* Action Buttons */}
-                    <View style={[styles.bottomButtonsRow, { marginBottom: 12 }]}>
-                        <View style={[styles.buttonHalf, { marginRight: 6 }]}>
+                    <View style={styles.bottomButtonsRow}>
+                        <View style={styles.buttonHalfLeft}>
                             <Button
                                 title="Buy Now"
                                 onPress={handleInstantCheckout}
@@ -357,7 +440,7 @@ export default function ProductDetailScreen() {
                                 disabled={!product.isAvailable}
                             />
                         </View>
-                        <View style={[styles.buttonHalf, { marginLeft: 6 }]}>
+                        <View style={styles.buttonHalfRight}>
                             <Button
                                 title="Save & Buy"
                                 onPress={handleCreatePackage}
@@ -373,13 +456,13 @@ export default function ProductDetailScreen() {
                     {/* Helper Text */}
                     <View style={styles.helperTextContainer}>
                         <View style={styles.helperTextRow}>
-                            <View style={[styles.helperDot, { marginRight: 8 }]} />
+                            <View style={styles.helperDot} />
                             <Text style={styles.helperText}>
                                 <Text style={styles.helperTextBold}>Buy Now:</Text> Purchase immediately with instant payment
                             </Text>
                         </View>
                         <View style={styles.helperTextRow}>
-                            <View style={[styles.helperDot, { marginRight: 8 }]} />
+                            <View style={styles.helperDot} />
                             <Text style={styles.helperText}>
                                 <Text style={styles.helperTextBold}>Save & Buy:</Text> Create a savings plan and pay over time
                             </Text>
@@ -387,6 +470,15 @@ export default function ProductDetailScreen() {
                     </View>
                 </View>
             </View>
+
+            {/* Create Package Modal */}
+            <CreatePackageModal
+                visible={showCreateModal}
+                product={product}
+                onClose={() => setShowCreateModal(false)}
+                onConfirm={handleConfirmCreate}
+                isCreating={createPackageMutation.isPending}
+            />
         </SafeAreaView>
     );
 }
@@ -478,6 +570,7 @@ const styles = StyleSheet.create({
         height: 8,
         borderRadius: 4,
         backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        marginHorizontal: 3,
     },
     imageIndicatorActive: {
         backgroundColor: 'white',
@@ -507,6 +600,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: 16,
+        gap: 4,
     },
     enlargeHintText: {
         color: 'white',
@@ -583,6 +677,7 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 16,
         marginBottom: 16,
+        gap: 4,
     },
     categoryText: {
         fontSize: 12,
@@ -646,6 +741,7 @@ const styles = StyleSheet.create({
         width: 6,
         height: 6,
         borderRadius: 3,
+        marginRight: 6,
     },
     statusDotAvailable: {
         backgroundColor: '#10b981',
@@ -704,12 +800,16 @@ const styles = StyleSheet.create({
         padding: 16,
         alignItems: 'flex-start',
         marginBottom: 20,
+        gap: 12,
     },
     infoCardText: {
         flex: 1,
         fontSize: 13,
         color: '#0066A1',
         lineHeight: 20,
+    },
+    bottomSpacing: {
+        height: 100,
     },
     bottomAction: {
         backgroundColor: 'white',
@@ -722,6 +822,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 12,
     },
     bottomPriceLabel: {
         fontSize: 14,
@@ -736,9 +837,18 @@ const styles = StyleSheet.create({
     bottomButtonsRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        marginBottom: 12,
     },
     buttonHalf: {
         flex: 1,
+    },
+    buttonHalfLeft: {
+        flex: 1,
+        marginRight: 6,
+    },
+    buttonHalfRight: {
+        flex: 1,
+        marginLeft: 6,
     },
     helperTextContainer: {
         paddingTop: 4,
@@ -754,6 +864,7 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         backgroundColor: '#6b7280',
         marginTop: 6,
+        marginRight: 8,
     },
     helperText: {
         flex: 1,
