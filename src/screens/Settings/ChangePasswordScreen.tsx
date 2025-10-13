@@ -32,26 +32,6 @@ const PASSWORD_REQUIREMENTS: PasswordRequirement[] = [
     label: 'At least 8 characters',
     test: (pwd) => pwd.length >= 8,
   },
-  {
-    id: 'uppercase',
-    label: 'One uppercase letter',
-    test: (pwd) => /[A-Z]/.test(pwd),
-  },
-  {
-    id: 'lowercase',
-    label: 'One lowercase letter',
-    test: (pwd) => /[a-z]/.test(pwd),
-  },
-  {
-    id: 'number',
-    label: 'One number',
-    test: (pwd) => /\d/.test(pwd),
-  },
-  {
-    id: 'special',
-    label: 'One special character (!@#$%^&*)',
-    test: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
-  },
 ];
 
 export default function ChangePasswordScreen({ navigation }: SettingsScreenProps<'ChangePassword'>) {
@@ -75,19 +55,18 @@ export default function ChangePasswordScreen({ navigation }: SettingsScreenProps
   };
 
   const getPasswordStrength = (password: string): { label: string; color: string; percentage: number } => {
-    const passedRequirements = PASSWORD_REQUIREMENTS.filter((req) => req.test(password)).length;
-    const percentage = (passedRequirements / PASSWORD_REQUIREMENTS.length) * 100;
+    const length = password.length;
 
-    if (percentage === 0) {
+    if (length === 0) {
       return { label: '', color: '#e5e7eb', percentage: 0 };
-    } else if (percentage < 40) {
-      return { label: 'Weak', color: '#ef4444', percentage };
-    } else if (percentage < 80) {
-      return { label: 'Fair', color: '#f59e0b', percentage };
-    } else if (percentage < 100) {
-      return { label: 'Good', color: '#3b82f6', percentage };
+    } else if (length < 8) {
+      return { label: 'Weak', color: '#ef4444', percentage: 25 };
+    } else if (length < 12) {
+      return { label: 'Fair', color: '#f59e0b', percentage: 50 };
+    } else if (length < 16) {
+      return { label: 'Good', color: '#3b82f6', percentage: 75 };
     } else {
-      return { label: 'Strong', color: '#10b981', percentage };
+      return { label: 'Strong', color: '#10b981', percentage: 100 };
     }
   };
 

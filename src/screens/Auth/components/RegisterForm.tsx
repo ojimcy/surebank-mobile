@@ -66,11 +66,7 @@ const registerSchema = yup.object().shape({
   password: yup
     .string()
     .required('Password is required')
-    .min(8, 'Password must be at least 8 characters')
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-    ),
+    .min(8, 'Password must be at least 8 characters'),
   
   confirmPassword: yup
     .string()
@@ -291,7 +287,7 @@ export default function RegisterForm({
             textContentType="newPassword"
             accessibilityLabel="Password"
             accessibilityHint="Enter a secure password with at least 8 characters"
-            helperText="Must contain uppercase, lowercase, and number"
+            helperText="Must be at least 8 characters"
             returnKeyType="next"
             onSubmitEditing={() => confirmPasswordRef.current?.focus()}
             ref={passwordRef}

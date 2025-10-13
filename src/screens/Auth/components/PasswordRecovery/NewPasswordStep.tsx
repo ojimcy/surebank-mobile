@@ -18,12 +18,8 @@ const newPasswordSchema = yup.object().shape({
   password: yup
     .string()
     .required('Password is required')
-    .min(8, 'Password must be at least 8 characters')
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-    ),
-  
+    .min(8, 'Password must be at least 8 characters'),
+
   confirmPassword: yup
     .string()
     .required('Please confirm your password')
@@ -107,9 +103,6 @@ export default function NewPasswordStep({ email, resetCode, onSuccess }: NewPass
           </Text>
           <View className="space-y-1">
             <Text className="text-blue-700 text-sm">• At least 8 characters long</Text>
-            <Text className="text-blue-700 text-sm">• One uppercase letter</Text>
-            <Text className="text-blue-700 text-sm">• One lowercase letter</Text>
-            <Text className="text-blue-700 text-sm">• One number</Text>
           </View>
         </View>
 
