@@ -252,10 +252,10 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
       if (supported) {
         await Linking.openURL(authorizationUrl);
 
-        // Show success message and navigate back
+        // Show success message with updated instructions
         Alert.alert(
           'Payment Initiated',
-          'Complete your payment in the browser. You will receive a notification when the payment is successful.',
+          'Complete your payment securely with Paystack. You will be redirected back to the app automatically after payment.',
           [
             {
               text: 'OK',

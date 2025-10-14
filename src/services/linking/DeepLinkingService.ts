@@ -10,11 +10,12 @@ import * as ExpoLinking from 'expo-linking';
 import navigationService from '@/navigation/NavigationService';
 
 // Deep link types
-export type DeepLinkType = 
+export type DeepLinkType =
   | 'password_reset'
   | 'email_verification'
   | 'account_activation'
   | 'payment_link'
+  | 'payment_callback'
   | 'invite_link';
 
 // Deep link data interface
@@ -115,6 +116,21 @@ class DeepLinkingService {
         };
       }
 
+      // Handle payment callback (after Paystack redirect)
+      if (hostname === 'payment' && path?.includes('callback')) {
+        const reference = queryParams?.reference || queryParams?.trxref as string;
+        const status = queryParams?.status as string;
+        const type = queryParams?.type as string;
+
+        return {
+          type: 'payment_callback',
+          reference,
+          status,
+          packageType: type,
+        };
+      }
+
+      // Handle payment link (payment request)
       if (hostname === 'payment' || path?.includes('payment')) {
         return {
           type: 'payment_link',
@@ -154,6 +170,10 @@ class DeepLinkingService {
 
       case 'account_activation':
         this.handleAccountActivation(data);
+        break;
+
+      case 'payment_callback':
+        this.handlePaymentCallback(data);
         break;
 
       case 'payment_link':
@@ -249,6 +269,43 @@ class DeepLinkingService {
   }
 
   /**
+   * Handle payment callback from Paystack
+   */
+  private handlePaymentCallback(data: DeepLinkData): void {
+    const { reference, status, packageType } = data;
+
+    console.log('Payment callback received:', { reference, status, packageType });
+
+    // Determine if payment was successful
+    const isSuccess = status === 'success' || status === 'successful';
+
+    // Navigate to appropriate screen
+    if (navigationService.isReady()) {
+      if (isSuccess && reference) {
+        // Navigate to success screen
+        navigationService.navigate('PaymentSuccess', {
+          reference,
+          packageType,
+        });
+      } else {
+        // Navigate to error screen
+        const errorMessage = status === 'cancelled'
+          ? 'Payment was cancelled'
+          : 'Payment could not be completed';
+
+        navigationService.navigate('PaymentError', {
+          reference,
+          error: errorMessage,
+        });
+      }
+    } else {
+      // Store for later processing when navigation is ready
+      this.pendingLink = data;
+      console.log('Navigation not ready, storing payment callback as pending link');
+    }
+  }
+
+  /**
    * Handle payment deep link
    */
   private handlePaymentLink(data: DeepLinkData): void {
@@ -262,14 +319,14 @@ class DeepLinkingService {
       `You have a payment request${amount ? ` for $${amount}` : ''}${recipient ? ` from ${recipient}` : ''}.`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Continue', 
+        {
+          text: 'Continue',
           onPress: () => {
             if (navigationService.isReady()) {
-              navigationService.navigate('PaymentFromLink', { 
-                token, 
-                amount, 
-                recipient 
+              navigationService.navigate('PaymentFromLink', {
+                token,
+                amount,
+                recipient
               });
             }
           }

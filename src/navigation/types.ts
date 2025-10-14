@@ -126,6 +126,9 @@ export type RootStackParamList = {
   // Modal screens
   QRScanner: undefined;
   ImageViewer: { imageUri: string };
+  // Payment result screens
+  PaymentSuccess: { reference: string; amount?: number; packageType?: string };
+  PaymentError: { reference?: string; error?: string };
 };
 
 // Screen props types

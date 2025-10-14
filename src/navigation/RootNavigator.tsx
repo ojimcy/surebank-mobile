@@ -13,6 +13,8 @@ import MainTabs from './MainTabs';
 // Import screens
 import QRScannerScreen from '@/screens/Common/QRScannerScreen';
 import ImageViewerScreen from '@/screens/Common/ImageViewerScreen';
+import PaymentSuccessScreen from '@/screens/Payment/PaymentSuccessScreen';
+import PaymentErrorScreen from '@/screens/Payment/PaymentErrorScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -102,6 +104,16 @@ export default function RootNavigator() {
           <Stack.Screen
             name="ImageViewer"
             component={ImageViewerScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PaymentSuccess"
+            component={PaymentSuccessScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PaymentError"
+            component={PaymentErrorScreen}
             options={{ headerShown: false }}
           />
         </Stack.Group>

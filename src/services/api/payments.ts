@@ -193,6 +193,22 @@ const paymentsApi = {
       throw error;
     }
   },
+
+  /**
+   * Verify payment transaction by reference
+   *
+   * @param reference Payment reference from Paystack
+   * @returns Payment verification details
+   */
+  async verifyPaymentTransaction(reference: string): Promise<any> {
+    try {
+      const response = await apiClient.get(`/payments/status/${reference}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error verifying payment transaction:', error);
+      throw error;
+    }
+  },
 };
 
 export default paymentsApi;

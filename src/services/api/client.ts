@@ -19,6 +19,8 @@ const API_CONFIG: ApiConfig = {
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Mobile-App': 'true',
+    'X-App-Platform': 'mobile',
   },
 };
 
