@@ -65,7 +65,10 @@ export default function StoreHomeScreen() {
     }, [refetchFeatured, refetchPopular, refetchNewArrivals]);
 
     const handleNotificationPress = () => {
-        console.log('Navigate to notifications');
+        // Navigate to Notifications screen within Dashboard stack
+        navigation.getParent()?.navigate('DashboardTab', {
+            screen: 'Notifications',
+        });
     };
 
     const handleAvatarPress = () => {

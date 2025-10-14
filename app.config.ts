@@ -70,6 +70,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       'expo-secure-store',
       'expo-web-browser',
       [
+        'expo-updates',
+        {
+          username: 'ojimcy', // Your Expo username from owner field
+        },
+      ],
+      [
         'expo-build-properties',
         {
           android: {
@@ -83,6 +89,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
       ],
     ],
+    updates: {
+      enabled: true,
+      checkAutomatically: 'ON_LOAD',
+      fallbackToCacheTimeout: 0,
+      url: 'https://u.expo.dev/0ecf345d-18da-42f8-912b-ecf509a4d85f',
+    },
+    runtimeVersion: {
+      policy: 'appVersion',
+    },
     experiments: {
       typedRoutes: false,
     },
