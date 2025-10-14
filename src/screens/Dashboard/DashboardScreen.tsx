@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MainHeader } from '@/components/navigation';
 import {
@@ -25,6 +25,7 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   const { user } = useAuth();
   const [showBalance, setShowBalance] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [dismissedAnnouncements, setDismissedAnnouncements] = useState<string[]>([]);
 
   // Fetch real data from API
   const {
@@ -70,6 +71,13 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   // Active packages for display
   const activePackages = packages.filter(pkg => pkg.status === 'active');
 
+  // Navigate to KYC from announcements
+  const navigateToKYC = useCallback(() => {
+    navigation.getParent()?.navigate('SettingsTab', {
+      screen: 'KYCVerification'
+    });
+  }, [navigation]);
+
   // Announcements based on real user data
   const announcements: Announcement[] = useMemo(() => {
     if (!user) return [];
@@ -87,20 +95,16 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
         dismissible: true,
         cta: {
           text: 'Complete KYC',
-          action: () => {
-            // Navigate to KYC verification in Settings tab
-            navigation.getParent()?.navigate('SettingsTab', {
-              screen: 'KYCVerification'
-            });
-          },
+          action: navigateToKYC,
         },
         condition: (user: any) => user.kycStatus !== 'verified',
         createdAt: '2024-01-19T09:00:00Z',
       });
     }
 
-    return announcements;
-  }, [user]);
+    // Filter out dismissed announcements
+    return announcements.filter(a => !dismissedAnnouncements.includes(a.id));
+  }, [user, dismissedAnnouncements, navigateToKYC]);
 
   // Available package types
   const packageTypes: PackageType[] = useMemo(
@@ -224,8 +228,8 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handleSchedules = () => {
-    // TODO: Add schedules screen
-    console.log('Schedules pressed');
+    // Navigate to SchedulesList screen in Dashboard stack
+    navigation.navigate('SchedulesList');
   };
 
   // Savings handlers
@@ -252,7 +256,6 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handlePackageDeposit = (packageId: string) => {
-    // TODO: Navigate to deposit screen when available
     navigation.getParent()?.navigate('PackageTab', {
       screen: 'Deposit',
       params: { packageId },
@@ -293,15 +296,13 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handleTransactionPress = (transactionId: string) => {
-    // TODO: Add TransactionDetail to SettingsStack
-    console.log('Transaction pressed:', transactionId);
+    navigation.navigate('TransactionDetail', { transactionId });
   };
 
   // Announcements handlers
-  const handleAnnouncementDismiss = (announcementId: string) => {
-    // TODO: Dismiss announcement
-    console.log('Dismiss announcement:', announcementId);
-  };
+  const handleAnnouncementDismiss = useCallback((announcementId: string) => {
+    setDismissedAnnouncements(prev => [...prev, announcementId]);
+  }, []);
 
   const handleAnnouncementPress = (announcement: Announcement) => {
     if (announcement.cta) {
@@ -359,7 +360,19 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
             <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#212529', marginBottom: 16 }}>
               My Savings
             </Text>
-            {/* TODO: Add loading skeleton */}
+            <View style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              padding: 16,
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 120
+            }}>
+              <ActivityIndicator size="large" color="#0066A1" />
+              <Text style={{ marginTop: 12, color: '#6c757d', fontSize: 14 }}>
+                Loading your savings...
+              </Text>
+            </View>
           </View>
         ) : activePackages.length > 0 ? (
           <SavingsPackages

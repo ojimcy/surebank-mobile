@@ -125,11 +125,29 @@ export default function CreateSBPackageScreen({ navigation, route }: PackageScre
         },
         onError: (error: any) => {
             const message = error?.response?.data?.message || error?.message || 'Failed to create package';
-            Toast.show({
-                type: 'error',
-                text1: 'Creation Failed',
-                text2: message,
-            });
+
+            // Check if error is about duplicate/existing package
+            if (message.toLowerCase().includes('already have') ||
+                message.toLowerCase().includes('active package')) {
+                // Show informative message and navigate to packages
+                Toast.show({
+                    type: 'info',
+                    text1: 'Package Already Exists',
+                    text2: 'You already have an active package for this product',
+                    visibilityTime: 3000,
+                });
+                // Navigate to packages list so user can see their existing packages
+                setTimeout(() => {
+                    navigation.navigate('PackageHome');
+                }, 1000);
+            } else {
+                // Show error for other failures
+                Toast.show({
+                    type: 'error',
+                    text1: 'Creation Failed',
+                    text2: message,
+                });
+            }
         },
     });
 

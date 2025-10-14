@@ -16,7 +16,7 @@ import {
     Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { ProductsScreenProps } from '@/navigation/types';
@@ -37,6 +37,7 @@ export default function ProductDetailScreen() {
     const navigation = useNavigation<ProductDetailScreenNavigationProp>();
     const route = useRoute<ProductDetailScreenRouteProp>();
     const { productId } = route.params;
+    const queryClient = useQueryClient();
 
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -84,6 +85,10 @@ export default function ProductDetailScreen() {
     const createPackageMutation = useMutation({
         mutationFn: (data: CreateSBPackageParams) => packagesService.createSBPackage(data),
         onSuccess: () => {
+            // Invalidate package queries to refresh the list
+            queryClient.invalidateQueries({ queryKey: ['packages'] });
+            queryClient.invalidateQueries({ queryKey: ['sb-packages'] });
+
             Toast.show({
                 type: 'success',
                 text1: 'Package Created',
@@ -91,8 +96,14 @@ export default function ProductDetailScreen() {
                 visibilityTime: 3000,
             });
             setShowCreateModal(false);
-            // Navigate to package home to see the new package
-            navigation.navigate('Package' as any);
+
+            // Navigate to PackageTab using getParent() to access the tab navigator
+            const parent = navigation.getParent();
+            if (parent) {
+                parent.navigate('PackageTab', {
+                    screen: 'PackageHome'
+                });
+            }
         },
         onError: (error: any) => {
             const message = error?.response?.data?.message || error?.message || 'Failed to create package';

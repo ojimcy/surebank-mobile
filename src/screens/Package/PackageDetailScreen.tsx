@@ -227,12 +227,18 @@ export default function PackageDetailScreen({ route, navigation }: PackageScreen
 
 
     const handleAddContribution = () => {
-        // Navigate to Deposit screen
-        navigation.navigate('Deposit');
+        // Navigate to Deposit screen with appropriate account type
+        const accountType = packageData?.type === 'DS' ? 'ds' : packageData?.type === 'IBS' ? 'ib' : 'sb';
+        navigation.navigate('Deposit', { accountType: accountType as 'ds' | 'ib' | 'sb' });
     };
 
     const handleWithdraw = () => {
        navigation.navigate('Withdraw');
+    };
+
+    const handleDeposit = () => {
+        // Navigate to Deposit screen with SB tab active
+        navigation.navigate('Deposit', { accountType: 'sb' });
     };
 
     const handleClosePackage = () => {
@@ -303,6 +309,7 @@ export default function PackageDetailScreen({ route, navigation }: PackageScreen
                     onClosePackage={handleClosePackage}
                     onMerge={() => setMergeModalVisible(true)}
                     onChangeProduct={() => setChangeProductModalVisible(true)}
+                    onDeposit={handleDeposit}
                 />
 
                 {/* Package Details */}
@@ -463,6 +470,7 @@ interface PackageActionsCardProps {
     onClosePackage: () => void;
     onMerge: () => void;
     onChangeProduct: () => void;
+    onDeposit: () => void;
 }
 
 const PackageActionsCard: React.FC<PackageActionsCardProps> = ({
@@ -472,7 +480,8 @@ const PackageActionsCard: React.FC<PackageActionsCardProps> = ({
     onWithdraw,
     onClosePackage,
     onMerge,
-    onChangeProduct
+    onChangeProduct,
+    onDeposit
 }) => {
     return (
         <View style={styles.actionsCard}>
@@ -480,6 +489,13 @@ const PackageActionsCard: React.FC<PackageActionsCardProps> = ({
 
             {packageType === 'SB Package' ? (
                 <View style={styles.actionsGrid}>
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: color }]}
+                        onPress={onDeposit}
+                    >
+                        <Ionicons name="cash-outline" size={20} color="white" />
+                        <Text style={styles.actionButtonText}>Deposit</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.actionButtonOutline}
                         onPress={onMerge}
