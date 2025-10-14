@@ -692,38 +692,38 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
               <Ionicons name="shield-checkmark" size={20} color="#10b981" />
             </View>
           </View>
-        </ScrollView>
 
-        {/* Fixed Bottom Button */}
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={!selectedPackage || !amount || loading || !!validationError}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={
-                !selectedPackage || !amount || loading || !!validationError
-                  ? ['#e5e7eb', '#e5e7eb']
-                  : ['#0066A1', '#0077B5']
-              }
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.submitButton}
+          {/* Proceed Button */}
+          <View >
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={!selectedPackage || !amount || loading || !!validationError}
+              activeOpacity={0.8}
             >
-              {loading ? (
-                <ActivityIndicator size="small" color="#ffffff" />
-              ) : (
-                <>
-                  <Text style={styles.submitButtonText}>
-                    Proceed to Payment
-                  </Text>
-                  <Ionicons name="arrow-forward" size={20} color="#ffffff" />
-                </>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+              <LinearGradient
+                colors={
+                  !selectedPackage || !amount || loading || !!validationError
+                    ? ['#e5e7eb', '#e5e7eb']
+                    : ['#0066A1', '#0077B5']
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.submitButton}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <>
+                    <Text style={styles.submitButtonText}>
+                      Proceed to Payment
+                    </Text>
+                    <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   typeSection: {
     marginBottom: 28,
@@ -1153,26 +1153,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   bottomContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    marginTop: 8,
   },
   submitButton: {
     flexDirection: 'row',
