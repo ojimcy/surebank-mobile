@@ -151,8 +151,8 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
 
   // Event handlers
   const handleNotificationPress = () => {
-    // TODO: Add Notifications screen to SettingsStack or navigate appropriately
-    console.log('Notifications pressed');
+    // Navigate to Notifications screen within Dashboard stack
+    navigation.navigate('Notifications');
   };
 
   const handleAvatarPress = () => {
@@ -260,11 +260,18 @@ export default function DashboardScreen({ navigation }: DashboardScreenProps<'Da
   };
 
   const handlePackageTypePress = (type: PackageType) => {
+    // For SB packages, navigate to ProductsTab to browse products
+    if (type.id === 'sb') {
+      navigation.getParent()?.navigate('ProductsTab', {
+        screen: 'ProductsHome'
+      });
+      return;
+    }
+
     // Navigate directly to specific package creation based on type
     const screenMap: { [key: string]: keyof PackageStackParamList } = {
       'ds': 'CreateDailySavings',
       'ibs': 'CreateIBSPackage',
-      'sb': 'CreateSBPackage'
     };
 
     navigation.getParent()?.navigate('PackageTab', {

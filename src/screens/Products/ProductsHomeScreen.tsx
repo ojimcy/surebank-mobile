@@ -16,12 +16,13 @@ import { ProductList, CategoryFilter, SearchBar } from '@/screens/Package/compon
 import MainHeader from '@/components/navigation/MainHeader';
 import type { ProductsStackNavigationProp } from '@/navigation/types';
 
-export default function ProductsHomeScreen() {
+export default function ProductsHomeScreen({ route }: any) {
     const navigation = useNavigation<ProductsStackNavigationProp<'ProductsHome'>>();
+    const categoryParam = route?.params?.category;
 
     // State management
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState<string>('');
+    const [selectedCategory, setSelectedCategory] = useState<string>(categoryParam || '');
     const [refreshing, setRefreshing] = useState(false);
 
     // Fetch categories
@@ -78,8 +79,10 @@ export default function ProductsHomeScreen() {
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const handleNotificationPress = () => {
-        // Navigate to notifications screen
-        console.log('Navigate to notifications');
+        // Navigate to Notifications screen in Dashboard tab
+        navigation.getParent()?.navigate('DashboardTab', {
+            screen: 'Notifications',
+        });
     };
 
     const handleAvatarPress = () => {

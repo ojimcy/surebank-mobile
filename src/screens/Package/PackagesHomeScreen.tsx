@@ -30,7 +30,10 @@ export default function PackagesHomeScreen({ navigation }: PackageScreenProps<'P
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleNotificationPress = () => {
-    console.log('Notifications pressed');
+    // Navigate to Notifications screen in Dashboard tab
+    navigation.getParent()?.navigate('DashboardTab', {
+      screen: 'Notifications',
+    });
   };
 
   const handleAvatarPress = () => {

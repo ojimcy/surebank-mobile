@@ -92,7 +92,7 @@ export type HistoryStackParamList = {
 
 // Products Stack
 export type ProductsStackParamList = {
-  ProductsHome: undefined;
+  ProductsHome: { category?: string } | undefined;
   ProductDetail: { productId: string };
   CreateSBPackage: { productId?: string } | undefined;
 };
