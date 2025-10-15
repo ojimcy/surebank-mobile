@@ -227,9 +227,12 @@ export default function PackageDetailScreen({ route, navigation }: PackageScreen
 
 
     const handleAddContribution = () => {
-        // Navigate to Deposit screen with appropriate account type
+        // Navigate to Deposit screen with appropriate account type and packageId
         const accountType = packageData?.type === 'DS' ? 'ds' : packageData?.type === 'IBS' ? 'ib' : 'sb';
-        navigation.navigate('Deposit', { accountType: accountType as 'ds' | 'ib' | 'sb' });
+        navigation.navigate('Deposit', {
+            accountType: accountType as 'ds' | 'ib' | 'sb',
+            packageId: packageId
+        });
     };
 
     const handleWithdraw = () => {
@@ -237,8 +240,11 @@ export default function PackageDetailScreen({ route, navigation }: PackageScreen
     };
 
     const handleDeposit = () => {
-        // Navigate to Deposit screen with SB tab active
-        navigation.navigate('Deposit', { accountType: 'sb' });
+        // Navigate to Deposit screen with SB tab active and packageId
+        navigation.navigate('Deposit', {
+            accountType: 'sb',
+            packageId: packageId
+        });
     };
 
     const handleClosePackage = () => {

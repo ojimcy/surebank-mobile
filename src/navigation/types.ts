@@ -43,7 +43,7 @@ export type DashboardStackParamList = {
   Notifications: undefined;
   MarketOverview: undefined;
   Withdraw: undefined;
-  Deposit: { accountType?: 'ds' | 'ib' | 'sb' } | undefined;
+  Deposit: { accountType?: 'ds' | 'ib' | 'sb'; packageId?: string } | undefined;
   TransactionHistory: undefined;
   TransactionDetail: { transactionId: string };
   CardsList: undefined;
@@ -58,7 +58,7 @@ export type DashboardStackParamList = {
 // Payments Stack (used within Dashboard)
 export type PaymentsStackParamList = {
   Withdraw: undefined;
-  Deposit: { accountType?: 'ds' | 'ib' | 'sb' } | undefined;
+  Deposit: { accountType?: 'ds' | 'ib' | 'sb'; packageId?: string } | undefined;
   TransferFunds: undefined;
   PaymentMethods: undefined;
 };
@@ -71,7 +71,7 @@ export type PackageStackParamList = {
   CreateDailySavings: undefined;
   CreateIBSPackage: undefined;
   CreateSBPackage: { productId?: string } | undefined;
-  Deposit: { accountType?: 'ds' | 'ib' | 'sb' } | undefined;
+  Deposit: { accountType?: 'ds' | 'ib' | 'sb'; packageId?: string } | undefined;
   Withdraw: undefined;
   Assets: undefined;
   Performance: undefined;

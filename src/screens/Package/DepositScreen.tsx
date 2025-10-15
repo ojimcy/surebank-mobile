@@ -40,8 +40,13 @@ interface PackageOption {
   accountNumber?: string;
 }
 
-export default function DepositScreen({ navigation }: PackageScreenProps<'Deposit'>) {
-  const [selectedType, setSelectedType] = useState<PackageType>('ds');
+export default function DepositScreen({ navigation, route }: PackageScreenProps<'Deposit'>) {
+  // Extract params from route
+  const { accountType: initialAccountType, packageId: preselectedPackageId } = route?.params || {};
+
+  const [selectedType, setSelectedType] = useState<PackageType>(
+    initialAccountType === 'ib' ? 'ds' : (initialAccountType || 'ds')
+  );
   const [packages, setPackages] = useState<PackageOption[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [amount, setAmount] = useState<string>('');
@@ -154,7 +159,10 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
 
     const fetchUserPackages = async () => {
       setFetchingPackages(true);
-      setSelectedPackage(null);
+      // Only clear selection if user manually changed type (not preselected package)
+      if (!preselectedPackageId) {
+        setSelectedPackage(null);
+      }
       setAmount('');
       try {
         let fetchedPackages: PackageOption[] = [];
@@ -193,8 +201,13 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
         }
 
         setPackages(fetchedPackages);
-        // Auto-select if only one package
-        if (fetchedPackages.length === 1) {
+
+        // Auto-select package based on priority:
+        // 1. If packageId is provided in route params and exists in fetched packages
+        // 2. If only one package is available
+        if (preselectedPackageId && fetchedPackages.some(pkg => pkg.id === preselectedPackageId)) {
+          setSelectedPackage(preselectedPackageId);
+        } else if (fetchedPackages.length === 1) {
           setSelectedPackage(fetchedPackages[0].id);
         }
       } catch (error) {
@@ -206,7 +219,7 @@ export default function DepositScreen({ navigation }: PackageScreenProps<'Deposi
     };
 
     fetchUserPackages();
-  }, [selectedType, user?.id]);
+  }, [selectedType, user?.id, preselectedPackageId]);
 
   const handleSubmit = async () => {
     if (!selectedPackage || !amount || parseFloat(amount) <= 0) {
