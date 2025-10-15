@@ -149,7 +149,7 @@ export default function RegisterForm({
 
   const handleTermsPress = async () => {
     try {
-      await Linking.openURL('https://surebank.com/terms');
+      await Linking.openURL('https://stores.surebankstores.ng/terms');
     } catch (error) {
       console.error('Error opening terms:', error);
     }
@@ -157,7 +157,7 @@ export default function RegisterForm({
 
   const handlePrivacyPress = async () => {
     try {
-      await Linking.openURL('https://surebank.com/privacy');
+      await Linking.openURL('https://stores.surebankstores.ng/privacy');
     } catch (error) {
       console.error('Error opening privacy policy:', error);
     }

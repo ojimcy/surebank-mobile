@@ -111,8 +111,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
       // Environment variables will be accessible via expo-constants
       apiBaseUrl:
-        process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.surebank.com',
-      wsBaseUrl: process.env.EXPO_PUBLIC_WS_BASE_URL || 'wss://ws.surebank.com',
+        process.env.EXPO_PUBLIC_API_BASE_URL || 'https://a5shket0i1.execute-api.us-east-1.amazonaws.com/v1',
+      wsBaseUrl: process.env.EXPO_PUBLIC_WS_BASE_URL || 'wss://ws.surebankstores.ng',
       appName: process.env.EXPO_PUBLIC_APP_NAME || 'SureBank',
       appVersion: process.env.EXPO_PUBLIC_APP_VERSION || '1.0.0',
       nodeEnv: process.env.NODE_ENV || 'development',

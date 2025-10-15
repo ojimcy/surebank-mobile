@@ -69,14 +69,18 @@ export default function ImageViewerScreen() {
 
     // Pan gesture for moving zoomed image
     const panGesture = Gesture.Pan()
-        .enabled(scale.value > 1)
         .onUpdate((event) => {
-            translateX.value = savedTranslateX.value + event.translationX;
-            translateY.value = savedTranslateY.value + event.translationY;
+            // Only allow panning when zoomed in
+            if (savedScale.value > 1) {
+                translateX.value = savedTranslateX.value + event.translationX;
+                translateY.value = savedTranslateY.value + event.translationY;
+            }
         })
         .onEnd(() => {
-            savedTranslateX.value = translateX.value;
-            savedTranslateY.value = translateY.value;
+            if (savedScale.value > 1) {
+                savedTranslateX.value = translateX.value;
+                savedTranslateY.value = translateY.value;
+            }
         });
 
     // Double tap to zoom in/out

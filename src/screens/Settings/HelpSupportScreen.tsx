@@ -91,11 +91,11 @@ export default function HelpSupportScreen({ navigation }: SettingsScreenProps<'H
     {
       id: 'email',
       title: 'Email Support',
-      description: 'support@surebank.com',
+      description: 'support@surebankstores.ng',
       icon: 'mail-outline',
       color: '#0066A1',
       action: () => {
-        Linking.openURL('mailto:support@surebank.com?subject=Support Request').catch(() => {
+        Linking.openURL('mailto:support@surebankstores.ng?subject=Support Request').catch(() => {
           Alert.alert('Error', 'Could not open email app');
         });
       },
@@ -127,11 +127,11 @@ export default function HelpSupportScreen({ navigation }: SettingsScreenProps<'H
     {
       id: 'website',
       title: 'Visit Website',
-      description: 'www.surebank.com',
+      description: 'www.stores.surebankstores.ng',
       icon: 'globe-outline',
       color: '#6366f1',
       action: () => {
-        Linking.openURL('https://www.surebank.com').catch(() => {
+        Linking.openURL('https://www.stores.surebankstores.ng').catch(() => {
           Alert.alert('Error', 'Could not open browser');
         });
       },

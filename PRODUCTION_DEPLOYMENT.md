@@ -123,7 +123,7 @@ eas credentials
 Create secrets in Expo dashboard or use `.env` files:
 ```bash
 # Set secrets via CLI
-eas secret:create --name EXPO_PUBLIC_API_BASE_URL --value https://api.surebank.com --scope project
+eas secret:create --name EXPO_PUBLIC_API_BASE_URL --value https://a5shket0i1.execute-api.us-east-1.amazonaws.com/v1 --scope project
 
 # Or add to .env and EAS will use them
 ```
@@ -351,9 +351,9 @@ npm test
 - [App Store Connect](https://appstoreconnect.apple.com/)
 
 ### Contact
-- **Development Team**: dev@surebank.com
-- **Support**: support@surebank.com
-- **Emergency**: emergency@surebank.com
+- **Development Team**: dev@surebankstores.ng
+- **Support**: support@surebankstores.ng
+- **Emergency**: support@surebankstores.ng
 
 ---
 
