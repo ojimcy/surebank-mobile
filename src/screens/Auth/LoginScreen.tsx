@@ -129,15 +129,10 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
               <View style={styles.logoContainer}>
                 <Ionicons name="shield-checkmark" size={32} color="#ffffff" />
               </View>
-              <Text style={styles.brandText}>SureBank Stores</Text>
-              <Text style={styles.brandSubtext}>Empowering You to Reach Your Goals, one Step at a Time.</Text>
-            </View>
-
-            {/* Welcome Message */}
-            <View style={styles.welcomeSection}>
               <Text style={styles.welcomeTitle}>Welcome Back</Text>
               <Text style={styles.welcomeSubtitle}>
-                Sign in to access your account Go Beyond Limits , Go for Your Goals
+                Sign in to access your account Go Beyond Limits , Go for Your
+                Goals
               </Text>
             </View>
           </LinearGradient>
@@ -185,7 +180,7 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
                 onChangeText={(text) => updateField('password', text)}
                 leftIcon="lock-closed-outline"
                 secureTextEntry={!showPassword}
-                rightIcon={showPassword ? "eye-off-outline" : "eye-outline"}
+                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
                 onRightIconPress={() => setShowPassword(!showPassword)}
                 errorText={errors.password}
                 editable={!isLoading}
@@ -205,13 +200,18 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
 
             {/* Login Button */}
             <TouchableOpacity
-              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+              style={[
+                styles.loginButton,
+                isLoading && styles.loginButtonDisabled,
+              ]}
               onPress={handleSubmit}
               disabled={isLoading}
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={isLoading ? ['#9ca3af', '#9ca3af'] : ['#0066A1', '#0077B5']}
+                colors={
+                  isLoading ? ['#9ca3af', '#9ca3af'] : ['#0066A1', '#0077B5']
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.loginButtonGradient}
@@ -239,7 +239,9 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
 
             {/* Sign Up Link */}
             <View style={styles.signUpContainer}>
-              <Text style={styles.signUpPrompt}>Don&apos;t have an account? </Text>
+              <Text style={styles.signUpPrompt}>
+                Don&apos;t have an account?{' '}
+              </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Register')}
                 disabled={isLoading}
@@ -272,9 +274,7 @@ export default function LoginScreen({ navigation, route }: AuthScreenProps<'Logi
                 }}
                 style={styles.devButton}
               >
-                <Text style={styles.devText}>
-                  [Dev] Reset Onboarding
-                </Text>
+                <Text style={styles.devText}>[Dev] Reset Onboarding</Text>
               </TouchableOpacity>
             )}
           </View>

@@ -20,7 +20,7 @@ import clsx from 'clsx';
 // Button variants using class-variance-authority
 const buttonVariants = cva(
   // Base styles
-  'flex-row items-center justify-center rounded-lg border transition-colors',
+  'flex-row items-center justify-center rounded-lg border transition-colors mt-2',
   {
     variants: {
       variant: {
